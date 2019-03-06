@@ -12,8 +12,17 @@ export default class App extends React.Component {
       isLoadingComplete: false,
     };
 
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDBinzv51sTyrVxxZ_EdlJwXjyvEmhrkz8",
+      authDomain: "dogapp-61f55.firebaseapp.com",
+      databaseURL: "https://dogapp-61f55.firebaseio.com",
+      projectId: "dogapp-61f55",
+      storageBucket: "dogapp-61f55.appspot.com",
+      messagingSenderId: "309257411203"
+    }; 
     //initialize Firebase, if not already initialized
-    if (!firebase.apps.length) {firebase.initializeApp(ApiKeys.FirebaseConfig); }
+    //firebase.initializeApp(ApiKeys.FirebaseConfig);
+    firebase.initializeApp(firebaseConfig);
   }
 
   

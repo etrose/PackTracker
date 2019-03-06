@@ -9,38 +9,50 @@ import {
 } from 'react-native';
 
 import { TestComponent } from './../components/AppComponents';
+import * as firebase from "firebase";
 
 
 export default class TestScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "testuser@test.com",
+      password: "testuser",
+      text: "hello world!",
+    };
+  }
   static navigationOptions = {
     header: null,
   };
 
+  attemptLogin = () => {
+    console.log("hello");
+    this.setState({
+      text: "Attempted Login",
+    });
+    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+      .then((user) => {
+        Alert.alert("Logged in to user: " , user.user.uid);
+      })
+      .catch((error) => {
+        const { code, message } = error;
+          Alert.alert(message);
+      });
+  };
 
   render() {
     return (
       <View style={styles.container}>
-        <Text>Hello World!</Text>
+        <Text>{this.state.text}</Text>
         <TestComponent/>
         <TouchableOpacity
-        onPress={this.attemptLogin}>
+        onPress={() => this.attemptLogin()}
+        >
         <Text>Login to Firebase</Text>
         </TouchableOpacity>
       </View>
     );
   }
-}
-
-attemptLogin = () => {
-  Alert.alert("logging in..");
-  firebase.auth().signInWithEmailAndPassword("testuser@test.com", "testuser")
-    .then((user) => {
-      Alert.alert("Logged in to user: " + user.user.uid);
-    })
-    .catch((error) => {
-      const { code, message } = error;
-        Alert.alert(message);
-    });
 }
 
 const styles = StyleSheet.create({
