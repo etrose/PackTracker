@@ -1,66 +1,63 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
-import AppNavigator from './navigation/AppNavigator';
+
 import ApiKeys from './constants/ApiKeys';
 import * as firebase from 'firebase';
+
+import MainTabNavigator from './navigation/MainTabNavigator';
+import AppNavigator from './navigation/AppNavigator';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       isLoadingComplete: false,
+      isAuthenticationReady: false,
+      isAuthenticated: false,
     };
-
-    const firebaseConfig = { 
-      apiKey: "AIzaSyDBinzv51sTyrVxxZ_EdlJwXjyvEmhrkz8",
-      authDomain: "dogapp-61f55.firebaseapp.com",
-      databaseURL: "https://dogapp-61f55.firebaseio.com",
-      projectId: "dogapp-61f55",
-      storageBucket: "dogapp-61f55.appspot.com",
-      messagingSenderId: "309257411203"
-    }; 
     //initialize Firebase, if not already initialized
-    //firebase.initializeApp(ApiKeys.FirebaseConfig);
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {firebase.initializeApp(ApiKeys.FirebaseConfig); }
+    firebase.auth().onAuthStateChanged(this.onAuthStateChanged);
   }
 
-  
+  onAuthStateChanged = (user) => {
+    this.setState({
+      isAuthenticationReady: true,
+      isAuthenticated: !!user,
+    });
+  }
 
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
+    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen && !this.state.isAuthenticationReady) {
       return (
+        <View style={styles.container}>
         <AppLoading
           startAsync={this._loadResourcesAsync}
           onError={this._handleLoadingError}
           onFinish={this._handleFinishLoading}
         />
+        <Text>Loading...</Text>
+        </View>
       );
     } else {
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator />
+          {this.state.isAuthenticated ? <MainTabNavigator/> : <AppNavigator/>}
         </View>
       );
     }
   }
 
-  _loadResourcesAsync = async () => {
-    return Promise.all([
-      Asset.loadAsync([
-        require('./assets/images/robot-dev.png'),
-        require('./assets/images/robot-prod.png'),
-      ]),
-      Font.loadAsync({
-        // This is the font that we are using for our tab bar
-        ...Icon.Ionicons.font,
-        // We include SpaceMono because we use it in HomeScreen.js. Feel free
-        // to remove this if you are not using it in your app
-        'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
-      }),
-    ]);
-  };
+  // _loadResourcesAsync = async () => {
+  //   return Promise.all([
+  //     Asset.loadAsync([
+  //       require('./assets/images/robot-dev.png'),
+  //       require('./assets/images/robot-prod.png'),
+  //     ]),
+  //   ]);
+  // };
 
   _handleLoadingError = error => {
     // In this case, you might want to report the error to your error
@@ -76,6 +73,8 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+
     backgroundColor: '#fff',
   },
 });

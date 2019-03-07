@@ -12,7 +12,7 @@ import { TestComponent } from './../components/AppComponents';
 import * as firebase from "firebase";
 
 
-export default class TestScreen extends React.Component {
+class TestScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,20 +25,16 @@ export default class TestScreen extends React.Component {
     header: null,
   };
 
-  attemptLogin = () => {
-    console.log("hello");
-    this.setState({
-      text: "Attempted Login",
+  attemptSignout = () => {
+    firebase.auth().signOut()
+    .then(function() {
+      Alert.alert("Signout Successful");
+    })
+    .catch(error => {
+      const { code, message } = error;
+      alert(message);
     });
-    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then((user) => {
-        Alert.alert("Logged in to user: " , user.user.uid);
-      })
-      .catch((error) => {
-        const { code, message } = error;
-          Alert.alert(message);
-      });
-  };
+  }
 
   render() {
     return (
@@ -46,19 +42,20 @@ export default class TestScreen extends React.Component {
         <Text>{this.state.text}</Text>
         <TestComponent/>
         <TouchableOpacity
-        onPress={() => this.attemptLogin()}
+        onPress={() => this.attemptSignout()}
         >
-        <Text>Login to Firebase</Text>
+        <Text>Logout</Text>
         </TouchableOpacity>
       </View>
     );
   }
 }
-
+export default TestScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
   },
   developmentModeText: {

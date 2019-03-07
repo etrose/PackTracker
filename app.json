@@ -23,7 +23,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.evanrose.dogapp"
+    },
+    "android": {
+      "package": "com.evanrose.dogapp"
     }
   }
 }
