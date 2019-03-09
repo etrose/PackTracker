@@ -5,6 +5,7 @@ import { createStackNavigator, createBottomTabNavigator, createAppContainer } fr
 import TabBarIcon from '../components/AppComponents/TabBarIcon';
 import TestScreen from '../screens/TestScreen';
 import HomeScreen from '../screens/HomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -12,6 +13,24 @@ const HomeStack = createStackNavigator({
 
 HomeStack.navigationOptions = {
   tabBarLabel: 'Home',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={
+        Platform.OS === 'ios'
+          ? `ios-information-circle${focused ? '' : '-outline'}`
+          : 'md-information-circle'
+      }
+    />
+  ),
+};
+
+const ProfileStack = createStackNavigator({
+  Profile: ProfileScreen,
+});
+
+ProfileStack.navigationOptions = {
+  tabBarLabel: 'Profile',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -43,5 +62,5 @@ TestStack.navigationOptions = {
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,TestStack,
+  HomeStack,TestStack,ProfileStack,
 }));

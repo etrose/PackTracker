@@ -1,5 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Buttons } from '../constants/Layout';
+import Logo from '../components/AppComponents/Logo';
 
 class WelcomeScreen extends React.Component {
     constructor(props) {
@@ -10,9 +12,13 @@ class WelcomeScreen extends React.Component {
     render() {
         return (
         <View style={styles.container}>
-            <Text>Welcome</Text>
-            <Button title="Login" onPress={() => this.props.navigation.navigate('Login')}/>
-            <Button title="Sign Up" onPress={() => this.props.navigation.navigate('Register')}/>
+            <Logo header="Welcome to Pack Tracker!"/>
+            <TouchableOpacity style={Buttons.button} onPress={() => this.props.navigation.navigate('Login')}>
+                <Text style={Buttons.buttonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Register'))}>
+                <Text style={Buttons.buttonText}>Create an account</Text>
+            </TouchableOpacity>
         </View>
         )
     }

@@ -64,6 +64,23 @@ export const AuthPages = StyleSheet.create({
   },
 });
 
+export const Buttons = StyleSheet.create({
+  button: {
+    width:300,
+    marginTop: 30,
+  },
+  buttonText: {
+    backgroundColor:Colors.tintColor,
+    borderRadius:25,
+    paddingHorizontal:16,
+    paddingVertical:12,
+    fontSize:16,
+    fontWeight:'500',
+    textAlign:'center',
+    color:Colors.buttonText,
+  },
+});
+
 export default {
   window: {
     width,

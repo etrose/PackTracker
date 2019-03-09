@@ -5,10 +5,10 @@ import {
   Text,
   View,
   TouchableOpacity,
+  FlatList,
   Alert,
 } from 'react-native';
 
-import { TestComponent } from './../components/AppComponents';
 import * as firebase from "firebase";
 
 
@@ -19,33 +19,25 @@ class TestScreen extends React.Component {
       email: "testuser@test.com",
       password: "testuser",
       text: "hello world!",
+      dogs: [],
     };
   }
   static navigationOptions = {
     header: null,
   };
 
-  attemptSignout = () => {
-    firebase.auth().signOut()
-    .then(function() {
-      Alert.alert("Signout Successful");
-    })
-    .catch(error => {
-      const { code, message } = error;
-      alert(message);
-    });
+  renderItem = () => {
+
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text>{this.state.text}</Text>
-        <TestComponent/>
-        <TouchableOpacity
-        onPress={() => this.attemptSignout()}
-        >
-        <Text>Logout</Text>
-        </TouchableOpacity>
+        <FlatList style={styles.flatList}
+                data={this.state.dogs}
+                renderItem={this.renderItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
       </View>
     );
   }

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
+import Workaround from './Workaround';
 
 import ApiKeys from './constants/ApiKeys';
+
 import * as firebase from 'firebase';
+import 'firebase/firestore';
 
 import MainTabNavigator from './navigation/MainTabNavigator';
 import AppNavigator from './navigation/AppNavigator';

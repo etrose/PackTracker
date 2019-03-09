@@ -2,6 +2,9 @@ const tintColor = 'rgba(255,153,0,1)';
 
 export default {
   tintColor,
+  colorPrimary: 'rgba(255,153,0,1)',
+  colorSecondary: 'rgba(0,153,0,1)',
+
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
   text: '#555',
