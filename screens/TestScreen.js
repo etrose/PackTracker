@@ -5,11 +5,12 @@ import {
   Text,
   View,
   TouchableOpacity,
+  AsyncStorage,
   FlatList,
-  Alert,
 } from 'react-native';
 
 import * as firebase from "firebase";
+
 
 
 class TestScreen extends React.Component {
@@ -19,12 +20,52 @@ class TestScreen extends React.Component {
       email: "testuser@test.com",
       password: "testuser",
       text: "hello world!",
-      dogs: [],
+      dogs: ["ree","reeburt","jeebis"],
+      id: "",
     };
   }
   static navigationOptions = {
     header: null,
   };
+
+
+  // async componentDidMount() {
+  //   const id = await AsyncStorage.getItem("user:id");
+  //   alert(this.id);
+  //   let ref = firebase.firestore().collection("users/" + id + "/dogs");
+  // }
+
+  async componentWillMount() {
+    // const docRef = await firebase.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
+    // //.doc("Syj3SooZSWzLxDsN75HG");
+    // const tempDogs = [];
+    // var that = this;
+    // await docRef.get().then(function(results){
+    //   results.forEach((doc) => {
+        
+    //     var docRef = doc.data().dog;
+
+    //     docRef.get().then(function(documentSnapshot) {
+    //       //set data to the data of the dog's document reference
+    //       const data = documentSnapshot.data();
+          
+    //       tempDogs.push({
+    //         doggoName: doc.data().name,
+    //         doggoBreed: data.breed,
+    //         doggoBirth: data.birth,
+    //         //doggoPic: doc.data().pic,
+    //       });
+    //       that.setState({
+    //         dogs: tempDogs,
+    //       });
+    //       console.log(tempDogs);
+    //     }).catch(error => {
+    //       const { code, message } = error;
+    //       alert(message);
+    //     });
+    //   });
+    // });
+  }
 
   renderItem = () => {
 
@@ -33,22 +74,37 @@ class TestScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <FlatList style={styles.flatList}
-                data={this.state.dogs}
-                renderItem={this.renderItem}
-                keyExtractor={(item, index) => index.toString()}
-              />
+        <FlatList 
+          style={styles.flatList}
+          horizontal={true}
+          data={this.state.dogs}
+          renderItem={({ item }) => (
+            <View>
+            <Text>{item.doggoName}</Text>
+            <Text>{item.doggoBreed}</Text>
+            <Text>{item.doggoBirth}</Text>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          />
       </View>
     );
   }
 }
 export default TestScreen;
+
 const styles = StyleSheet.create({
   container: {
+    marginTop: 23,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+  },
+  flatList: {
+    padding: 10,
+    backgroundColor: "rgba(0,0,0,.1)",
+    height: 100,
   },
   developmentModeText: {
     marginBottom: 20,

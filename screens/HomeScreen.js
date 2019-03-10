@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, AsyncStorage } from 'react-native';
 
 class HomeScreen extends React.Component {
     constructor(props) {
@@ -11,7 +11,7 @@ class HomeScreen extends React.Component {
         const {navigation} = this.props;
         return (
         <View style={styles.container}>
-            <Text>{"Welcome " + navigation.getParam('user_id', 'no-id')}</Text>
+            <Text>{"Welcome " + AsyncStorage.getItem("user:id")}</Text>
         </View>
         )
     }

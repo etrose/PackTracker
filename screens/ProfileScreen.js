@@ -10,6 +10,7 @@ import {
   ScrollView
 } from 'react-native';
 
+import NewDogModal from '../components/AppComponents/NewDogModal';
 import Colors from '../constants/Colors';
 
 import * as firebase from "firebase";
@@ -23,58 +24,76 @@ export default class Profile extends React.Component {
       username: "...",
       email: "...",
       city: "City: Not Set", //Add Dialog if Not set so that user can click the text and set it
-      dogs: [],
-      groups: [],
-      friends: [],
+      dogs: [{
+        doggoName: "No Dogs",
+        doggoPic: require('../assets/images/sad-dog.jpg'),
+        addButton: true,
+    }],
+    showNewDogModal: true,
+    //   groups: [],
+    //   friends: [],
     });
-    this.ref = firebase.firestore().collection("users/" + this.props.id + "/dogs");
   }
   static navigationOptions = {
     header: null,
   };
 
 
-  async componentDidMount() {
-    //const id = await AsyncStorage.getItem("user:id");
-
-    this.unsubscribe = this.ref.onSnapshot((querySnapshot) => {
-      const doggos = [];
-      querySnapshot.forEach((doc) => {
-        doggos.push({
-          doggoName: doc.data().name
-        });
-      });
-
-      this.setState({
-        dogs: doggos,
-      });
-    });
+  async componentWillMount() {
     const username = await AsyncStorage.getItem("user:username");
     const email = await AsyncStorage.getItem("user:email");
     this.setState({
       username: username,
       email: email,
       //city
-      loading: false,
-    })
+    });
+    
+    this.getDogs();
   }
 
+  getDogs = async () => {
+
+    const user_id = await AsyncStorage.getItem("user:id");
+    const docRef = await firebase
+        .firestore().collection("users/" + user_id + "/dogs");
+        //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
+    
+    const tempDogs = [];
+    var that = this;
+    await docRef.get().then(function(results){
+      results.forEach((doc) => {
+        
+        var docRef = doc.data().dog;
+
+        docRef.get().then(function(documentSnapshot) {
+          //set data to the data of the dog's document reference
+          const data = documentSnapshot.data();
+          tempDogs.push({
+            doggoName: data.name,
+            doggoBreed: data.breed,
+            doggoBirth: data.birth,
+            doggoPic: require('../assets/images/smiling-dog.jpg'),
+
+            //This is for the touchable opacity to know whether it should
+            //navigate to a dog profile or create new dog onPress.
+            addButton: false,
+          });
+          that.setState({
+            dogs: tempDogs,
+          });
+        }).catch(error => {
+          const { code, message } = error;
+          alert(message);
+        });
+      });
+    });
+  }
 
   logout = () => {
     AsyncStorage.removeItem("user:id");
     AsyncStorage.removeItem("user:username");
     AsyncStorage.removeItem("user:email");
     
-    //Actions.reset("auth");
-
-    // firebase.auth().signOut()
-    // .then(function() {
-    //   Actions.reset("auth");
-    // })
-    // .catch(error => {
-    //   const { code, message } = error;
-    //   alert(message);
-    // });
     this.signOutUser();
   }
 
@@ -82,10 +101,13 @@ export default class Profile extends React.Component {
     try {
         firebase.firestore().disableNetwork();
         await firebase.auth().signOut();
-        //Actions.reset("auth");
     } catch (e) {
         alert(e)
     }
+  }
+
+  addDog = () => {
+      this.props.navigation.navigate('AddDogProfile');
   }
 
   render() {
@@ -101,13 +123,31 @@ export default class Profile extends React.Component {
 
             <View style={styles.flatListContainer}>
               <Text>Dogs</Text>
-              <FlatList style={styles.flatList}
-                data={this.state.dogs}
-                renderItem={({ item }) => (
-                  <Text>{item.doggoName}</Text>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
+              <FlatList 
+          style={styles.flatList}
+          horizontal={true}
+          data={this.state.dogs}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+            onPress={() => this.props.navigation.navigate('DogProfile', 
+            {
+                dogName: item.doggoName,
+                dogBreed: item.doggoBreed,
+                dogBirth: item.doggoBirth,
+            })}
+            style={styles.dogItemHolder}>
+                <Image 
+                style={styles.dogPic}
+                source={item.doggoPic}   
+                />
+                <Text>{item.doggoName}</Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          />
+          <TouchableOpacity onPress={this.addDog}>
+            <Text>Add Dog</Text>
+          </TouchableOpacity>
             </View>
 
             <View style={styles.flatListContainer}>
@@ -120,7 +160,6 @@ export default class Profile extends React.Component {
                 keyExtractor={(item, index) => index.toString()}
               />
             </View>
-
             <View style={styles.flatListContainer}>
               <Text>Friends</Text>
               <FlatList style={styles.flatList}
@@ -143,16 +182,23 @@ export default class Profile extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    dogItemHolder: {
+        marginRight: 15,
+        alignItems: 'center',
+    },
+    dogPic: {
+        width: 75,
+        height: 75,
+        borderRadius: 40,
+    },
   flatListContainer: {
     padding: 10,
-    height: 100,
     width: "80%",
     textAlign: "center",
   },
   flatList: {
-    padding: 10,
+    padding: 5,
     backgroundColor: "rgba(0,0,0,.1)",
-    height: 100,
   },
   header: {
     backgroundColor: Colors.tintColor,

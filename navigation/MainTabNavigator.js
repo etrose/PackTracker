@@ -6,6 +6,8 @@ import TabBarIcon from '../components/AppComponents/TabBarIcon';
 import TestScreen from '../screens/TestScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import DogProfileScreen from '../screens/DogProfileScreen';
+import AddDogScreen from '../screens/AddDogScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -27,6 +29,8 @@ HomeStack.navigationOptions = {
 
 const ProfileStack = createStackNavigator({
   Profile: ProfileScreen,
+  DogProfile: DogProfileScreen,
+  AddDogProfile: AddDogScreen,
 });
 
 ProfileStack.navigationOptions = {
