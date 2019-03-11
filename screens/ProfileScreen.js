@@ -30,8 +30,6 @@ export default class Profile extends React.Component {
         addButton: true,
     }],
     showNewDogModal: true,
-    //   groups: [],
-    //   friends: [],
     });
   }
   static navigationOptions = {
@@ -49,6 +47,15 @@ export default class Profile extends React.Component {
     });
     
     this.getDogs();
+  }
+
+  async componentDidUpdate() {
+    const {navigation} = this.props;
+      const newDog = navigation.getParam('needToRefreshDogs', false);
+      if(newDog) {
+          navigation.setParams({needToRefreshDogs: false});
+          this.getDogs();
+      }
   }
 
   getDogs = async () => {
@@ -134,6 +141,7 @@ export default class Profile extends React.Component {
                 dogName: item.doggoName,
                 dogBreed: item.doggoBreed,
                 dogBirth: item.doggoBirth,
+                dogPic: item.doggoPic,
             })}
             style={styles.dogItemHolder}>
                 <Image 
@@ -151,24 +159,10 @@ export default class Profile extends React.Component {
             </View>
 
             <View style={styles.flatListContainer}>
-              <Text>Groups</Text>
-              <FlatList style={styles.flatList}
-                data={this.state.groups}
-                renderItem={({ item }) => (
-                  <Text>{item.groupName}</Text>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
+              <Text style={styles.linkText}>Groups - 0</Text>
             </View>
             <View style={styles.flatListContainer}>
-              <Text>Friends</Text>
-              <FlatList style={styles.flatList}
-                data={this.state.friends}
-                renderItem={({ item }) => (
-                  <Text>{item.friendName}</Text>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
+              <Text style={styles.linkText}>Friends - 0</Text>
             </View>
 
             <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
@@ -182,6 +176,9 @@ export default class Profile extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        marginTop: 23,
+    },  
     dogItemHolder: {
         marginRight: 15,
         alignItems: 'center',
@@ -190,6 +187,11 @@ const styles = StyleSheet.create({
         width: 75,
         height: 75,
         borderRadius: 40,
+    },
+    linkText: {
+        fontSize: 16,
+        color: Colors.colorSecondary,
+        fontWeight: 'bold',
     },
   flatListContainer: {
     padding: 10,

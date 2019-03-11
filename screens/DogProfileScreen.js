@@ -36,7 +36,7 @@ export default class Profile extends React.Component {
     const {navigation} = this.props;
 
     this.setState({
-    pic: navigation.getParam('dogPic', require('../assets/images/smiling-dog.jpg')),
+    pic: navigation.getParam('dogPic', require('../assets/images/sad-dog.jpg')),
     name: navigation.getParam('dogName', 'oof'),
     breed: navigation.getParam('dogBreed', 'oof'),
     birth: navigation.getParam('dogBirth', 'oof'),
@@ -72,6 +72,14 @@ const styles = StyleSheet.create({
     },
     dogPic: {
 
+    },
+    container: {
+        marginTop: 23,
+    }, 
+    linkText: {
+        fontSize: 16,
+        color: Colors.colorSecondary,
+        fontWeight: 'bold',
     },
   flatListContainer: {
     padding: 10,

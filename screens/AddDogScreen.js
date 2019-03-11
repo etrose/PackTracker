@@ -20,37 +20,25 @@ export default class AddDogScreen extends React.Component {
 
     registerDog = async () => {
         const { name, breed, birth } = this.state;
-        const user_id = await AsyncStorage.getItem("user:id");
-
-        alert(user_id);
-    }
-
-    registerUser = () => {
-
-        const { username, email, password, confirm_password } = this.state;
-
         if (name.length <= 0 || breed.length <= 0 || birth.length <= 0) {
             alert("Please fill out all fields.");
             return;
         }
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((user) => {
-                    //Enable network once logged in successfully
-                    firebase.firestore().enableNetwork();
-                    const fbRootRefFS = firebase.firestore();
-                    const userID = user.user.uid;
-                    const userRef = fbRootRefFS.collection('users').doc(userID);
-                    userRef.set({
-                        username,
-                        email,
-                    });
-                    AsyncStorage.setItem("user:id", userID);
-                    AsyncStorage.setItem("user:email", email);
-                    AsyncStorage.setItem("user:username", username);
-                }).catch((error) => {
-                    const { code, message } = error;
-                    alert(message);
-                });
+        const user_id = await AsyncStorage.getItem("user:id");
+        const fbRootRefFS = firebase.firestore();
+        fbRootRefFS.collection('dogs').add({
+            name,
+            breed,
+            birth,
+        }).then((dogRef) => {
+            fbRootRefFS.doc("users/" + user_id + "/dogs/" + name).set({
+                dog: dogRef,
+            });
+            this.props.navigation.navigate('Profile', {needToRefreshDogs: true});
+        }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+          });
     }
 
     render() {
@@ -64,8 +52,8 @@ export default class AddDogScreen extends React.Component {
                             underlineColorAndroid="transparent"
                             placeholder="Dog's Name"
                             placeholderTextColor={Colors.text}
-                            onChangeText={text => this.setState({ username: text })}
-                            onSubmitEditing={() => this.email.focus()}
+                            onChangeText={text => this.setState({ name: text })}
+                            onSubmitEditing={() => this.breed.focus()}
                         /></View>
 
                     <View style={AuthPages.inputContainer}>
@@ -73,9 +61,9 @@ export default class AddDogScreen extends React.Component {
                             underlineColorAndroid="transparent"
                             placeholder="Dog's Breed"
                             placeholderTextColor={Colors.text}
-                            onChangeText={text => this.setState({ email: text })}
-                            ref={(input) => this.email = input}
-                            onSubmitEditing={() => this.password.focus()}
+                            onChangeText={text => this.setState({ breed: text })}
+                            ref={(input) => this.breed = input}
+                            onSubmitEditing={() => this.birth.focus()}
                         /></View>
 
                     <View style={AuthPages.inputContainer}>
@@ -83,9 +71,8 @@ export default class AddDogScreen extends React.Component {
                             underlineColorAndroid="transparent"
                             placeholderTextColor={Colors.text}
                             placeholder="Dog's Birthdate"
-                            onChangeText={text => this.setState({ password: text })}
-                            ref={(input) => this.password = input}
-                            onSubmitEditing={() => this.confirm_password.focus()}
+                            onChangeText={text => this.setState({ birth: text })}
+                            ref={(input) => this.birth = input}
                         /></View>
 
                     <TouchableOpacity style={AuthPages.button} onPress={this.registerDog}>
