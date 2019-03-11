@@ -11,7 +11,7 @@ class HomeScreen extends React.Component {
         const {navigation} = this.props;
         return (
         <View style={styles.container}>
-            <Text>{"Welcome " + AsyncStorage.getItem("user:id")}</Text>
+            <Text>Home</Text>
         </View>
         )
     }

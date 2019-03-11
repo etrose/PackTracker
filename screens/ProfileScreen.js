@@ -129,7 +129,7 @@ export default class Profile extends React.Component {
             <Text style={styles.description}>{this.state.city}</Text>
 
             <View style={styles.flatListContainer}>
-              <Text>Dogs</Text>
+              <Text style={styles.linkText}>Dogs</Text>
               <FlatList 
           style={styles.flatList}
           horizontal={true}
@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
   flatListContainer: {
+    alignItems: 'center',
     padding: 10,
     width: "80%",
     textAlign: "center",
@@ -251,8 +252,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    width: 250,
+    width: 150,
     borderRadius: 30,
-    backgroundColor: Colors.colorPrimary,
+    backgroundColor: 'rgba(240,0,0,.4)',
   },
 });

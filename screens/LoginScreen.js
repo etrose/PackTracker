@@ -51,7 +51,6 @@ export default class LoginScreen extends React.Component {
         firebase.firestore().collection("users").doc(user.user.uid).get()
           .then(function (doc) {
             if (doc.exists) {
-              alert("BOOM");
               AsyncStorage.setItem("user:username", doc.data().username);
             }
           }).catch(error => {

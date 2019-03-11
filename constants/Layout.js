@@ -53,6 +53,7 @@ export const AuthPages = StyleSheet.create({
     marginTop: 30,
   },
   buttonText: {
+    //backgroundColor: 'rgba(255,255,255,.3)',
     backgroundColor:Colors.tintColor,
     borderRadius:25,
     paddingHorizontal:16,
