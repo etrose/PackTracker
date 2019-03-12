@@ -37,7 +37,7 @@ export default class Profile extends React.Component {
   };
 
 
-  async componentWillMount() {
+  async componentDidMount() {
     const username = await AsyncStorage.getItem("user:username");
     const email = await AsyncStorage.getItem("user:email");
     this.setState({

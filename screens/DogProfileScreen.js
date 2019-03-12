@@ -32,7 +32,7 @@ export default class Profile extends React.Component {
   };
 
 
-  async componentWillMount() {
+  async componentDidMount() {
     const {navigation} = this.props;
 
     this.setState({

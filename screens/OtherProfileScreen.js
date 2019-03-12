@@ -38,7 +38,7 @@ export default class Profile extends React.Component {
   };
 
 
-  async componentWillMount() {
+  async componentDidMount() {
     const {navigation} = this.props;
 
     await this.setState({
@@ -51,14 +51,9 @@ export default class Profile extends React.Component {
     this.getDogs();
   }
 
-//   async componentDidUpdate() {
-//     const {navigation} = this.props;
-//       const newDog = navigation.getParam('needToRefreshDogs', false);
-//       if(newDog) {
-//           navigation.setParams({needToRefreshDogs: false});
-//           this.getDogs();
-//       }
-//   }
+  async componentDidUpdate() {
+ 
+  }
 
   getDogs = async () => {
 
@@ -98,6 +93,20 @@ export default class Profile extends React.Component {
     });
   }
 
+  addFriend = async () => {
+    const currUserId = await AsyncStorage.getItem("user:id");
+    const otherUserId = this.state.user_id;
+
+    firebase.database().ref('users/'+otherUserId+'/requests/'+currUserId).set({
+        sent: false,
+    }).then(()=> {
+        alert("Sent friend request to " + this.state.username);
+    }).catch(error => {
+        const { code, message } = error;
+        alert(message);
+      });
+  }
+
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -106,6 +115,9 @@ export default class Profile extends React.Component {
         <View style={styles.body}>
           <View style={styles.bodyContent}>
             <Text style={styles.name}>{this.state.username}</Text>
+            <TouchableOpacity onPress={this.addFriend}>
+                <Text>Add Friend</Text>
+            </TouchableOpacity>
             <Text style={styles.info}>{this.state.email}</Text>
             <Text style={styles.description}>{this.state.city}</Text>
 

@@ -36,11 +36,21 @@ export default class RegisterScreen extends React.Component {
                     const fbRootRefFS = firebase.firestore();
                     const id = user.user.uid;
                     const userRef = fbRootRefFS.collection('users').doc(id);
+
                     userRef.set({
                         username,
                         email,
                         id,
                     });
+                    firebase.database().ref('users/'+id).set({
+                        username
+                    });
+                    firebase.database().ref('usernames/'+username).set({
+                        id
+                    });
+                    
+                    
+
                     AsyncStorage.setItem("user:id", id);
                     AsyncStorage.setItem("user:email", email);
                     AsyncStorage.setItem("user:username", username);

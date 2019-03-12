@@ -11,6 +11,7 @@ import AddDogScreen from '../screens/AddDogScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import OtherDogProfileScreen from '../screens/OtherDogProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
+import InboxScreen from '../screens/InboxScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -45,6 +46,24 @@ ProfileStack.navigationOptions = {
         Platform.OS === 'ios'
           ? `ios-contact${focused ? '' : '-outline'}`
           : 'md-contact'
+      }
+    />
+  ),
+};
+
+const InboxStack = createStackNavigator({
+  Inbox: InboxScreen,
+});
+
+InboxStack.navigationOptions = {
+  tabBarLabel: 'Inbox',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={
+        Platform.OS === 'ios'
+          ? `ios-mail${focused ? '' : '-outline'}`
+          : 'md-mail'
       }
     />
   ),
@@ -91,5 +110,5 @@ TestStack.navigationOptions = {
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,TestStack,SearchStack,ProfileStack,
+  HomeStack,TestStack,SearchStack,InboxStack,ProfileStack,
 }));
