@@ -23,6 +23,7 @@ export default class Profile extends React.Component {
       loading: true,
       username: "...",
       email: "...",
+      user_id: "",
       city: "City: Not Set", //Add Dialog if Not set so that user can click the text and set it
       dogs: [{
         doggoName: "No Dogs",
@@ -38,29 +39,30 @@ export default class Profile extends React.Component {
 
 
   async componentWillMount() {
-    const username = await AsyncStorage.getItem("user:username");
-    const email = await AsyncStorage.getItem("user:email");
-    this.setState({
-      username: username,
-      email: email,
+    const {navigation} = this.props;
+
+    await this.setState({
+      username: navigation.getParam('username','....'),
+      email: navigation.getParam('email','....'),
+      user_id: navigation.getParam("uid","oof"),
       //city
     });
-    
+    //alert(this.state.user_id);
     this.getDogs();
   }
 
-  async componentDidUpdate() {
-    const {navigation} = this.props;
-      const newDog = navigation.getParam('needToRefreshDogs', false);
-      if(newDog) {
-          navigation.setParams({needToRefreshDogs: false});
-          this.getDogs();
-      }
-  }
+//   async componentDidUpdate() {
+//     const {navigation} = this.props;
+//       const newDog = navigation.getParam('needToRefreshDogs', false);
+//       if(newDog) {
+//           navigation.setParams({needToRefreshDogs: false});
+//           this.getDogs();
+//       }
+//   }
 
   getDogs = async () => {
 
-    const user_id = await AsyncStorage.getItem("user:id");
+    const user_id = this.state.user_id;
     const docRef = await firebase
         .firestore().collection("users/" + user_id + "/dogs");
         //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
@@ -96,27 +98,6 @@ export default class Profile extends React.Component {
     });
   }
 
-  logout = () => {
-    AsyncStorage.removeItem("user:id");
-    AsyncStorage.removeItem("user:username");
-    AsyncStorage.removeItem("user:email");
-    
-    this.signOutUser();
-  }
-
-  signOutUser = async () => {
-    try {
-        firebase.firestore().disableNetwork();
-        await firebase.auth().signOut();
-    } catch (e) {
-        alert(e)
-    }
-  }
-
-  addDog = () => {
-      this.props.navigation.navigate('AddDogProfile');
-  }
-
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -136,7 +117,7 @@ export default class Profile extends React.Component {
           data={this.state.dogs}
           renderItem={({ item }) => (
             <TouchableOpacity 
-            onPress={() => this.props.navigation.navigate('DogProfile', 
+            onPress={() => this.props.navigation.navigate('OtherDogProfile', 
             {
                 dogName: item.doggoName,
                 dogBreed: item.doggoBreed,
@@ -153,9 +134,6 @@ export default class Profile extends React.Component {
           )}
           keyExtractor={(item, index) => index.toString()}
           />
-          <TouchableOpacity onPress={this.addDog}>
-            <Text>Add Dog</Text>
-          </TouchableOpacity>
             </View>
 
             <View style={styles.flatListContainer}>
@@ -164,10 +142,6 @@ export default class Profile extends React.Component {
             <View style={styles.flatListContainer}>
               <Text style={styles.linkText}>Friends - 0</Text>
             </View>
-
-            <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
-              <Text>Logout</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

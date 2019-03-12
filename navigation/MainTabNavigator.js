@@ -8,6 +8,9 @@ import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
 import AddDogScreen from '../screens/AddDogScreen';
+import OtherProfileScreen from '../screens/OtherProfileScreen';
+import OtherDogProfileScreen from '../screens/OtherDogProfileScreen';
+import SearchScreen from '../screens/SearchScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -20,8 +23,8 @@ HomeStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          ? `ios-home${focused ? '' : '-outline'}`
+          : 'md-home'
       }
     />
   ),
@@ -40,8 +43,28 @@ ProfileStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          ? `ios-contact${focused ? '' : '-outline'}`
+          : 'md-contact'
+      }
+    />
+  ),
+};
+
+const SearchStack = createStackNavigator({
+  Search: SearchScreen,
+  OtherProfile: OtherProfileScreen,
+  OtherDogProfile: OtherDogProfileScreen,
+});
+
+SearchStack.navigationOptions = {
+  tabBarLabel: 'Search',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={
+        Platform.OS === 'ios'
+          ? `ios-search${focused ? '' : '-outline'}`
+          : 'md-search'
       }
     />
   ),
@@ -49,6 +72,8 @@ ProfileStack.navigationOptions = {
 
 const TestStack = createStackNavigator({
   Test: TestScreen,
+  OtherProfile: OtherProfileScreen,
+  OtherDogProfile: OtherDogProfileScreen,
 });
 
 TestStack.navigationOptions = {
@@ -66,5 +91,5 @@ TestStack.navigationOptions = {
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,TestStack,ProfileStack,
+  HomeStack,TestStack,SearchStack,ProfileStack,
 }));

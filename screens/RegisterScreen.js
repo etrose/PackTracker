@@ -34,13 +34,14 @@ export default class RegisterScreen extends React.Component {
                     //Enable network once logged in successfully
                     firebase.firestore().enableNetwork();
                     const fbRootRefFS = firebase.firestore();
-                    const userID = user.user.uid;
-                    const userRef = fbRootRefFS.collection('users').doc(userID);
+                    const id = user.user.uid;
+                    const userRef = fbRootRefFS.collection('users').doc(id);
                     userRef.set({
                         username,
                         email,
+                        id,
                     });
-                    AsyncStorage.setItem("user:id", userID);
+                    AsyncStorage.setItem("user:id", id);
                     AsyncStorage.setItem("user:email", email);
                     AsyncStorage.setItem("user:username", username);
                 }).catch((error) => {

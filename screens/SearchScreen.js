@@ -5,6 +5,7 @@ import {
   FlatList,
   Text,
   TouchableOpacity,
+  AsyncStorage,
 } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -15,10 +16,11 @@ import * as firebase from "firebase";
 
 
 
-class TestScreen extends React.Component {
+class SearchScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+        currentUser: '',
       searchInput: '',
       allUsers: [],
       found: [],
@@ -30,6 +32,7 @@ class TestScreen extends React.Component {
   };
 
   async componentDidMount() {
+    const currentUser = await AsyncStorage.getItem("user:username");
     const tempUsers = [];
     firebase.firestore().collection("users").get().then((results) => {
       //this.setState({allUsers: results,})
@@ -37,11 +40,14 @@ class TestScreen extends React.Component {
         tempUsers.push({
           username: user.data().username,
           email: user.data().email,
+          id: user.data().id,
           //city
         });
       });
+      
       this.setState({
         allUsers: tempUsers,
+        currentUser: currentUser,
       });
     });
   }
@@ -53,14 +59,16 @@ class TestScreen extends React.Component {
     users.forEach((user) => {
       const thisUsername = user.username.toLowerCase();
       const searchInput = this.state.searchInput;
-      console.log(thisUsername);
+          
       if(~thisUsername.indexOf(searchInput.toLowerCase())) {
-        //alert(thisUsername);
+        if(user.username != this.state.currentUser) {
         tempFound.push({
-          username: thisUsername,
+          username: user.username,
           email: user.email,
+          uid: user.id,
           //city: user.city,
         });
+        }
       }
     });
     this.setState({
@@ -72,8 +80,10 @@ class TestScreen extends React.Component {
     this.setState({
       searchInput: text,
     });
-    if(text.length > 3) {
+    if(text.length > 1) {
       this.doSearch();
+    }else {
+        this.setState({found: []});
     }
   }
 
@@ -103,6 +113,7 @@ class TestScreen extends React.Component {
               {
                 username: item.username,
                 email: item.email,
+                uid: item.uid,
               })}
               >
               <Text>{item.username}</Text>
@@ -115,7 +126,7 @@ class TestScreen extends React.Component {
     );
   }
 }
-export default TestScreen;
+export default SearchScreen;
 
 const styles = StyleSheet.create({
   container: {
