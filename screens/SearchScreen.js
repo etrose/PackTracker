@@ -96,7 +96,7 @@ class SearchScreen extends React.Component {
           inputContainerStyle={{ backgroundColor: Colors.background, margin: 0,}}
           onChangeText={text =>this.searchChange(text)}
           value={this.state.searchInput}
-          placeholder="Type Here..."
+          placeholder="Search for user..."
           lightTheme
           round
         />

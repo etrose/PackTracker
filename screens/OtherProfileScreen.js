@@ -10,7 +10,6 @@ import {
   ScrollView
 } from 'react-native';
 
-import NewDogModal from '../components/AppComponents/NewDogModal';
 import Colors from '../constants/Colors';
 
 import * as firebase from "firebase";
@@ -30,7 +29,7 @@ export default class Profile extends React.Component {
         doggoPic: require('../assets/images/sad-dog.jpg'),
         addButton: true,
     }],
-    showNewDogModal: true,
+    numDogs: 0,
     });
   }
   static navigationOptions = {
@@ -84,6 +83,7 @@ export default class Profile extends React.Component {
           });
           that.setState({
             dogs: tempDogs,
+            numDogs: tempDogs.length,
           });
         }).catch(error => {
           const { code, message } = error;
@@ -95,16 +95,22 @@ export default class Profile extends React.Component {
 
   addFriend = async () => {
     const currUserId = await AsyncStorage.getItem("user:id");
+    const currUserName = await AsyncStorage.getItem("user:username");
     const otherUserId = this.state.user_id;
 
     firebase.database().ref('users/'+otherUserId+'/requests/'+currUserId).set({
+        username: currUserName,
         sent: false,
     }).then(()=> {
+        firebase.database().ref('users/'+currUserId+'/requests/'+otherUserId).set({
+            username: this.state.username,
+            sent: true,
+        });
         alert("Sent friend request to " + this.state.username);
     }).catch(error => {
         const { code, message } = error;
         alert(message);
-      });
+    });
   }
 
   render() {
@@ -122,7 +128,7 @@ export default class Profile extends React.Component {
             <Text style={styles.description}>{this.state.city}</Text>
 
             <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Dogs - {this.state.dogs.length}</Text>
+              <Text style={styles.linkText}>Dogs - {this.state.numDogs}</Text>
               <FlatList 
           style={styles.flatList}
           horizontal={true}
@@ -187,7 +193,6 @@ const styles = StyleSheet.create({
   },
   flatList: {
     padding: 5,
-    backgroundColor: "rgba(0,0,0,.1)",
   },
   header: {
     backgroundColor: Colors.tintColor,
