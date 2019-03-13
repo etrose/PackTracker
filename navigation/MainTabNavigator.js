@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 
 import TabBarIcon from '../components/AppComponents/TabBarIcon';
-import TestScreen from '../screens/TestScreen';
+import SocialScreen from '../screens/SocialScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
@@ -89,26 +89,24 @@ SearchStack.navigationOptions = {
   ),
 };
 
-const TestStack = createStackNavigator({
-  Test: TestScreen,
-  OtherProfile: OtherProfileScreen,
-  OtherDogProfile: OtherDogProfileScreen,
+const SocialStack = createStackNavigator({
+  Social: SocialScreen,
 });
 
-TestStack.navigationOptions = {
-  tabBarLabel: 'Test',
+SocialStack.navigationOptions = {
+  tabBarLabel: 'My Pack',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
+          ? `ios-contacts${focused ? '' : '-outline'}`
+          : 'md-contacts'
       }
     />
   ),
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,TestStack,SearchStack,InboxStack,ProfileStack,
+  HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack,
 }));
