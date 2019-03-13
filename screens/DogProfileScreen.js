@@ -12,9 +12,6 @@ import {
 
 import Colors from '../constants/Colors';
 
-import * as firebase from "firebase";
-import 'firebase/firestore';
-
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);

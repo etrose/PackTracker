@@ -1,11 +1,11 @@
 import React from 'react';
-import { TextInput, View, Text, TouchableOpacity, AsyncStorage } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, AsyncStorage, Alert } from 'react-native';
 
 import Logo from '../components/AppComponents/Logo';
 import Colors from '../constants/Colors';
 import { AuthPages } from '../constants/Layout';
 
-import * as firebase from "firebase";
+import firebase from "firebase";
 import 'firebase/firestore';
 
 export default class RegisterScreen extends React.Component {
@@ -22,9 +22,20 @@ export default class RegisterScreen extends React.Component {
     registerUser = () => {
 
         const { username, email, password, confirm_password } = this.state;
+        
+        var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
+        if (pattern.test(username)) {
+            Alert.alert("Username invalid", "Username cannot contain symbols");
+            return;
+        }
+    
+        if (username.length > 15 || username.indexOf(' ') != -1) {
+            Alert.alert("Username invalid", "Username must be less than 16 characters and contain no spaces.");
+            return;
+        }
 
         if (username.length <= 0 || email.length <= 0 || password.length <= 0 || confirm_password.length <= 0) {
-            alert("Please fill out the required fields.");
+            Alert.alert("Empty Field(s)", "Please fill out the required fields.");
             return;
         }
 

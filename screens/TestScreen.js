@@ -11,7 +11,7 @@ import Colors from '../constants/Colors';
 
 import { SearchBar } from 'react-native-elements';
 
-import * as firebase from "firebase";
+import firebase from "firebase";
 
 
 

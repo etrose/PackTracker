@@ -12,7 +12,7 @@ import {
 
 import Colors from '../constants/Colors';
 
-import * as firebase from "firebase";
+import firebase from "firebase";
 import 'firebase/firestore';
 
 export default class Profile extends React.Component {
@@ -119,9 +119,9 @@ export default class Profile extends React.Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.header}></View>
-        <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} />
+      //<ScrollView style={styles.container}>
+        //{/* <View style={styles.header}></View> */}
+        //{/* <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} /> */}
         <View style={styles.body}>
           <View style={styles.bodyContent}>
             <Text style={styles.name}>{this.state.username}</Text>
@@ -170,7 +170,6 @@ export default class Profile extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
     );
   }
 }
@@ -221,6 +220,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   body: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 40,
   },
   bodyContent: {

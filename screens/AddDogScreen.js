@@ -5,7 +5,7 @@ import Logo from '../components/AppComponents/Logo';
 import Colors from '../constants/Colors';
 import { AuthPages } from '../constants/Layout';
 
-import * as firebase from "firebase";
+import firebase from "firebase";
 import 'firebase/firestore';
 
 export default class AddDogScreen extends React.Component {

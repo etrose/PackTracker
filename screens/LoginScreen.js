@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage } from 're
 import { AuthPages } from '../constants/Layout';
 import Colors from '../constants/Colors';
 import Logo from '../components/AppComponents/Logo';
-import * as firebase from "firebase";
+import firebase from "firebase";
 
 export default class LoginScreen extends React.Component {
   constructor(props) {

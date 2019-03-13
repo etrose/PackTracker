@@ -1,7 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, AsyncStorage, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, AsyncStorage, FlatList, Platform } from 'react-native';
 
-import * as firebase from "firebase";
+import firebase from "firebase";
+
+import { Icon } from 'expo';
+import Colors from '../constants/Colors';
 
 class InboxScreen extends React.Component {
     constructor(props) {
@@ -21,54 +24,121 @@ class InboxScreen extends React.Component {
         const ref = firebase.database().ref('users/'+curr_id+'/requests');
         const that = this;
         ref.once('value')
-            .then(function(snapshot) {
-                var tempIncoming = [];
-                var tempSent = [];
-                snapshot.forEach(function(child) {
-                    var id = child.key;
-                    var username = child.val().username;
-
-                    //Check if request was sent or received then add to correct list
-                    if(!child.val().sent) {
-                        tempIncoming.push({
-                            username,
-                            id,
-                        });
-                    }else {
-                        tempSent.push({
-                            username,
-                        });
-                    }
-                });
-                that.setState({incomingRequests: tempIncoming, sentRequests: tempSent});
+            .then(function(snapshot){
+                that.getFriendRequests(snapshot);
             });
+        ref.on('child_added', function(snapshot) {
+            that.addRequest(snapshot);
+        });
+        ref.on('child_removed', function(snapshot) {
+            that.removeRequest(snapshot);
+        });
+    }
+
+    getFriendRequests(requests){
+        var tempIncoming = [];
+        var tempSent = [];
+        requests.forEach(function(child) {
+            var id = child.key;
+            var username = child.val().username;
+
+            //Check if request was sent or received then add to correct list
+            if(!child.val().sent) {
+                tempIncoming.push({
+                    username,
+                    id
+                });
+            }else {
+                tempSent.push({
+                    username
+                });
+            }
+        });
+        this.setState({incomingRequests: tempIncoming, sentRequests: tempSent});
+    }
+    addRequest(request){
+        //id of requesting user
+        var id = request.key;
+        var username = request.val().username;
+        this.state.incomingRequests.forEach((req) => {
+            alert(req.username);
+        });
+        var temp = [];
+        //first check if the request is sent or received
+        if(!request.val().sent) {
+            temp.push({username,id});
+            this.setState({incomingRequests:temp});
+        }else {
+            this.state.sentRequests.forEach((i)=>temp.push(i));
+            temp.push({
+                username
+            });
+            this.setState({sentRequests: temp});
+        }
+    }
+    removeRequest(request){
+        //id of requesting user
+        var id = request.key;
+        var username = request.val().username;
+        var temp = [];
+
+        //first check if the request is sent or received
+        if(!request.val().sent) {
+            this.state.incomingRequests.forEach((i)=> {
+                if(i.id != id){
+                    temp.push(i);
+                }
+            });
+            this.setState({incomingRequests:temp});
+        }else {
+            this.state.sentRequests.forEach((i)=> {
+                if(i.username != username) {temp.push(i);}
+            });
+            this.setState({sentRequests: temp});
+        }
     }
 
     render() {
         return (
         <View style={styles.container}>
-            <Text style={{fontSize: 25}}>Inbox</Text>
-            <Text>Friend Requests</Text>
+            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>inbox</Text>
+            <Text style={styles.text}>Friend Requests</Text>
             <View style={styles.line}/>
             <FlatList 
             //style={styles.flatList}
             data={this.state.incomingRequests}
             renderItem={({ item }) => (
-                <View><TouchableOpacity>
-                <Text>{item.username}</Text>
-                </TouchableOpacity></View>
+                <View style={styles.requestItem}>
+                <TouchableOpacity>
+                <Text style={styles.requestText}>{item.username}</Text>
+                </TouchableOpacity>
+                <View style={{flexDirection: 'row'}}>
+                <TouchableOpacity>
+                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
+                </TouchableOpacity>
+                <View style={{width: 30,}}></View>
+                <TouchableOpacity>
+                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
+                </TouchableOpacity>
+                </View>
+                </View>
             )}
             keyExtractor={(item, index) => index.toString()}
             />
-            <Text>Sent Requests</Text>
+            <Text style={styles.text}>Sent Requests</Text>
             <View style={styles.line}/>
             <FlatList 
             //style={styles.flatList}
             data={this.state.sentRequests}
             renderItem={({ item }) => (
-                <View><TouchableOpacity>
-                <Text>{item.username}</Text>
-                </TouchableOpacity></View>
+                <View style={styles.requestItem}>
+                <TouchableOpacity>
+                    <Text style={styles.requestText}>{item.username}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
+                </TouchableOpacity>
+                </View>
             )}
             keyExtractor={(item, index) => index.toString()}
             />
@@ -82,7 +152,9 @@ const styles = StyleSheet.create ({
     container: {
         flex: 1,
         marginTop: 23,
-        padding: 10,
+    },
+    text: {
+        paddingHorizontal: 10,
     },
     line: {
         height: StyleSheet.hairlineWidth,
@@ -90,6 +162,14 @@ const styles = StyleSheet.create ({
         width: '100%',
     },
     requestItem: {
-        
+        padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderBottomColor: '#000',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    requestText: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
 });
