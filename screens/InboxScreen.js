@@ -10,6 +10,8 @@ class InboxScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = { 
+            curr_id: '',
+            curr_username: '',
             incomingRequests: [],
             sentRequests: [],
             //conversations: [],
@@ -21,6 +23,7 @@ class InboxScreen extends React.Component {
 
     async componentDidMount() {
         const curr_id = await AsyncStorage.getItem("user:id");
+        const curr_username = await AsyncStorage.getItem("user:username");
         const ref = firebase.database().ref('users/'+curr_id+'/requests');
         const that = this;
         ref.once('value')
@@ -33,6 +36,7 @@ class InboxScreen extends React.Component {
         ref.on('child_removed', function(snapshot) {
             that.removeRequest(snapshot);
         });
+        this.setState({curr_id, curr_username});
     }
 
     getFriendRequests(requests){
@@ -50,7 +54,8 @@ class InboxScreen extends React.Component {
                 });
             }else {
                 tempSent.push({
-                    username
+                    username,
+                    id
                 });
             }
         });
@@ -70,9 +75,7 @@ class InboxScreen extends React.Component {
             this.setState({incomingRequests:temp});
         }else {
             this.state.sentRequests.forEach((i)=>temp.push(i));
-            temp.push({
-                username
-            });
+            temp.push({username,id});
             this.setState({sentRequests: temp});
         }
     }
@@ -98,6 +101,32 @@ class InboxScreen extends React.Component {
         }
     }
 
+    async acceptRequest(otherUsername, otherUserId){
+        currUserId = this.state.curr_id;
+        currUserName = this.state.curr_username;
+        firebase.database().ref('users/'+otherUserId+'/friends/'+currUserId).set({
+            username: currUserName
+        }).then(()=> {
+            firebase.database().ref('users/'+currUserId+'/friends/'+otherUserId).set({
+                username: otherUsername
+            }).then(()=> {
+                this.cancelRequest(currUserId, otherUserId);
+            });
+        }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+        });
+    }
+
+    async cancelRequest(currUserId, otherUserId) {
+        firebase.database().ref('users/'+otherUserId+'/requests/'+currUserId).remove().then(()=> {
+            firebase.database().ref('users/'+currUserId+'/requests/'+otherUserId).remove();
+        }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+        });
+    }
+
     render() {
         return (
         <View style={styles.container}>
@@ -113,11 +142,11 @@ class InboxScreen extends React.Component {
                 <Text style={styles.requestText}>{item.username}</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>this.acceptRequest(item.username, item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
                 </TouchableOpacity>
                 <View style={{width: 30,}}></View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>this.cancelRequest(this.state.curr_id, item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                 </TouchableOpacity>
                 </View>
@@ -135,7 +164,7 @@ class InboxScreen extends React.Component {
                 <TouchableOpacity>
                     <Text style={styles.requestText}>{item.username}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>this.cancelRequest(this.state.curr_id, item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                 </TouchableOpacity>
                 </View>
