@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   FlatList,
   AsyncStorage,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 
 import Colors from '../constants/Colors';
 
+import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
 import 'firebase/firestore';
 
@@ -23,6 +25,8 @@ export default class Profile extends React.Component {
       username: "...",
       email: "...",
       user_id: "",
+      curr_id: '',
+      curr_username: '',
       city: "City: Not Set", //Add Dialog if Not set so that user can click the text and set it
       dogs: [{
         doggoName: "No Dogs",
@@ -30,6 +34,8 @@ export default class Profile extends React.Component {
         addButton: true,
     }],
     numDogs: 0,
+    dogsLoading: true,
+    friendStatus: "Add Friend"
     });
   }
   static navigationOptions = {
@@ -39,19 +45,35 @@ export default class Profile extends React.Component {
 
   async componentDidMount() {
     const {navigation} = this.props;
+    const curr_id = await AsyncStorage.getItem("user:id");
+    const curr_username = await AsyncStorage.getItem("user:username");
 
     await this.setState({
       username: navigation.getParam('username','....'),
       email: navigation.getParam('email','....'),
       user_id: navigation.getParam("uid","oof"),
       //city
+      curr_id,
+      curr_username
     });
     //alert(this.state.user_id);
     this.getDogs();
+    const that = this;
+    
+    const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends/'+this.state.user_id);
+    
+    ref.once('value').then(function(snapshot){
+      that.checkFriendStatus(snapshot);
+    });
+
+    ref.on('value', function(snapshot) {
+      that.checkFriendStatus(snapshot);
+  });
   }
 
-  async componentDidUpdate() {
- 
+  async componentWillUnmount() {
+    const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends/'+this.state.user_id);
+    ref.off('value');
   }
 
   getDogs = async () => {
@@ -64,8 +86,12 @@ export default class Profile extends React.Component {
     const tempDogs = [];
     var that = this;
     await docRef.get().then(function(results){
+      if(results.size == 0) {
+        that.setState({dogsLoading: false});
+        return;
+      }
+
       results.forEach((doc) => {
-        
         var docRef = doc.data().dog;
 
         docRef.get().then(function(documentSnapshot) {
@@ -84,6 +110,7 @@ export default class Profile extends React.Component {
           that.setState({
             dogs: tempDogs,
             numDogs: tempDogs.length,
+            dogsLoading: false
           });
         }).catch(error => {
           const { code, message } = error;
@@ -93,65 +120,87 @@ export default class Profile extends React.Component {
     });
   }
 
-  addFriend = async () => {
-    const currUserId = await AsyncStorage.getItem("user:id");
-    const currUserName = await AsyncStorage.getItem("user:username");
-    const otherUserId = this.state.user_id;
+  async onSocialPress () {
+    var friendHandler = new Friends(this.state.curr_id, this.state.curr_username);
+    //alert("social button pressed");
+    switch(this.state.friendStatus) {
+      case "Add Friend":
+        friendHandler.addFriend(this.state.username, this.state.user_id);
+        this.setState({friendStatus: "Cancel Request"});//todo: make constant strings for friendstatus 
+      break;
 
-    firebase.database().ref('users/'+otherUserId+'/requests/'+currUserId).set({
-        username: currUserName,
-        sent: false,
-    }).then(()=> {
-        firebase.database().ref('users/'+currUserId+'/requests/'+otherUserId).set({
-            username: this.state.username,
-            sent: true,
-        });
-        alert("Sent friend request to " + this.state.username);
-    }).catch(error => {
-        const { code, message } = error;
-        alert(message);
-    });
+      case "Cancel Request":
+        friendHandler.deleteFriend(this.state.user_id);
+        this.setState({friendStatus: "Add Friend"});
+      break;
+
+      case "Accept Friend Request":
+        friendHandler.acceptRequest(this.state.username, this.state.user_id);
+        this.setState({friendStatus: "Send Message"});
+      break;
+
+      case "Send Message":
+        alert("*open messaging");
+      break;
+    }
+  }
+
+  async checkFriendStatus(snapshot) {
+    const value = snapshot.val();
+    //if value isn't null, the user is in friends list already
+    if(value != null) {
+      //If sent isn't null, the friend is still in the request process
+      if(value.sent != null) {
+        const status = snapshot.val().sent ? "Cancel Request" : "Accept Friend Request";
+        this.setState({friendStatus: status});
+      }else {
+        this.setState({friendStatus: "Send Message"});
+      }
+    }else {
+      this.setState({friendStatus: "Add Friend"});
+    }
   }
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.header}></View>
-        <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} />
+      // <ScrollView style={styles.container}>
+      //   <View style={styles.header}></View>
+      //   <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} />
         <View style={styles.body}>
           <View style={styles.bodyContent}>
             <Text style={styles.name}>{this.state.username}</Text>
-            <TouchableOpacity onPress={this.addFriend}>
-                <Text>Add Friend</Text>
+            <TouchableOpacity onPress={async ()=>this.onSocialPress()}>
+                <Text>{this.state.friendStatus}</Text>
             </TouchableOpacity>
             <Text style={styles.info}>{this.state.email}</Text>
             <Text style={styles.description}>{this.state.city}</Text>
 
             <View style={styles.flatListContainer}>
               <Text style={styles.linkText}>Dogs - {this.state.numDogs}</Text>
+              {!this.state.dogsLoading ? 
               <FlatList 
-          style={styles.flatList}
-          horizontal={true}
-          data={this.state.dogs}
-          renderItem={({ item }) => (
-            <TouchableOpacity 
-            onPress={() => this.props.navigation.navigate('OtherDogProfile', 
-            {
-                dogName: item.doggoName,
-                dogBreed: item.doggoBreed,
-                dogBirth: item.doggoBirth,
-                dogPic: item.doggoPic,
-            })}
-            style={styles.dogItemHolder}>
-                <Image 
-                style={styles.dogPic}
-                source={item.doggoPic}   
-                />
-                <Text>{item.doggoName}</Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          />
+                style={styles.flatList}
+                horizontal={true}
+                data={this.state.dogs}
+                renderItem={({ item }) => (
+                  <TouchableOpacity 
+                  onPress={() => this.props.navigation.navigate('OtherDogProfile', 
+                  {
+                      dogName: item.doggoName,
+                      dogBreed: item.doggoBreed,
+                      dogBirth: item.doggoBirth,
+                      dogPic: item.doggoPic,
+                  })}
+                  style={styles.dogItemHolder}>
+                      <Image 
+                      style={styles.dogPic}
+                      source={item.doggoPic}   
+                      />
+                      <Text>{item.doggoName}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                />: <ActivityIndicator size='large'/>}
             </View>
 
             <View style={styles.flatListContainer}>
@@ -162,7 +211,7 @@ export default class Profile extends React.Component {
             </View>
           </View>
         </View>
-      </ScrollView>
+      //</ScrollView>
     );
   }
 }
@@ -213,6 +262,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   body: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 40,
   },
   bodyContent: {

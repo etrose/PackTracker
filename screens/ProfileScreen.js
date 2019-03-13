@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   AsyncStorage,
-  ScrollView
+  ActivityIndicator
 } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -29,6 +29,7 @@ export default class Profile extends React.Component {
         addButton: true,
     }],
     numDogs: 0,
+    dogsLoading: true,
     });
   }
   static navigationOptions = {
@@ -67,6 +68,10 @@ export default class Profile extends React.Component {
     const tempDogs = [];
     var that = this;
     await docRef.get().then(function(results){
+      if(results.size == 0) {
+        that.setState({dogsLoading: false});
+        return;
+      }
       results.forEach((doc) => {
         
         var docRef = doc.data().dog;
@@ -78,15 +83,12 @@ export default class Profile extends React.Component {
             doggoName: data.name,
             doggoBreed: data.breed,
             doggoBirth: data.birth,
-            doggoPic: require('../assets/images/smiling-dog.jpg'),
-
-            //This is for the touchable opacity to know whether it should
-            //navigate to a dog profile or create new dog onPress.
-            addButton: false,
+            doggoPic: require('../assets/images/smiling-dog.jpg')
           });
           that.setState({
             dogs: tempDogs,
             numDogs: tempDogs.length,
+            dogsLoading: false
           });
         }).catch(error => {
           const { code, message } = error;
@@ -130,29 +132,30 @@ export default class Profile extends React.Component {
 
             <View style={styles.flatListContainer}>
               <Text style={styles.linkText}>Dogs - {this.state.numDogs}</Text>
+              {!this.state.dogsLoading ? 
               <FlatList 
-          style={styles.flatList}
-          horizontal={true}
-          data={this.state.dogs}
-          renderItem={({ item }) => (
-            <TouchableOpacity 
-            onPress={() => this.props.navigation.navigate('DogProfile', 
-            {
+              style={styles.flatList}
+              horizontal={true}
+              data={this.state.dogs}
+              renderItem={({ item }) => (
+              <TouchableOpacity 
+               onPress={() => this.props.navigation.navigate('DogProfile', 
+                {
                 dogName: item.doggoName,
                 dogBreed: item.doggoBreed,
                 dogBirth: item.doggoBirth,
                 dogPic: item.doggoPic,
-            })}
-            style={styles.dogItemHolder}>
+                })}
+              style={styles.dogItemHolder}>
                 <Image 
                 style={styles.dogPic}
                 source={item.doggoPic}   
                 />
                 <Text>{item.doggoName}</Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
-          />
+          />: <ActivityIndicator size='large'/>}
           <TouchableOpacity onPress={this.addDog}>
             <Text>Add Dog</Text>
           </TouchableOpacity>

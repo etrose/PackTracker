@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, AsyncStorage, FlatList, Platform } from 'react-native';
 
+import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
 
 import { Icon } from 'expo';
@@ -24,7 +25,7 @@ class InboxScreen extends React.Component {
     async componentDidMount() {
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
-        const ref = firebase.database().ref('users/'+curr_id+'/requests');
+        const ref = firebase.database().ref('users/'+curr_id+'/friends');
         const that = this;
         ref.once('value')
             .then(function(snapshot){
@@ -36,6 +37,9 @@ class InboxScreen extends React.Component {
         ref.on('child_removed', function(snapshot) {
             that.removeRequest(snapshot);
         });
+        ref.on('child_changed', function(snapshot) {
+            that.removeRequest(snapshot);
+        });
         this.setState({curr_id, curr_username});
     }
 
@@ -43,6 +47,9 @@ class InboxScreen extends React.Component {
         var tempIncoming = [];
         var tempSent = [];
         requests.forEach(function(child) {
+            //if sent is null, user is already friend
+            if(child.val().sent != null) {
+
             var id = child.key;
             var username = child.val().username;
 
@@ -58,10 +65,12 @@ class InboxScreen extends React.Component {
                     id
                 });
             }
+        }
         });
         this.setState({incomingRequests: tempIncoming, sentRequests: tempSent});
     }
     addRequest(request){
+        if(request.val().sent != null) {
         //id of requesting user
         var id = request.key;
         var username = request.val().username;
@@ -79,6 +88,7 @@ class InboxScreen extends React.Component {
             this.setState({sentRequests: temp});
         }
     }
+    }
     removeRequest(request){
         //id of requesting user
         var id = request.key;
@@ -86,45 +96,20 @@ class InboxScreen extends React.Component {
         var temp = [];
 
         //first check if the request is sent or received
-        if(!request.val().sent) {
+        //if(!request.val().sent) {
             this.state.incomingRequests.forEach((i)=> {
                 if(i.id != id){
                     temp.push(i);
                 }
             });
             this.setState({incomingRequests:temp});
-        }else {
+        //}else {
+            temp = [];
             this.state.sentRequests.forEach((i)=> {
                 if(i.username != username) {temp.push(i);}
             });
             this.setState({sentRequests: temp});
-        }
-    }
-
-    async acceptRequest(otherUsername, otherUserId){
-        currUserId = this.state.curr_id;
-        currUserName = this.state.curr_username;
-        firebase.database().ref('users/'+otherUserId+'/friends/'+currUserId).set({
-            username: currUserName
-        }).then(()=> {
-            firebase.database().ref('users/'+currUserId+'/friends/'+otherUserId).set({
-                username: otherUsername
-            }).then(()=> {
-                this.cancelRequest(currUserId, otherUserId);
-            });
-        }).catch(error => {
-            const { code, message } = error;
-            alert(message);
-        });
-    }
-
-    async cancelRequest(currUserId, otherUserId) {
-        firebase.database().ref('users/'+otherUserId+'/requests/'+currUserId).remove().then(()=> {
-            firebase.database().ref('users/'+currUserId+'/requests/'+otherUserId).remove();
-        }).catch(error => {
-            const { code, message } = error;
-            alert(message);
-        });
+        //}
     }
 
     render() {
@@ -142,11 +127,11 @@ class InboxScreen extends React.Component {
                 <Text style={styles.requestText}>{item.username}</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>this.acceptRequest(item.username, item.id)}>
+                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(item.username, item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
                 </TouchableOpacity>
                 <View style={{width: 30,}}></View>
-                <TouchableOpacity onPress={()=>this.cancelRequest(this.state.curr_id, item.id)}>
+                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                 </TouchableOpacity>
                 </View>
@@ -164,7 +149,7 @@ class InboxScreen extends React.Component {
                 <TouchableOpacity>
                     <Text style={styles.requestText}>{item.username}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>this.cancelRequest(this.state.curr_id, item.id)}>
+                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
                     <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                 </TouchableOpacity>
                 </View>
