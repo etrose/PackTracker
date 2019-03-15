@@ -3,14 +3,20 @@ import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 
 import TabBarIcon from '../components/AppComponents/TabBarIcon';
-import SocialScreen from '../screens/SocialScreen';
+
 import HomeScreen from '../screens/HomeScreen';
+
+import SocialScreen from '../screens/SocialScreen';
+import FriendScreen from '../screens/FriendScreen';
+
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
 import AddDogScreen from '../screens/AddDogScreen';
+
+import SearchScreen from '../screens/SearchScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import OtherDogProfileScreen from '../screens/OtherDogProfileScreen';
-import SearchScreen from '../screens/SearchScreen';
+
 import InboxScreen from '../screens/InboxScreen';
 
 const HomeStack = createStackNavigator({
@@ -91,6 +97,7 @@ SearchStack.navigationOptions = {
 
 const SocialStack = createStackNavigator({
   Social: SocialScreen,
+  Friends: FriendScreen,
 });
 
 SocialStack.navigationOptions = {

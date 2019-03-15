@@ -112,7 +112,7 @@ class SearchScreen extends React.Component {
               onPress={() => this.props.navigation.navigate('OtherProfile', 
               {
                 username: item.username,
-                email: item.email,
+                //email: item.email,
                 uid: item.uid,
               })}
               >

@@ -17,7 +17,7 @@ export default class Profile extends React.Component {
     super(props);
     this.state = ({
       loading: true,
-      pic:require('../assets/images/sad-dog.jpg'),
+      pic: require('../assets/images/sad-dog.jpg'),
       name:'...',
       breed:'...',
       birth:'...',

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import Colors from '../constants/Colors';
-
+import ListModal from '../components/AppComponents/ListModal';
 import firebase from "firebase";
 import 'firebase/firestore';
 
@@ -30,6 +30,8 @@ export default class Profile extends React.Component {
     }],
     numDogs: 0,
     dogsLoading: true,
+    friendsVisible: false,
+    groupsVisible: false,
     });
   }
   static navigationOptions = {
@@ -59,7 +61,6 @@ export default class Profile extends React.Component {
   }
 
   getDogs = async () => {
-
     const user_id = await AsyncStorage.getItem("user:id");
     const docRef = await firebase
         .firestore().collection("users/" + user_id + "/dogs");
@@ -88,7 +89,7 @@ export default class Profile extends React.Component {
           that.setState({
             dogs: tempDogs,
             numDogs: tempDogs.length,
-            dogsLoading: false
+            dogsLoading: false,
           });
         }).catch(error => {
           const { code, message } = error;
@@ -160,14 +161,8 @@ export default class Profile extends React.Component {
             <Text>Add Dog</Text>
           </TouchableOpacity>
             </View>
-
-            <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Groups - 0</Text>
-            </View>
-            <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Friends - 0</Text>
-            </View>
-
+            <ListModal label="Groups"/>
+            <ListModal label="Friends"/>
             <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
               <Text>Logout</Text>
             </TouchableOpacity>

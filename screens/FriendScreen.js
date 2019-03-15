@@ -7,7 +7,7 @@ import firebase from "firebase";
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 
-class InboxScreen extends React.Component {
+export default class FriendScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = { 
@@ -15,7 +15,7 @@ class InboxScreen extends React.Component {
             curr_username: '',
             incomingRequests: [],
             sentRequests: [],
-            //conversations: [],
+            friendRequests: [],
         };
     }
     static navigationOptions = {
@@ -44,7 +44,7 @@ class InboxScreen extends React.Component {
     }
 
     async componentWillUnmount(){
-        const ref = firebase.database().ref('users/'+curr_id+'/friends');
+        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
         ref.off('child_added');
         ref.off('child_removed');
         ref.off('child_changed');
@@ -53,12 +53,13 @@ class InboxScreen extends React.Component {
     getFriendRequests(requests){
         var tempIncoming = [];
         var tempSent = [];
+        var tempFriends = [];
         requests.forEach(function(child) {
-            //if sent is null, user is already friend
-            if(child.val().sent != null) {
-
             var id = child.key;
             var username = child.val().username;
+            
+            //if sent is null, user is already friend
+            if(child.val().sent != null) {
 
             //Check if request was sent or received then add to correct list
             if(!child.val().sent) {
@@ -72,9 +73,18 @@ class InboxScreen extends React.Component {
                     id
                 });
             }
+        }else {
+            tempFriends.push({
+                username,
+                id
+            });
         }
         });
-        this.setState({incomingRequests: tempIncoming, sentRequests: tempSent});
+        this.setState({
+            incomingRequests: tempIncoming, 
+            sentRequests: tempSent,
+            friendsList: tempFriends
+        });
     }
     addRequest(request){
         if(request.val().sent != null) {
@@ -100,17 +110,24 @@ class InboxScreen extends React.Component {
         //id of requesting user
         var id = request.key;
         var username = request.val().username;
-        var temp = [];
 
-        //first check if the request is sent or received
-        //if(!request.val().sent) {
+        // if(request.val().sent == null) {
+        //     var temp = this.state.friendRequests;
+        //     temp.push({
+        //         username,
+        //         id
+        //     });
+        //     this.setState({friendsList:temp});
+        // }else {
+            var temp = [];
+
             this.state.incomingRequests.forEach((i)=> {
                 if(i.id != id){
                     temp.push(i);
                 }
             });
             this.setState({incomingRequests:temp});
-        //}else {
+        
             temp = [];
             this.state.sentRequests.forEach((i)=> {
                 if(i.username != username) {temp.push(i);}
@@ -122,7 +139,7 @@ class InboxScreen extends React.Component {
     render() {
         return (
         <View style={styles.container}>
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>inbox</Text>
+            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>Friends</Text>
             <Text style={styles.text}>Friend Requests</Text>
             <View style={styles.line}/>
             <FlatList 
@@ -163,11 +180,32 @@ class InboxScreen extends React.Component {
             )}
             keyExtractor={(item, index) => index.toString()}
             />
+            <Text style={styles.text}>Friends</Text>
+            <View style={styles.line}/>
+            <FlatList 
+            //style={styles.flatList}
+            data={this.state.friendsList}
+            renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
+                {
+                    username: item.username,
+                    //email: item.email,
+                    uid: item.id,
+                })}>
+                <View style={styles.requestItem}>
+                    
+                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
+                    <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
+                
+                </View>
+                </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            />
         </View>
         )
     }
 }
-export default InboxScreen;
 
 const styles = StyleSheet.create ({
     container: {
@@ -185,7 +223,7 @@ const styles = StyleSheet.create ({
     requestItem: {
         padding: 10,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        flex: 1,
         borderBottomColor: '#000',
         borderBottomWidth: StyleSheet.hairlineWidth,
     },
