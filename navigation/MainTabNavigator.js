@@ -98,6 +98,8 @@ SearchStack.navigationOptions = {
 const SocialStack = createStackNavigator({
   Social: SocialScreen,
   Friends: FriendScreen,
+  OtherProfile: OtherProfileScreen,
+  OtherDogProfile: OtherDogProfileScreen,
 });
 
 SocialStack.navigationOptions = {

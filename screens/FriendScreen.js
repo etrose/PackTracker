@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, AsyncStorage, FlatList, Platform } from 'react-native';
+import { StyleSheet, 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    AsyncStorage, 
+    FlatList, 
+    ScrollView, 
+    RefreshControl,
+    Platform } from 'react-native';
 
 import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
@@ -10,12 +18,14 @@ import Colors from '../constants/Colors';
 export default class FriendScreen extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = { 
             curr_id: '',
             curr_username: '',
             incomingRequests: [],
             sentRequests: [],
-            friendRequests: [],
+            friendsList: [],
+            refreshing: true,
         };
     }
     static navigationOptions = {
@@ -31,23 +41,11 @@ export default class FriendScreen extends React.Component {
             .then(function(snapshot){
                 that.getFriendRequests(snapshot);
             });
-        ref.on('child_added', function(snapshot) {
-            that.addRequest(snapshot);
-        });
-        ref.on('child_removed', function(snapshot) {
-            that.removeRequest(snapshot);
-        });
-        ref.on('child_changed', function(snapshot) {
-            that.removeRequest(snapshot);
-        });
         this.setState({curr_id, curr_username});
     }
 
     async componentWillUnmount(){
         const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
-        ref.off('child_added');
-        ref.off('child_removed');
-        ref.off('child_changed');
     }
 
     getFriendRequests(requests){
@@ -83,125 +81,110 @@ export default class FriendScreen extends React.Component {
         this.setState({
             incomingRequests: tempIncoming, 
             sentRequests: tempSent,
-            friendsList: tempFriends
+            friendsList: tempFriends,
+            refreshing: false
         });
     }
-    addRequest(request){
-        if(request.val().sent != null) {
-        //id of requesting user
-        var id = request.key;
-        var username = request.val().username;
-        this.state.incomingRequests.forEach((req) => {
-            alert(req.username);
-        });
-        var temp = [];
-        //first check if the request is sent or received
-        if(!request.val().sent) {
-            temp.push({username,id});
-            this.setState({incomingRequests:temp});
-        }else {
-            this.state.sentRequests.forEach((i)=>temp.push(i));
-            temp.push({username,id});
-            this.setState({sentRequests: temp});
-        }
-    }
-    }
-    removeRequest(request){
-        //id of requesting user
-        var id = request.key;
-        var username = request.val().username;
 
-        // if(request.val().sent == null) {
-        //     var temp = this.state.friendRequests;
-        //     temp.push({
-        //         username,
-        //         id
-        //     });
-        //     this.setState({friendsList:temp});
-        // }else {
-            var temp = [];
+    onRefresh = () => {
+        this.setState({refreshing: true});
+        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
+        that = this;
+        ref.once('value')
+            .then(function(snapshot){
+                that.getFriendRequests(snapshot);
+            });
+    }
 
-            this.state.incomingRequests.forEach((i)=> {
-                if(i.id != id){
-                    temp.push(i);
-                }
-            });
-            this.setState({incomingRequests:temp});
-        
-            temp = [];
-            this.state.sentRequests.forEach((i)=> {
-                if(i.username != username) {temp.push(i);}
-            });
-            this.setState({sentRequests: temp});
-        //}
+    async onAccept (username, id) {
+        new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(username, id);
+    }
+
+    async myRemove(id, data) {
+        let items = [...this.state.data];
+        let filteredItems = items.filter(item => item.id != id);
+        this.setState({data: filteredItems});
     }
 
     render() {
         return (
         <View style={styles.container}>
+            <View style={styles.topBar}>
             <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>Friends</Text>
-            <Text style={styles.text}>Friend Requests</Text>
-            <View style={styles.line}/>
-            <FlatList 
-            //style={styles.flatList}
-            data={this.state.incomingRequests}
-            renderItem={({ item }) => (
-                <View style={styles.requestItem}>
-                <TouchableOpacity>
-                <Text style={styles.requestText}>{item.username}</Text>
-                </TouchableOpacity>
-                <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(item.username, item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
-                </TouchableOpacity>
-                <View style={{width: 30,}}></View>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                </TouchableOpacity>
-                </View>
-                </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            />
-            <Text style={styles.text}>Sent Requests</Text>
-            <View style={styles.line}/>
-            <FlatList 
-            //style={styles.flatList}
-            data={this.state.sentRequests}
-            renderItem={({ item }) => (
-                <View style={styles.requestItem}>
-                <TouchableOpacity>
+            </View>
+            <ScrollView 
+                style={styles.body}
+                refreshControl={
+                    <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}/>
+                }
+            ><View style={{padding: 10,}}>
+                <Text style={styles.text}>Friend Requests</Text>
+                <View style={styles.line}/>
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.incomingRequests}
+                renderItem={({ item }) => (
+                    <View style={styles.requestItem}>
+                    <TouchableOpacity>
                     <Text style={styles.requestText}>{item.username}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                </TouchableOpacity>
-                </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            />
-            <Text style={styles.text}>Friends</Text>
-            <View style={styles.line}/>
-            <FlatList 
-            //style={styles.flatList}
-            data={this.state.friendsList}
-            renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
-                {
-                    username: item.username,
-                    //email: item.email,
-                    uid: item.id,
-                })}>
-                <View style={styles.requestItem}>
-                    
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
-                    <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
-                
-                </View>
-                </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            />
+                    </TouchableOpacity>
+                    <View style={{flexDirection: 'row'}}>
+                    <TouchableOpacity onPress={this.onAccept}//{()=>new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(item.username, item.id)}
+                    >
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
+                    </TouchableOpacity>
+                    <View style={{width: 30,}}></View>
+                    <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
+                    </TouchableOpacity>
+                    </View>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                />
+                <Text style={styles.text}>Friends</Text>
+                <View style={styles.line}/>
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.friendsList}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
+                    {
+                        username: item.username,
+                        //email: item.email,
+                        uid: item.id,
+                    })}>
+                    <View style={styles.requestItem}>
+                        
+                        <View style={{flexDirection: 'row'}}>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
+                        <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
+                        </View>
+                    </View>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                />
+                <Text style={styles.text}>Sent Requests</Text>
+                <View style={styles.line}/>
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.sentRequests}
+                renderItem={({ item }) => (
+                    <View style={styles.requestItem}>
+                    <TouchableOpacity>
+                        <Text style={styles.requestText}>{item.username}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
+                    </TouchableOpacity>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                />
+        </View></ScrollView>
         </View>
         )
     }
@@ -212,7 +195,19 @@ const styles = StyleSheet.create ({
         flex: 1,
         marginTop: 23,
     },
+    topBar: {
+        padding: 10,
+    },
+    flatList: {
+        flexGrow: 0, 
+        marginBottom: 10,
+    },
+    body: {
+        backgroundColor: '#dddddd',
+        height: '100%',
+    },
     text: {
+        backgroundColor:'#fff',
         paddingHorizontal: 10,
     },
     line: {
@@ -223,7 +218,9 @@ const styles = StyleSheet.create ({
     requestItem: {
         padding: 10,
         flexDirection: 'row',
+        justifyContent: 'space-between',
         flex: 1,
+        backgroundColor: '#fff',
         borderBottomColor: '#000',
         borderBottomWidth: StyleSheet.hairlineWidth,
     },

@@ -6,7 +6,10 @@ import {
   Text,
   TouchableOpacity,
   AsyncStorage,
+  Platform,
 } from 'react-native';
+
+import { Icon } from 'expo';
 
 import Colors from '../constants/Colors';
 
@@ -104,11 +107,13 @@ class SearchScreen extends React.Component {
         <Text>Go</Text>
         </TouchableOpacity> */}
         </View>
+        {/* <View style={styles.flatListContainer}> */}
         <FlatList 
           style={styles.flatList}
           data={this.state.found}
           renderItem={({ item }) => (
-            <View><TouchableOpacity
+            <View style={styles.searchItem}><TouchableOpacity
+              style={{flexDirection: 'row',}}
               onPress={() => this.props.navigation.navigate('OtherProfile', 
               {
                 username: item.username,
@@ -116,11 +121,13 @@ class SearchScreen extends React.Component {
                 uid: item.uid,
               })}
               >
-              <Text>{item.username}</Text>
+              <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="orange" size={30}/>
+              <Text style={{fontSize: 20, fontWeight: 'bold', paddingLeft: 10}}>{item.username}</Text>
             </TouchableOpacity></View>
           )}
           keyExtractor={(item, index) => index.toString()}
           />
+          {/* </View> */}
         {/* <TouchableOpacity onPress={this.doSearch}><Text>Search!</Text></TouchableOpacity> */}
         </View>
     );
@@ -148,5 +155,22 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     backgroundColor: Colors.colorSecondary,
+  },
+  searchItem: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+    backgroundColor: '#fff',
+    borderBottomColor: '#000',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  flatList: {
+    flexGrow: 0, 
+    marginBottom: 10,
+    width: '100%',
+  },
+  flatListContainer: {
+    width: '100%',
   },
 });
