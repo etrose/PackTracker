@@ -44,10 +44,6 @@ export default class FriendScreen extends React.Component {
         this.setState({curr_id, curr_username});
     }
 
-    async componentWillUnmount(){
-        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
-    }
-
     getFriendRequests(requests){
         var tempIncoming = [];
         var tempSent = [];
@@ -96,14 +92,35 @@ export default class FriendScreen extends React.Component {
             });
     }
 
-    async onAccept (username, id) {
+    async onAccept (username, id, index) {
+        this.setState({refreshing: true});
+
         new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(username, id);
+        
+        this.setState({
+            refreshing: false,
+            friendsList: this.state.friendsList.concat({username, id}),
+            incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
+        });
     }
 
-    async myRemove(id, data) {
-        let items = [...this.state.data];
-        let filteredItems = items.filter(item => item.id != id);
-        this.setState({data: filteredItems});
+    async onRemove(sent, id, index) {
+
+        new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(id);
+
+        if(sent) {
+            this.setState(function(prevState){
+                return { 
+                    sentRequests : prevState.sentRequests.filter(function(val, i) {
+                return i !== index;
+                })};
+              });
+        }else {
+            this.setState({
+                incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
+            });
+        }
+        this.setState({refreshing: false});
     }
 
     render() {
@@ -125,18 +142,18 @@ export default class FriendScreen extends React.Component {
                 <FlatList 
                 style={styles.flatList}
                 data={this.state.incomingRequests}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <View style={styles.requestItem}>
                     <TouchableOpacity>
                     <Text style={styles.requestText}>{item.username}</Text>
                     </TouchableOpacity>
                     <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={this.onAccept}//{()=>new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(item.username, item.id)}
+                    <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}
                     >
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
                     </TouchableOpacity>
                     <View style={{width: 30,}}></View>
-                    <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
+                    <TouchableOpacity onPress={()=>this.onRemove(false, item.id, index)}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                     </TouchableOpacity>
                     </View>
@@ -172,12 +189,12 @@ export default class FriendScreen extends React.Component {
                 <FlatList 
                 style={styles.flatList}
                 data={this.state.sentRequests}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <View style={styles.requestItem}>
                     <TouchableOpacity>
                         <Text style={styles.requestText}>{item.username}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
+                    <TouchableOpacity onPress={()=>this.onRemove(true, item.id, index)}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                     </TouchableOpacity>
                     </View>

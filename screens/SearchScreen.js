@@ -107,27 +107,32 @@ class SearchScreen extends React.Component {
         <Text>Go</Text>
         </TouchableOpacity> */}
         </View>
-        {/* <View style={styles.flatListContainer}> */}
+        <View style={styles.body}>
+        <View style={{padding: 10,}}>
+        <Text style={styles.labelText}>Search Results</Text>
+        <View style={styles.line}/>
         <FlatList 
           style={styles.flatList}
           data={this.state.found}
           renderItem={({ item }) => (
-            <View style={styles.searchItem}><TouchableOpacity
-              style={{flexDirection: 'row',}}
+            <TouchableOpacity style={{flexDirection: 'row',}}
               onPress={() => this.props.navigation.navigate('OtherProfile', 
               {
                 username: item.username,
                 //email: item.email,
                 uid: item.uid,
-              })}
-              >
+              })}>
+            <View style={styles.searchItem}>
+              <View style={{flexDirection: 'row'}}>
               <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="orange" size={30}/>
               <Text style={{fontSize: 20, fontWeight: 'bold', paddingLeft: 10}}>{item.username}</Text>
-            </TouchableOpacity></View>
+              </View>
+            </View></TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
           />
-          {/* </View> */}
+          </View>
+          </View>
         {/* <TouchableOpacity onPress={this.doSearch}><Text>Search!</Text></TouchableOpacity> */}
         </View>
     );
@@ -142,6 +147,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  labelText: {
+    backgroundColor:'#fff',
+    paddingHorizontal: 10,
+  },
+  line: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#000',
+    width: '100%',
+  },
   searchContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -150,11 +164,10 @@ const styles = StyleSheet.create({
     minWidth: "100%",
     maxWidth: "100%",
   },
-  searchButton: {
-    justifyContent: 'center',
-    width: 30,
-    height: 30,
-    backgroundColor: Colors.colorSecondary,
+  body: {
+    backgroundColor: '#dddddd',
+    height: '100%',
+    width: '100%',
   },
   searchItem: {
     padding: 10,
