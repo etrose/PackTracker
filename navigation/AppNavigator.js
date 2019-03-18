@@ -17,7 +17,7 @@ const AuthStack = createStackNavigator({ Welcome: WelcomeScreen, Register: Regis
 export default createAppContainer(createSwitchNavigator(
   {
     Auth: AuthStack,
-    App: MainTabNavigator,
+    Main: MainTabNavigator,
   },
   {
     initialRouteName: 'Auth',

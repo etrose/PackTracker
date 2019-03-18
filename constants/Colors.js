@@ -1,8 +1,8 @@
-const tintColor = 'rgba(255,153,0,1)';
-
+//const tintColor = 'rgb(ffae00,153,0)';
+const tintColor = '#ffae00';
 export default {
   tintColor,
-  colorPrimary: 'rgba(255,153,0,1)',
+  colorPrimary: '#ffae00',
   colorSecondary: 'rgba(0,153,0,1)',
 
   tabIconDefault: '#ccc',

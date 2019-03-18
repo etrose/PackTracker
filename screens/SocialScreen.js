@@ -18,7 +18,7 @@ export default class SocialScreen extends React.Component {
             <TouchableOpacity style={Buttons.button} onPress={() => this.props.navigation.navigate('Friends')}>
                 <Text style={Buttons.buttonText}>Friends</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Register'))}>
+            <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Groups'))}>
                 <Text style={Buttons.buttonText}>Groups</Text>
             </TouchableOpacity>
             <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Search'))}>

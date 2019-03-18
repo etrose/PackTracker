@@ -218,7 +218,8 @@ export default class Profile extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 23,
+        //marginTop: 23,
+        flex: 1,
     },  
     dogItemHolder: {
         marginRight: 15,

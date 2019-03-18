@@ -15,7 +15,7 @@ import firebase from "firebase";
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 
-export default class FriendScreen extends React.Component {
+export default class FriendList extends React.Component {
     constructor(props) {
         super(props);
 
@@ -35,61 +35,55 @@ export default class FriendScreen extends React.Component {
     async componentDidMount() {
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
-        const ref = firebase.database().ref('users/'+curr_id+'/friends');
-        const that = this;
-        ref.once('value')
-            .then(function(snapshot){
-                that.getFriendRequests(snapshot);
-            });
         this.setState({curr_id, curr_username});
+        this.getFriendRequests();
     }
 
-    getFriendRequests(requests){
-        var tempIncoming = [];
-        var tempSent = [];
-        var tempFriends = [];
-        requests.forEach(function(child) {
-            var id = child.key;
-            var username = child.val().username;
-            
-            //if sent is null, user is already friend
-            if(child.val().sent != null) {
+    getFriendRequests(){
+        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
+        const that = this;
+        ref.once('value')
+            .then(function(requests){
+                var tempIncoming = [];
+                var tempSent = [];
+                var tempFriends = [];
+                requests.forEach(function(child) {
+                    var id = child.key;
+                    var username = child.val().username;
+                    
+                    //if sent is null, user is already friend
+                    if(child.val().sent != null) {
 
-            //Check if request was sent or received then add to correct list
-            if(!child.val().sent) {
-                tempIncoming.push({
-                    username,
-                    id
+                    //Check if request was sent or received then add to correct list
+                    if(!child.val().sent) {
+                        tempIncoming.push({
+                            username,
+                            id
+                        });
+                    }else {
+                        tempSent.push({
+                            username,
+                            id
+                        });
+                    }
+                }else {
+                    tempFriends.push({
+                        username,
+                        id
+                    });
+                }
                 });
-            }else {
-                tempSent.push({
-                    username,
-                    id
+                that.setState({
+                    incomingRequests: tempIncoming, 
+                    sentRequests: tempSent,
+                    friendsList: tempFriends,
+                    refreshing: false
                 });
-            }
-        }else {
-            tempFriends.push({
-                username,
-                id
             });
-        }
-        });
-        this.setState({
-            incomingRequests: tempIncoming, 
-            sentRequests: tempSent,
-            friendsList: tempFriends,
-            refreshing: false
-        });
     }
 
     onRefresh = () => {
-        this.setState({refreshing: true});
-        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
-        that = this;
-        ref.once('value')
-            .then(function(snapshot){
-                that.getFriendRequests(snapshot);
-            });
+        this.getFriendRequests();
     }
 
     async onAccept (username, id, index) {
@@ -123,11 +117,24 @@ export default class FriendScreen extends React.Component {
         this.setState({refreshing: false});
     }
 
+    async handleUserPress (username, id) {
+        this.props.navigation.navigate('OtherProfile', 
+                    {
+                        username,
+                        //email: item.email,
+                        uid: id,
+                    });
+    }
+
     render() {
         return (
         <View style={styles.container}>
             <View style={styles.topBar}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
             <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>Friends</Text>
+            </View>
+            <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>
             <ScrollView 
                 style={styles.body}
@@ -143,13 +150,10 @@ export default class FriendScreen extends React.Component {
                 style={styles.flatList}
                 data={this.state.incomingRequests}
                 renderItem={({ item, index }) => (
-                    <View style={styles.requestItem}>
-                    <TouchableOpacity>
+                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
                     <Text style={styles.requestText}>{item.username}</Text>
-                    </TouchableOpacity>
                     <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}
-                    >
+                    <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
                     </TouchableOpacity>
                     <View style={{width: 30,}}></View>
@@ -157,7 +161,7 @@ export default class FriendScreen extends React.Component {
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                     </TouchableOpacity>
                     </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
@@ -167,12 +171,7 @@ export default class FriendScreen extends React.Component {
                 style={styles.flatList}
                 data={this.state.friendsList}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
-                    {
-                        username: item.username,
-                        //email: item.email,
-                        uid: item.id,
-                    })}>
+                    <TouchableOpacity onPress={() => this.handleUserPress(item.username, item.id)}>
                     <View style={styles.requestItem}>
                         
                         <View style={{flexDirection: 'row'}}>
@@ -190,14 +189,12 @@ export default class FriendScreen extends React.Component {
                 style={styles.flatList}
                 data={this.state.sentRequests}
                 renderItem={({ item, index }) => (
-                    <View style={styles.requestItem}>
-                    <TouchableOpacity>
-                        <Text style={styles.requestText}>{item.username}</Text>
-                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
+                    <Text style={styles.requestText}>{item.username}</Text>  
                     <TouchableOpacity onPress={()=>this.onRemove(true, item.id, index)}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
                     </TouchableOpacity>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
@@ -210,10 +207,13 @@ export default class FriendScreen extends React.Component {
 const styles = StyleSheet.create ({
     container: {
         flex: 1,
-        marginTop: 23,
+        //marginTop: 23,
     },
     topBar: {
         padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     },
     flatList: {
         flexGrow: 0, 

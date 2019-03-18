@@ -1,7 +1,9 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View, Text  } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import Workaround from './Workaround';
+
+import { Constants } from 'expo';
 
 import ApiKeys from './constants/ApiKeys';
 
@@ -46,7 +48,8 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          <View style={styles.statusBar}/>
+          {/* {Platform.OS === 'ios' && <StatusBar barStyle="default" />} */}
           {this.state.isAuthenticated ? <MainTabNavigator/> : <AppNavigator/>}
         </View>
       );
@@ -76,8 +79,9 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-
-    backgroundColor: '#fff',
   },
+  statusBar: {
+    backgroundColor: "#ffae00",
+    height: Constants.statusBarHeight,
+  }
 });

@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
 
     },
     container: {
-        marginTop: 23,
+        //marginTop: 23,
+        flex: 1,
     }, 
     linkText: {
         fontSize: 16,

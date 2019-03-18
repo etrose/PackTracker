@@ -140,13 +140,13 @@ export default class Profile extends React.Component {
               data={this.state.dogs}
               renderItem={({ item }) => (
               <TouchableOpacity 
-               onPress={() => this.props.navigation.navigate('DogProfile', 
-                {
-                dogName: item.doggoName,
-                dogBreed: item.doggoBreed,
-                dogBirth: item.doggoBirth,
-                dogPic: item.doggoPic,
-                })}
+               onPress={() => item.doggoName != "No Dogs" ? this.props.navigation.navigate('OtherDogProfile', 
+                  {
+                      dogName: item.doggoName,
+                      dogBreed: item.doggoBreed,
+                      dogBirth: item.doggoBirth,
+                      dogPic: item.doggoPic,
+                  }): null}
               style={styles.dogItemHolder}>
                 <Image 
                 style={styles.dogPic}
@@ -174,7 +174,8 @@ export default class Profile extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 23,
+        //marginTop: 23,
+        flex: 1,
     },  
     dogItemHolder: {
         marginRight: 15,

@@ -7,7 +7,8 @@ import TabBarIcon from '../components/AppComponents/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 
 import SocialScreen from '../screens/SocialScreen';
-import FriendScreen from '../screens/FriendScreen';
+import FriendList from '../screens/FriendList';
+import GroupList from '../screens/GroupList';
 
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
@@ -97,7 +98,8 @@ SearchStack.navigationOptions = {
 
 const SocialStack = createStackNavigator({
   Social: SocialScreen,
-  Friends: FriendScreen,
+  Friends: FriendList,
+  Groups: GroupList,
   OtherProfile: OtherProfileScreen,
   OtherDogProfile: OtherDogProfileScreen,
 });

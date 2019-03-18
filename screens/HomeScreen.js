@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, StatusBar } from 'react-native';
 
 class HomeScreen extends React.Component {
     constructor(props) {
@@ -9,10 +9,14 @@ class HomeScreen extends React.Component {
     static navigationOptions = {
         header: null,
     };
+
     render() {
-        const {navigation} = this.props;
         return (
         <View style={styles.container}>
+            <StatusBar
+                backgroundColor='rgb(255,153,0)'
+                barStyle="light-content"
+            />
             <Text>Home</Text>
         </View>
         )

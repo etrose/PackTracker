@@ -142,7 +142,7 @@ export default SearchScreen;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 23,
+    //marginTop: 23,
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#fff',
