@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View, Text  } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import Workaround from './Workaround';
 
@@ -42,7 +42,7 @@ export default class App extends React.Component {
           onError={this._handleLoadingError}
           onFinish={this._handleFinishLoading}
         />
-        <Text>Loading...</Text>
+        <ActivityIndicator size='large'/>
         </View>
       );
     } else {
