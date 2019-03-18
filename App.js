@@ -48,7 +48,7 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          <View style={styles.statusBar}/>
+          {/* <View style={styles.statusBar}/> */}
           {/* {Platform.OS === 'ios' && <StatusBar barStyle="default" />} */}
           {this.state.isAuthenticated ? <MainTabNavigator/> : <AppNavigator/>}
         </View>

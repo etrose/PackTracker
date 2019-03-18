@@ -29,5 +29,8 @@
     "android": {
       "package": "com.evanrose.dogapp"
     },
+    "androidStatusBar": {
+      "backgroundColor": "#ffae00"
+    }
   }
 }
