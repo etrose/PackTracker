@@ -140,7 +140,7 @@ export default class Profile extends React.Component {
               data={this.state.dogs}
               renderItem={({ item }) => (
               <TouchableOpacity 
-               onPress={() => item.doggoName != "No Dogs" ? this.props.navigation.navigate('OtherDogProfile', 
+               onPress={() => item.doggoName != "No Dogs" ? this.props.navigation.navigate('DogProfile', 
                   {
                       dogName: item.doggoName,
                       dogBreed: item.doggoBreed,

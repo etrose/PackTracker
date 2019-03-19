@@ -1,60 +1,86 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform, Alert } from 'react-native';
 import Modal from 'react-native-modal';
 import { Icon } from 'expo';
 import Colors from '../../constants/Colors';
 import { AuthPages } from '../../constants/Layout';
+import firebase from "firebase";
 
 export default class NewGroupModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = ({
       isModalVisible: false,
+      groupName: '',
+      //city: '',
     });
   }
 
     _toggleModal = () =>
       this.setState({ isModalVisible: !this.state.isModalVisible });
     
-      render() {
-        return (
-          <View style={ styles.container }>
-            <TouchableOpacity onPress={this._toggleModal}>
-              <Text style={styles.linkText}>{this.props.label}</Text>
-            </TouchableOpacity>
-            <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center', height: 500, }}
-             isVisible={this.state.isModalVisible}
-             onBackdropPress={this._toggleModal}>
-              <View style={styles.backgroundView}>
-              <View style={styles.modal}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                <Text style={{fontSize: 20, fontWeight: 'bold'}}>{this.props.label}</Text>
-                <TouchableOpacity onPress={this._toggleModal}>
-                  <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={30}/>
-                </TouchableOpacity>
+    onCreatePressed() {
+      const groupName = this.state.groupName;
+      const city = "Newport News";
+      const state = "VA";
+      if(groupName.length > 0) {
+        var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
+        if (pattern.test(groupName)) {
+          Alert.alert("Group name invalid", "Cannot contain symbols");
+          return;
+        }else {
+          firebase.database().ref('groups/'+groupName).set({
+            city,
+            state
+          }).then(() => {
+            this._toggleModal();
+            Alert.alert("Success!", "Group: " + groupName + " created.");
+          });
+        }
+      }else {
+        Alert.alert("Group name invalid", "Cannot be empty");
+      }
+    }
+
+    render() {
+      return (
+        <View style={ styles.container }>
+          <TouchableOpacity onPress={this._toggleModal}>
+            <Text style={styles.linkText}>{this.props.label}</Text>
+          </TouchableOpacity>
+          <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center', height: 500, }}
+            isVisible={this.state.isModalVisible}
+            onBackdropPress={this._toggleModal}>
+            <View style={styles.backgroundView}>
+            <View style={styles.modal}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+              <Text style={{fontSize: 20, fontWeight: 'bold'}}>{this.props.label}</Text>
+              <TouchableOpacity onPress={this._toggleModal}>
+                <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={30}/>
+              </TouchableOpacity>
+              </View>
+
+              <View style={{alignItems: 'center'}}>
+              <Text>Group Name:</Text>
+              <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
+                <TextInput style={AuthPages.inputBox}
+                    underlineColorAndroid="transparent"
+                    placeholder="Group Name"
+                    placeholderTextColor={Colors.text}
+                    onChangeText={text => this.setState({ groupName: text })}
+                    ref={(input) => this.groupName = input}
+                /></View>
                 </View>
 
-                <View style={{alignItems: 'center'}}>
-                <Text>Group Name:</Text>
-                <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
-                  <TextInput style={AuthPages.inputBox}
-                      underlineColorAndroid="transparent"
-                      placeholder="Group Name"
-                      placeholderTextColor={Colors.text}
-                      onChangeText={text => this.setState({ groupName: text })}
-                      ref={(input) => this.groupName = input}
-                  /></View>
-                  </View>
-
-                  <TouchableOpacity style={AuthPages.button} >
-                    <Text style={AuthPages.buttonText}>Create</Text>
-                  </TouchableOpacity>
-              </View>
-              </View>
-            </Modal>
-          </View>
-        );
-      }
+                <TouchableOpacity style={AuthPages.button} onPress={()=>this.onCreatePressed()}>
+                  <Text style={AuthPages.buttonText}>Create</Text>
+                </TouchableOpacity>
+            </View>
+            </View>
+          </Modal>
+        </View>
+      );
+    }
   }
   const styles = StyleSheet.create({
       container: {
