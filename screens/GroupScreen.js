@@ -13,7 +13,13 @@ export default class GroupScreen extends React.Component {
         header: null,
     };
 
-    
+    async componentDidMount() {
+        const {navigation} = this.props;
+        this.setState({
+            groupName: navigation.getParam('name', 'Group'),
+            groupPosition: navigation.getParam('position', 'member'),
+            });
+    }
 
     render() {
         return (
