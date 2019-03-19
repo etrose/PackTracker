@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform, Alert, Picker } from 'react-native';
 import Modal from 'react-native-modal';
 import { Icon } from 'expo';
 import Colors from '../../constants/Colors';
 import { AuthPages } from '../../constants/Layout';
 import firebase from "firebase";
+import Groups from '../../FirebaseCalls/Groups';
 
 export default class NewGroupModal extends React.Component {
   constructor(props) {
@@ -12,33 +13,36 @@ export default class NewGroupModal extends React.Component {
     this.state = ({
       isModalVisible: false,
       groupName: '',
-      //city: '',
+      cityChoices: ["Newport News", "Norfolk", "Leesburg", "Richmond", "Ashburn", "Williamsburg"],
+      stateChoices: ["VA"],
+      city: 'Newport News',
+      state: 'VA',
+      currId: this.props.id,
+
     });
   }
 
     _toggleModal = () =>
       this.setState({ isModalVisible: !this.state.isModalVisible });
     
-    onCreatePressed() {
+    async onCreatePressed() {
       const groupName = this.state.groupName;
-      const city = "Newport News";
-      const state = "VA";
-      if(groupName.length > 0) {
+    
+      if(groupName.length > 2) {
         var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
         if (pattern.test(groupName)) {
           Alert.alert("Group name invalid", "Cannot contain symbols");
           return;
         }else {
-          firebase.database().ref('groups/'+groupName).set({
-            city,
-            state
-          }).then(() => {
-            this._toggleModal();
-            Alert.alert("Success!", "Group: " + groupName + " created.");
-          });
+          const city = this.state.city;
+          const state = this.state.state;
+      
+          new Groups(this.props.id, this.props.username).createGroup(groupName, city, state) ?
+          Alert.alert("Success!", "Group: " + groupName + " created.") : Alert.alert("Group name invalid", "An existing group already has this name");
+          this._toggleModal();
         }
       }else {
-        Alert.alert("Group name invalid", "Cannot be empty");
+        Alert.alert("Group name invalid", "Must be greater than 2 characters.");
       }
     }
 
@@ -61,7 +65,7 @@ export default class NewGroupModal extends React.Component {
               </View>
 
               <View style={{alignItems: 'center'}}>
-              <Text>Group Name:</Text>
+              <Text>Group Name</Text>
               <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
                 <TextInput style={AuthPages.inputBox}
                     underlineColorAndroid="transparent"
@@ -70,6 +74,26 @@ export default class NewGroupModal extends React.Component {
                     onChangeText={text => this.setState({ groupName: text })}
                     ref={(input) => this.groupName = input}
                 /></View>
+                <Picker
+                  selectedValue={this.state.state}
+                  style={{width: 150}}
+                  mode="dropdown"
+                  onValueChange={(itemValue, itemIndex) =>
+                  this.setState({state: itemValue})}>
+                  {this.state.stateChoices.map((item, index) => {
+                    return (<Picker.Item label={item} value={index} key={index}/>) 
+                  })}
+                </Picker>
+                <Picker
+                  selectedValue={this.state.city}
+                  style={{width: 200}}
+                  mode="dropdown"
+                  onValueChange={(itemValue, itemIndex) =>
+                  this.setState({city: itemValue})}>
+                  {this.state.cityChoices.map((item, index) => {
+                    return (<Picker.Item label={item} value={item} key={item}/>) 
+                  })}
+                </Picker>
                 </View>
 
                 <TouchableOpacity style={AuthPages.button} onPress={()=>this.onCreatePressed()}>
@@ -99,7 +123,7 @@ export default class NewGroupModal extends React.Component {
       modal: {
         backgroundColor: '#fff', 
         padding: 20, 
-        height: "50%",
+        
         width: "80%", 
         borderRadius: 10,
         justifyContent: 'space-between',

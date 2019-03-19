@@ -1,13 +1,46 @@
 import React from 'react';
 import firebase from "firebase";
 
-export default class Friends extends React.Component {
+export default class Groups extends React.Component {
     constructor(curr_id, curr_username) {
         super();
         this.state = { 
             curr_id,
             curr_username,
         };
+    }
+
+    async createGroup(groupName, city, state) {
+        const that = this;
+        firebase.database().ref('groups/'+groupName).once('value', function(snapshot) {
+            if (snapshot.exists()) {
+              return false;
+            }else {
+              firebase.database().ref('groups/'+groupName).set({
+                city,
+                state,
+                memberCount: 1,
+              }).then(() => {
+                return true;
+              });
+            }
+          }).then(() => {
+              that.addMember(groupName, 'founder');
+          });
+    }
+
+    async addMember(groupName, position='member') {
+        currUserId = this.state.curr_id;
+        currUsername = this.state.curr_username;
+        //console.log(currUserId);
+        firebase.database().ref('groups/'+groupName+'/members/'+currUserId).set({
+            username: currUsername,
+            position
+        }).then(()=> {
+            firebase.database().ref('users/'+currUserId+'/groups/'+groupName).set({
+                position
+            });
+        });
     }
 
     async addFriend(otherUsername, otherUserId){

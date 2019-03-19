@@ -4,6 +4,7 @@ import { StyleSheet,
     Text, 
     TouchableOpacity, 
     AsyncStorage, 
+    ActivityIndicator,
     FlatList, 
     ScrollView, 
     RefreshControl,
@@ -26,6 +27,7 @@ export default class GroupList extends React.Component {
             // incomingRequests: [],
             // sentRequests: [],
             // friendsList: [],
+            groupsList: [],
             refreshing: false,
         };
     }
@@ -118,8 +120,9 @@ export default class GroupList extends React.Component {
     //     this.setState({refreshing: false});
     // }
 
-    async onCreateGroupPressed() {
-        alert("Create Group");
+
+    onNewGroup = (groupId) => {
+        //get group info from firebase and add it to groupList
     }
 
 
@@ -134,7 +137,6 @@ export default class GroupList extends React.Component {
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>
             <View style={styles.line}/>
-            <NewGroupModal label="New Group"/>
             <ScrollView 
                 style={styles.body}
                 refreshControl={
@@ -143,7 +145,7 @@ export default class GroupList extends React.Component {
                     onRefresh={this.onRefresh}/>
                 }
             ><View style={{padding: 10,}}>
-                <NewGroupModal label="New Group"/>
+                <NewGroupModal label="New Group" id={this.state.curr_id} username={this.state.curr_username} onCreated={this.onNewGroup}/>
                 <Text style={styles.text}>My Groups</Text>
                 <View style={styles.line}/>
                 <FlatList 
