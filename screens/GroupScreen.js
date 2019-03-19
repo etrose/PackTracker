@@ -1,19 +1,25 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
-export default class HomeScreen extends React.Component {
+export default class GroupScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { };
+        this.state = { 
+            groupName: this.props.name,
+            groupPosition: this.props.position,
+        };
     }
     static navigationOptions = {
         header: null,
     };
 
+    
+
     render() {
         return (
         <View style={styles.container}>
-            <Text>Home</Text>
+            <Text>{this.state.groupName}</Text>
+            <Text>{this.state.groupPosition}</Text>
         </View>
         )
     }

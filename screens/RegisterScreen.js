@@ -40,8 +40,14 @@ export default class RegisterScreen extends React.Component {
         }
 
         if (password == confirm_password) {
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((user) => {
+            //Check database for username availability
+            firebase.database().ref('usernames/'+username).once('value', function(snapshot) {
+                if (snapshot.exists()) {
+                    Alert.alert("Username Taken", "Sorry, this username has already been taken");
+                    return;
+                }else {
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .then((user) => {
                     //Enable network once logged in successfully
                     firebase.firestore().enableNetwork();
                     const fbRootRefFS = firebase.firestore();
@@ -60,8 +66,6 @@ export default class RegisterScreen extends React.Component {
                         id
                     });
                     
-                    
-
                     AsyncStorage.setItem("user:id", id);
                     AsyncStorage.setItem("user:email", email);
                     AsyncStorage.setItem("user:username", username);
@@ -69,6 +73,11 @@ export default class RegisterScreen extends React.Component {
                     const { code, message } = error;
                     alert(message);
                 });
+                }
+            }).catch((error) => {
+                const { code, message } = error;
+                alert(message);
+            });
         } else {
             alert("Passwords Don't match");
         }

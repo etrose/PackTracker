@@ -36,14 +36,18 @@ export default class NewGroupModal extends React.Component {
         }else {
           const city = this.state.city;
           const state = this.state.state;
-      
-          new Groups(this.props.id, this.props.username).createGroup(groupName, city, state) ?
-          Alert.alert("Success!", "Group: " + groupName + " created.") : Alert.alert("Group name invalid", "An existing group already has this name");
-          this._toggleModal();
+          var g = new Groups(this.props.id, this.props.username);
+          var b = await g.createGroup(groupName, city, state);
+          b ? this.successfulGroup(groupName) : null;
         }
       }else {
         Alert.alert("Group name invalid", "Must be greater than 2 characters.");
       }
+    }
+
+    async successfulGroup(groupName) {
+      this._toggleModal(); 
+      this.props.onCreated(groupName);
     }
 
     render() {
@@ -67,7 +71,8 @@ export default class NewGroupModal extends React.Component {
               <View style={{alignItems: 'center'}}>
               <Text>Group Name</Text>
               <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
-                <TextInput style={AuthPages.inputBox}
+                <TextInput style={[AuthPages.inputBox, {width: 250}]}
+                    maxLength={32}
                     underlineColorAndroid="transparent"
                     placeholder="Group Name"
                     placeholderTextColor={Colors.text}
@@ -96,7 +101,7 @@ export default class NewGroupModal extends React.Component {
                 </Picker>
                 </View>
 
-                <TouchableOpacity style={AuthPages.button} onPress={()=>this.onCreatePressed()}>
+                <TouchableOpacity style={[AuthPages.button, {width: 250}]} onPress={()=>this.onCreatePressed()}>
                   <Text style={AuthPages.buttonText}>Create</Text>
                 </TouchableOpacity>
             </View>

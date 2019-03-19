@@ -12,21 +12,24 @@ export default class Groups extends React.Component {
 
     async createGroup(groupName, city, state) {
         const that = this;
+        return new Promise(resolve => {
         firebase.database().ref('groups/'+groupName).once('value', function(snapshot) {
             if (snapshot.exists()) {
-              return false;
+                alert("An existing group has this name.");
+                resolve(false);
             }else {
               firebase.database().ref('groups/'+groupName).set({
                 city,
                 state,
-                memberCount: 1,
+                memberCount: 0,
               }).then(() => {
-                return true;
+                  alert(groupName + " created!");
+                    that.addMember(groupName, 'founder');
+                    resolve(true);
               });
             }
-          }).then(() => {
-              that.addMember(groupName, 'founder');
           });
+        });
     }
 
     async addMember(groupName, position='member') {
@@ -39,6 +42,13 @@ export default class Groups extends React.Component {
         }).then(()=> {
             firebase.database().ref('users/'+currUserId+'/groups/'+groupName).set({
                 position
+            }).then(()=> {
+                firebase.database().ref('groups/'+groupName).transaction(function(group) {
+                if (group) {
+                    group.memberCount++;
+                }
+                return group;
+                });
             });
         });
     }

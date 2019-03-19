@@ -9,6 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SocialScreen from '../screens/SocialScreen';
 import FriendList from '../screens/FriendList';
 import GroupList from '../screens/GroupList';
+import GroupScreen from '../screens/GroupScreen';
 
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
@@ -100,6 +101,7 @@ const SocialStack = createStackNavigator({
   Social: SocialScreen,
   Friends: FriendList,
   Groups: GroupList,
+  GroupScreen: GroupScreen,
   OtherProfile: OtherProfileScreen,
   OtherDogProfile: OtherDogProfileScreen,
 });

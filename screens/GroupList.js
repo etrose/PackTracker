@@ -28,7 +28,7 @@ export default class GroupList extends React.Component {
             // sentRequests: [],
             // friendsList: [],
             groupsList: [],
-            refreshing: false,
+            refreshing: true,
         };
     }
     static navigationOptions = {
@@ -40,8 +40,30 @@ export default class GroupList extends React.Component {
         const curr_username = await AsyncStorage.getItem("user:username");
         this.setState({curr_id, curr_username});
         //this.getFriendRequests();
+        this.getGroups();
     }
 
+    getGroups() {
+        const ref = firebase.database().ref('users/'+this.state.curr_id+'/groups');
+        const that = this;
+        ref.once('value')
+            .then((groups) => {
+                var groupsList = [];
+                groups.forEach((group)=> {
+                    groupsList.push({
+                        name: group.key,
+                        position: group.val().position
+                    });
+                });
+                that.setState({
+                    groupsList,
+                    refreshing: false
+                });
+            }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+            });
+    }
     // getFriendRequests(){
     //     const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
     //     const that = this;
@@ -121,8 +143,12 @@ export default class GroupList extends React.Component {
     // }
 
 
-    onNewGroup = (groupId) => {
-        //get group info from firebase and add it to groupList
+    onNewGroup = (groupName) => {
+        //add group to groups
+        this.setState({
+            groupsList: this.state.groupsList.concat({name: groupName, position: "Founder"})
+        });
+        
     }
 
 
@@ -148,33 +174,29 @@ export default class GroupList extends React.Component {
                 <NewGroupModal label="New Group" id={this.state.curr_id} username={this.state.curr_username} onCreated={this.onNewGroup}/>
                 <Text style={styles.text}>My Groups</Text>
                 <View style={styles.line}/>
+
                 <FlatList 
                 style={styles.flatList}
-                data={this.state.incomingRequests}
+                data={this.state.groupsList}
                 renderItem={({ item, index }) => (
-                    <View style={styles.requestItem}>
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
+                    <View style={styles.listItem}>
+                    <TouchableOpacity 
+                    style={{flex: 1}}
+                    onPress={() => this.props.navigation.navigate('GroupScreen', 
                     {
-                        username: item.username,
-                        //email: item.email,
-                        uid: item.id,
+                        name: item.name,
+                        position: item.position,
                     })}>
-                    <Text style={styles.requestText}>{item.username}</Text>
-                    </TouchableOpacity>
-                    <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}
-                    >
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
-                    </TouchableOpacity>
-                    <View style={{width: 30,}}></View>
-                    <TouchableOpacity onPress={()=>this.onRemove(false, item.id, index)}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                    </TouchableOpacity>
+                    <View>
+                    <Text style={styles.listText}>{item.name}</Text>
+                    <Text style={styles.listTextSmall}>{item.position}</Text>
                     </View>
+                    </TouchableOpacity>
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
+
                 {/* <Text style={styles.text}>Nearby Groups</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -235,17 +257,20 @@ const styles = StyleSheet.create ({
         backgroundColor: '#000',
         width: '100%',
     },
-    requestItem: {
+    listItem: {
         padding: 10,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        //justifyContent: 'space-between',
         flex: 1,
         backgroundColor: '#fff',
         borderBottomColor: '#000',
         borderBottomWidth: StyleSheet.hairlineWidth,
     },
-    requestText: {
+    listText: {
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    listTextSmall: {
+        fontSize: 12,
     },
 });
