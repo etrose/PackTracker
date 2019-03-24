@@ -8,7 +8,7 @@ export default {
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
   text: '#555',
-  buttonText: '#555',
+  buttonText: '#fff',
   background: '#fff',
   tabBar: '#fefefe',
   errorBackground: 'red',

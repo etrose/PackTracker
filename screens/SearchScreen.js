@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   AsyncStorage,
   Platform,
+  ScrollView,
 } from 'react-native';
 
 import { Icon } from 'expo';
@@ -37,46 +38,62 @@ class SearchScreen extends React.Component {
   async componentDidMount() {
     const currentUser = await AsyncStorage.getItem("user:username");
     const tempUsers = [];
-    firebase.firestore().collection("users").get().then((results) => {
-      //this.setState({allUsers: results,})
-      results.forEach((user) => {
-        tempUsers.push({
-          username: user.data().username,
-          email: user.data().email,
-          id: user.data().id,
-          //city
-        });
-      });
+    // firebase.firestore().collection("users").get().then((results) => {
+    //   //this.setState({allUsers: results,})
+    //   results.forEach((user) => {
+    //     tempUsers.push({
+    //       username: user.data().username,
+    //       email: user.data().email,
+    //       id: user.data().id,
+    //       //city
+    //     });
+    //   });
       
-      this.setState({
-        allUsers: tempUsers,
-        currentUser: currentUser,
+    //   this.setState({
+    //     allUsers: tempUsers,
+    //     currentUser: currentUser,
+    //   });
+    // });
+    this.setState({
+          currentUser: currentUser,
       });
-    });
   }
 
   doSearch = () => {
     //console.log(this.state.allUsers);
-    const users = this.state.allUsers;
-    const tempFound = [];
-    users.forEach((user) => {
-      const thisUsername = user.username.toLowerCase();
-      const searchInput = this.state.searchInput;
-          
-      if(~thisUsername.indexOf(searchInput.toLowerCase())) {
-        if(user.username != this.state.currentUser) {
-        tempFound.push({
-          username: user.username,
-          email: user.email,
-          uid: user.id,
-          //city: user.city,
-        });
+    // const users = this.state.allUsers;
+    // const tempFound = [];
+    // users.forEach((user) => {
+    //   const thisUsername = user.username.toLowerCase();
+    const searchInput = this.state.searchInput.toLowerCase();
+    const tempFound =[];
+    const ref = firebase.database().ref('usernames');
+    ref.orderByKey().startAt(searchInput).endAt(searchInput+"\uf8ff").once("value")
+      .then((ref) => {
+        ref.forEach((user) => {
+          if(user.key != this.state.currentUser.toLowerCase()) {
+          tempFound.push({
+            username: user.key,
+            id: user.val().id
+          })
         }
-      }
+        });
+        
+        this.setState({
+          found: tempFound,
+        });
     });
-    this.setState({
-      found: tempFound,
-    });
+    //   if(~thisUsername.indexOf(searchInput.toLowerCase())) {
+    //     if(user.username != this.state.currentUser) {
+    //     tempFound.push({
+    //       username: user.username,
+    //       email: user.email,
+    //       uid: user.id,
+    //       //city: user.city,
+    //     });
+    //     }
+    //   }
+    // });
   }
 
   searchChange = (text) => {
@@ -107,9 +124,11 @@ class SearchScreen extends React.Component {
         <Text>Go</Text>
         </TouchableOpacity> */}
         </View>
-        <View style={styles.body}>
+        <ScrollView style={styles.body}>
         <View style={{padding: 10,}}>
-        <Text style={styles.labelText}>Search Results</Text>
+
+        <View style={styles.sectionHolder}>
+        <Text style={styles.text}>Search Results</Text>
         <View style={styles.line}/>
         <FlatList 
           style={styles.flatList}
@@ -130,9 +149,10 @@ class SearchScreen extends React.Component {
             </View></TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
-          />
+          /></View>
+          
           </View>
-          </View>
+          </ScrollView>
         {/* <TouchableOpacity onPress={this.doSearch}><Text>Search!</Text></TouchableOpacity> */}
         </View>
     );
@@ -147,10 +167,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  labelText: {
-    backgroundColor:'#fff',
-    paddingHorizontal: 10,
-  },
   line: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#000',
@@ -163,6 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     minWidth: "100%",
     maxWidth: "100%",
+    elevation: 4,
   },
   body: {
     backgroundColor: '#dddddd',
@@ -178,12 +195,27 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000',
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  text: {
+    color: Colors.tintColor,
+    fontWeight: 'bold',
+    fontSize: 20,
+    padding: 10,
+  },    
+  sectionHolder: {
+    marginVertical: 10,
+    elevation: 3,
+    width: '100%',
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor:'#fff',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+},
   flatList: {
     flexGrow: 0, 
     marginBottom: 10,
-    width: '100%',
-  },
-  flatListContainer: {
     width: '100%',
   },
 });

@@ -62,7 +62,7 @@ export default class RegisterScreen extends React.Component {
                     firebase.database().ref('users/'+id).set({
                         username
                     });
-                    firebase.database().ref('usernames/'+username).set({
+                    firebase.database().ref('usernames/'+username.toLowerCase()).set({
                         id
                     });
                     
@@ -93,6 +93,7 @@ export default class RegisterScreen extends React.Component {
                         <TextInput style={AuthPages.inputBox}
                             underlineColorAndroid="transparent"
                             placeholder="Username"
+                            autoCapitalize = "none"
                             placeholderTextColor={Colors.text}
                             onChangeText={text => this.setState({ username: text })}
                             onSubmitEditing={() => this.email.focus()}
@@ -102,6 +103,7 @@ export default class RegisterScreen extends React.Component {
                         <TextInput style={AuthPages.inputBox}
                             underlineColorAndroid="transparent"
                             placeholder="Email"
+                            autoCapitalize = "none"
                             keyboardType="email-address"
                             placeholderTextColor={Colors.text}
                             onChangeText={text => this.setState({ email: text })}
@@ -114,6 +116,7 @@ export default class RegisterScreen extends React.Component {
                             underlineColorAndroid="transparent"
                             placeholderTextColor={Colors.text}
                             placeholder="Password"
+                            autoCapitalize = "none"
                             secureTextEntry={true}
                             onChangeText={text => this.setState({ password: text })}
                             ref={(input) => this.password = input}
@@ -125,6 +128,7 @@ export default class RegisterScreen extends React.Component {
                             underlineColorAndroid="transparent"
                             placeholderTextColor={Colors.text}
                             placeholder="Confirm Password"
+                            autoCapitalize = "none"
                             secureTextEntry={true}
                             onChangeText={text => this.setState({ confirm_password: text })}
                             ref={(input) => this.confirm_password = input}

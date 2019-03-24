@@ -200,7 +200,7 @@ export default class Profile extends React.Component {
                   </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                />: <ActivityIndicator size='large'/>}
+                />: <View style={{height: 100}}><ActivityIndicator size='large'/></View>}
             </View>
 
             <View style={styles.flatListContainer}>

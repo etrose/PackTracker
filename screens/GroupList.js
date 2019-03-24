@@ -24,9 +24,6 @@ export default class GroupList extends React.Component {
         this.state = { 
             curr_id: '',
             curr_username: '',
-            // incomingRequests: [],
-            // sentRequests: [],
-            // friendsList: [],
             groupsList: [],
             refreshing: true,
         };
@@ -39,7 +36,6 @@ export default class GroupList extends React.Component {
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
         this.setState({curr_id, curr_username});
-        //this.getFriendRequests();
         this.getGroups();
     }
 
@@ -64,84 +60,10 @@ export default class GroupList extends React.Component {
             alert(message);
             });
     }
-    // getFriendRequests(){
-    //     const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
-    //     const that = this;
-    //     ref.once('value')
-    //         .then(function(requests){
-    //             var tempIncoming = [];
-    //             var tempSent = [];
-    //             var tempFriends = [];
-    //             requests.forEach(function(child) {
-    //                 var id = child.key;
-    //                 var username = child.val().username;
-                    
-    //                 //if sent is null, user is already friend
-    //                 if(child.val().sent != null) {
-
-    //                 //Check if request was sent or received then add to correct list
-    //                 if(!child.val().sent) {
-    //                     tempIncoming.push({
-    //                         username,
-    //                         id
-    //                     });
-    //                 }else {
-    //                     tempSent.push({
-    //                         username,
-    //                         id
-    //                     });
-    //                 }
-    //             }else {
-    //                 tempFriends.push({
-    //                     username,
-    //                     id
-    //                 });
-    //             }
-    //             });
-    //             that.setState({
-    //                 incomingRequests: tempIncoming, 
-    //                 sentRequests: tempSent,
-    //                 friendsList: tempFriends,
-    //                 refreshing: false
-    //             });
-    //         });
-    // }
-
+    
     onRefresh = () => {
         this.getGroups();
     }
-
-    // async onAccept (username, id, index) {
-    //     this.setState({refreshing: true});
-
-    //     new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(username, id);
-        
-    //     this.setState({
-    //         refreshing: false,
-    //         friendsList: this.state.friendsList.concat({username, id}),
-    //         incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
-    //     });
-    // }
-
-    // async onRemove(sent, id, index) {
-
-    //     new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(id);
-
-    //     if(sent) {
-    //         this.setState(function(prevState){
-    //             return { 
-    //                 sentRequests : prevState.sentRequests.filter(function(val, i) {
-    //             return i !== index;
-    //             })};
-    //           });
-    //     }else {
-    //         this.setState({
-    //             incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
-    //         });
-    //     }
-    //     this.setState({refreshing: false});
-    // }
-
 
     onNewGroup = (groupName) => {
         //add group to groups
@@ -162,7 +84,6 @@ export default class GroupList extends React.Component {
             </View>
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>
-            <View style={styles.line}/>
             <ScrollView 
                 style={styles.body}
                 refreshControl={
@@ -172,6 +93,7 @@ export default class GroupList extends React.Component {
                 }
             ><View style={{padding: 10,}}>
                 <NewGroupModal label="New Group" id={this.state.curr_id} username={this.state.curr_username} onCreated={this.onNewGroup}/>
+                <View style={styles.sectionHolder}>
                 <Text style={styles.text}>My Groups</Text>
                 <View style={styles.line}/>
 
@@ -195,7 +117,7 @@ export default class GroupList extends React.Component {
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                /><View style={styles.listButt}/>
+                /></View>
 
                 {/* <Text style={styles.text}>Nearby Groups</Text>
                 <View style={styles.line}/>
@@ -232,21 +154,28 @@ export default class GroupList extends React.Component {
 const styles = StyleSheet.create ({
     container: {
         flex: 1,
-        //marginTop: 23,
     },
     topBar: {
         padding: 10,
+        margin: 0,
+        backgroundColor: '#fff',
+        width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        elevation: 4,
     },
-    listButt: {
+    
+    sectionHolder: {
+        elevation: 3,
+        width: '100%',
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor:'#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
-        backgroundColor:'#fff',
-        width: '100%',
-        height: 10,
-        marginBottom: 10,
     },
     flatList: {
         flexGrow: 0, 
@@ -256,11 +185,10 @@ const styles = StyleSheet.create ({
         height: '100%',
     },
     text: {
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: 15,
-        backgroundColor:'#fff',
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 20,
         padding: 10,
-        marginTop: 5,
     },
     line: {
         height: StyleSheet.hairlineWidth,

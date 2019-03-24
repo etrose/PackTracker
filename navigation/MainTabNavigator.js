@@ -123,3 +123,7 @@ SocialStack.navigationOptions = {
 export default createAppContainer(createBottomTabNavigator({
   HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack,
 }));
+
+// export default createAppContainer(createDrawerNavigator({
+//   HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack,
+// }));

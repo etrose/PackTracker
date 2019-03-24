@@ -13,7 +13,7 @@ export default class Logo extends React.Component {
           <Image
               style={this.props.simple ? {width:75, height:75} : {width:120, height: 120}}
               source={
-                this.props.simple ? require('../../assets/images/pt_logo_3.png') : require('../../assets/images/pt_logo_1.png')
+                this.props.simple ? require('../../assets/images/logo-gray-cropped.png') : require('../../assets/images/pt_logo_1.png')
                 }
           />
         <Text style= {styles.logoText}>{this.props.header}</Text>

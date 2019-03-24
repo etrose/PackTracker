@@ -14,12 +14,12 @@ export default class SocialScreen extends React.Component {
     render() {
         return (
         <View style={styles.container}>
-            <Logo header="Welcome to Pack Tracker!"/>
+            <Logo simple header="Social Menu"/>
             <TouchableOpacity style={Buttons.button} onPress={() => this.props.navigation.navigate('Friends')}>
-                <Text style={Buttons.buttonText}>Friends</Text>
+                <Text style={Buttons.buttonText}>My Friends</Text>
             </TouchableOpacity>
             <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Groups'))}>
-                <Text style={Buttons.buttonText}>Groups</Text>
+                <Text style={Buttons.buttonText}>My Groups</Text>
             </TouchableOpacity>
             <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Search'))}>
                 <Text style={Buttons.buttonText}>Search for Users</Text>

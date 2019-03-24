@@ -144,7 +144,7 @@ export default class FriendList extends React.Component {
                     onRefresh={this.onRefresh}/>
                 }
             ><View style={{padding: 10,}}>
-
+                <View style={styles.sectionHolder}>
                 <Text style={styles.text}>Friend Requests</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -165,8 +165,9 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                /><View style={styles.listButt}/>
+                /></View>
 
+                <View style={styles.sectionHolder}>
                 <Text style={styles.text}>Friends</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -184,8 +185,9 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                /><View style={styles.listButt}/>
+                /></View>
 
+                <View style={styles.sectionHolder}>
                 <Text style={styles.text}>Sent Requests</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -200,7 +202,7 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                /><View style={styles.listButt}/>
+                /></View>
         </View></ScrollView>
         </View>
         )
@@ -214,17 +216,23 @@ const styles = StyleSheet.create ({
     },
     topBar: {
         padding: 10,
+        backgroundColor: '#fff',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        elevation: 4,
     },
-    listButt: {
+    sectionHolder: {
+        marginVertical: 10,
+        elevation: 3,
+        width: '100%',
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor:'#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
-        backgroundColor:'#fff',
-        width: '100%',
-        height: 10,
-        marginBottom: 10,
     },
     flatList: {
         flexGrow: 0, 
@@ -234,11 +242,10 @@ const styles = StyleSheet.create ({
         height: '100%',
     },
     text: {
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: 15,
-        backgroundColor:'#fff',
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 20,
         padding: 10,
-        marginTop: 5,
     },
     line: {
         height: StyleSheet.hairlineWidth,
