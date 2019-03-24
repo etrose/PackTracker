@@ -108,7 +108,7 @@ export default class GroupList extends React.Component {
     // }
 
     onRefresh = () => {
-        //this.getFriendRequests();
+        this.getGroups();
     }
 
     // async onAccept (username, id, index) {
@@ -195,7 +195,7 @@ export default class GroupList extends React.Component {
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                />
+                /><View style={styles.listButt}/>
 
                 {/* <Text style={styles.text}>Nearby Groups</Text>
                 <View style={styles.line}/>
@@ -240,17 +240,27 @@ const styles = StyleSheet.create ({
         justifyContent: 'space-between',
         alignItems: 'center'
     },
+    listButt: {
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        backgroundColor:'#fff',
+        width: '100%',
+        height: 10,
+        marginBottom: 10,
+    },
     flatList: {
         flexGrow: 0, 
-        marginBottom: 10,
     },
     body: {
         backgroundColor: '#dddddd',
         height: '100%',
     },
     text: {
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
         backgroundColor:'#fff',
-        paddingHorizontal: 10,
+        padding: 10,
+        marginTop: 5,
     },
     line: {
         height: StyleSheet.hairlineWidth,

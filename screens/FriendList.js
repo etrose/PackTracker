@@ -144,6 +144,7 @@ export default class FriendList extends React.Component {
                     onRefresh={this.onRefresh}/>
                 }
             ><View style={{padding: 10,}}>
+
                 <Text style={styles.text}>Friend Requests</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -164,7 +165,8 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                />
+                /><View style={styles.listButt}/>
+
                 <Text style={styles.text}>Friends</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -182,7 +184,8 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                />
+                /><View style={styles.listButt}/>
+
                 <Text style={styles.text}>Sent Requests</Text>
                 <View style={styles.line}/>
                 <FlatList 
@@ -197,7 +200,7 @@ export default class FriendList extends React.Component {
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
-                />
+                /><View style={styles.listButt}/>
         </View></ScrollView>
         </View>
         )
@@ -215,17 +218,27 @@ const styles = StyleSheet.create ({
         justifyContent: 'space-between',
         alignItems: 'center'
     },
+    listButt: {
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        backgroundColor:'#fff',
+        width: '100%',
+        height: 10,
+        marginBottom: 10,
+    },
     flatList: {
         flexGrow: 0, 
-        marginBottom: 10,
     },
     body: {
         backgroundColor: '#dddddd',
         height: '100%',
     },
     text: {
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
         backgroundColor:'#fff',
-        paddingHorizontal: 10,
+        padding: 10,
+        marginTop: 5,
     },
     line: {
         height: StyleSheet.hairlineWidth,
