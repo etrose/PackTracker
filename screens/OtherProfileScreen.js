@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   FlatList,
   AsyncStorage,
-  ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 
+import {Icon} from 'expo';
 import Colors from '../constants/Colors';
-
+import MyButton from '../components/AppComponents/MyButton';
+import MessageModal from '../components/AppComponents/MessageModal';
 import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
 import 'firebase/firestore';
@@ -140,9 +142,14 @@ export default class Profile extends React.Component {
       break;
 
       case "Send Message":
-        alert("*open messaging");
+        //alert("*open messaging");
+        this.doMessage();
       break;
     }
+  }
+
+  async doMessage() {
+      this.message.setState({isModalVisible: true});
   }
 
   async checkFriendStatus(snapshot) {
@@ -167,11 +174,21 @@ export default class Profile extends React.Component {
       //   <View style={styles.header}></View>
       //   <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} />
         <View style={styles.body}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
+            <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+            <View></View>
+            </View>
           <View style={styles.bodyContent}>
             <Text style={styles.name}>{this.state.username}</Text>
-            <TouchableOpacity onPress={async ()=>this.onSocialPress()}>
-                <Text>{this.state.friendStatus}</Text>
-            </TouchableOpacity>
+            <MyButton text={this.state.friendStatus} onPress={async ()=>this.onSocialPress()}/>
+            <MessageModal 
+              ref={component => this.message = component} 
+              toUser={this.state.username}
+              toId={this.state.user_id}
+              id={this.state.curr_id}
+              username={this.state.curr_username}
+            />
+
             <Text style={styles.info}>{this.state.email}</Text>
             <Text style={styles.description}>{this.state.city}</Text>
 

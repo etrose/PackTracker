@@ -71,12 +71,15 @@ export default class GroupScreen extends React.Component {
     async joinOrLeave() {
         var g = new Groups(this.state.curr_id, this.state.curr_username);
         const groupName = this.state.groupName;
+        var c = this.state.memberCount;
         if(this.state.isMember) {
           var b = await g.removeMember(groupName);
-          this.setState({isMember: false, memberCount: this.state.memberCount--});
+        c--;
+          this.setState({isMember: false, memberCount: c});
         }else {
             var b = await g.addMember(groupName, "member");
-            this.setState({isMember: true, memberCount: this.state.memberCount++});
+            c++;
+            this.setState({isMember: true, memberCount: c});
         }
     }
 
@@ -89,7 +92,7 @@ export default class GroupScreen extends React.Component {
                 <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
                 <Text style={styles.topText}>{this.state.groupName}</Text>
                 </View>
-                <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-create' : 'md-create'} color={Colors.tintColor} size={25}/>
+                {this.state.isMember ? <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-create' : 'md-create'} color={Colors.tintColor} size={25}/> : null}
             </View>
             <View style={styles.topBar}>
                 <Text style={{fontSize: 15, color: Colors.text, paddingLeft: 30}}>{this.state.memberCount} members</Text>

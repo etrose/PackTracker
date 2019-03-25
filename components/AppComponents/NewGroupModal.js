@@ -28,7 +28,7 @@ export default class NewGroupModal extends React.Component {
     async onCreatePressed() {
       const groupName = this.state.groupName;
     
-      if(groupName.length > 2 && groupName.length < 21) {
+      if(groupName.length > 2) {
         var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
         if (pattern.test(groupName)) {
           Alert.alert("Group name invalid", "Cannot contain symbols");
@@ -41,7 +41,7 @@ export default class NewGroupModal extends React.Component {
           b ? this.successfulGroup(groupName) : null;
         }
       }else {
-        Alert.alert("Group name invalid", "Must be greater than 2 characters and up to 20.");
+        Alert.alert("Group name invalid", "Must be greater than 2 characters.");
       }
     }
 
@@ -72,7 +72,7 @@ export default class NewGroupModal extends React.Component {
               <Text>Group Name</Text>
               <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
                 <TextInput style={[AuthPages.inputBox, {width: 250}]}
-                    maxLength={32}
+                    maxLength={24}
                     underlineColorAndroid="transparent"
                     placeholder="Group Name"
                     placeholderTextColor={Colors.text}

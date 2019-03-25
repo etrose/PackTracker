@@ -52,7 +52,7 @@ class SearchScreen extends React.Component {
           if(user.key != this.state.currentUser.toLowerCase()) {
           tempFound.push({
             username: user.key,
-            id: user.val().id
+            uid: user.val().id
           })
         }
         });

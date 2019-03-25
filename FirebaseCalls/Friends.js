@@ -1,5 +1,6 @@
 import React from 'react';
 import firebase from "firebase";
+import 'firebase/firestore';
 
 export default class Friends extends React.Component {
     constructor(curr_id, curr_username) {
@@ -46,6 +47,31 @@ export default class Friends extends React.Component {
     async deleteFriend(otherUserId) {
         firebase.database().ref('users/'+otherUserId+'/friends/'+this.state.curr_id).remove().then(()=> {
             firebase.database().ref('users/'+this.state.curr_id+'/friends/'+otherUserId).remove();
+        }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+        });
+    }
+
+    async sendMessage(otherUserId, message) {
+        //var timestamp = Math.floor(Date.now());
+        var dt = new Date();
+        var serialized = JSON.stringify(new Date());
+
+        // firebase.database().ref('users/'+otherUserId+'/messages/'+serialized).set({
+        //     message,
+        //     id: this.state.curr_id,
+        //     username: this.state.curr_username
+        // }).catch(error => {
+        //     const { code, message } = error;
+        //     alert(message);
+        // });
+
+        firebase.firestore().collection('users/'+otherUserId+'/messages').add({
+            message,
+            id: this.state.curr_id,
+            username: this.state.curr_username,
+            timestamp: serialized
         }).catch(error => {
             const { code, message } = error;
             alert(message);

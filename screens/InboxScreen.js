@@ -1,21 +1,28 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, AsyncStorage, FlatList, Platform } from 'react-native';
-
-import Friends from '../FirebaseCalls/Friends';
+import { StyleSheet, 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    AsyncStorage, 
+    ActivityIndicator,
+    FlatList, 
+    ScrollView, 
+    RefreshControl,
+    Platform } from 'react-native';
 import firebase from "firebase";
 
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 
-class InboxScreen extends React.Component {
+export default class InboxScreen extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = { 
             curr_id: '',
             curr_username: '',
-            incomingRequests: [],
-            sentRequests: [],
-            //conversations: [],
+            messageList: [],
+            refreshing: true,
         };
     }
     static navigationOptions = {
@@ -25,172 +32,224 @@ class InboxScreen extends React.Component {
     async componentDidMount() {
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
-        const ref = firebase.database().ref('users/'+curr_id+'/friends');
-        const that = this;
-        ref.once('value')
-            .then(function(snapshot){
-                that.getFriendRequests(snapshot);
-            });
-        ref.on('child_added', function(snapshot) {
-            that.addRequest(snapshot);
-        });
-        ref.on('child_removed', function(snapshot) {
-            that.removeRequest(snapshot);
-        });
-        ref.on('child_changed', function(snapshot) {
-            that.removeRequest(snapshot);
-        });
         this.setState({curr_id, curr_username});
+        this.getMessages();
     }
 
-    async componentWillUnmount(){
-        const ref = firebase.database().ref('users/'+curr_id+'/friends');
-        ref.off('child_added');
-        ref.off('child_removed');
-        ref.off('child_changed');
-    }
+    getMessages() {
+        // const ref = firebase.database().ref('users/'+this.state.curr_id+'/messages');
+        const that = this;
+        // ref.once('value')
+        //     .then((messages) => {
+        //         var messageList = [];
+        //         messages.forEach((message)=> {
+        //             const data = message.val();
+        //             //const timestamp = message.key;
+        //             //const date = new Date(JSON.parse(timestamp));
+                    
+        //             //const utc1 = Date.UTC
+        //             // const currentTime = new Date();
+        //             // var diff = Math.abs(currentTime.getTime() - timestamp.getTime());
+        //             // var diffMinutes = Math.ceil(diff / (1000 * 60));
+                    
+        //             messageList.push({
+        //                 from: data.username,
+        //                 id: data.id,
+        //                 message: data.message,
+        //                 //timestamp: date
+        //             });
+        //         });
+        //         that.setState({
+        //             messageList,
+        //             refreshing: false
+        //         });
+        //     }).catch(error => {
+        //     const { code, emessage } = error;
+        //     alert(emessage);
+        //     });
+        const ref = firebase.firestore().collection("users/" + this.state.curr_id + "/messages");
+        ref.get().then((messages)=> {
+            var messageList = [];
+            messages.forEach((message)=> {
+                var data = message.data();
+                var timestamp = new Date(JSON.parse(data.timestamp));
+                var time = Math.floor(Math.abs((new Date()) - timestamp) / 1000);
+                var ext = "second";
 
-    getFriendRequests(requests){
-        var tempIncoming = [];
-        var tempSent = [];
-        requests.forEach(function(child) {
-            //if sent is null, user is already friend
-            if(child.val().sent != null) {
-
-            var id = child.key;
-            var username = child.val().username;
-
-            //Check if request was sent or received then add to correct list
-            if(!child.val().sent) {
-                tempIncoming.push({
-                    username,
-                    id
-                });
-            }else {
-                tempSent.push({
-                    username,
-                    id
-                });
-            }
-        }
-        });
-        this.setState({incomingRequests: tempIncoming, sentRequests: tempSent});
-    }
-    addRequest(request){
-        if(request.val().sent != null) {
-        //id of requesting user
-        var id = request.key;
-        var username = request.val().username;
-        this.state.incomingRequests.forEach((req) => {
-            alert(req.username);
-        });
-        var temp = [];
-        //first check if the request is sent or received
-        if(!request.val().sent) {
-            temp.push({username,id});
-            this.setState({incomingRequests:temp});
-        }else {
-            this.state.sentRequests.forEach((i)=>temp.push(i));
-            temp.push({username,id});
-            this.setState({sentRequests: temp});
-        }
-    }
-    }
-    removeRequest(request){
-        //id of requesting user
-        var id = request.key;
-        var username = request.val().username;
-        var temp = [];
-
-        //first check if the request is sent or received
-        //if(!request.val().sent) {
-            this.state.incomingRequests.forEach((i)=> {
-                if(i.id != id){
-                    temp.push(i);
+                if(time > 60) {
+                    time = Math.floor(time/60);
+                    ext = "minute";
                 }
+                if(ext === "minute" && time > 60) {
+                    time = Math.floor(time/60);
+                    ext = "hour";
+                }
+                if(ext === "hour" && time > 24) {
+                    time = Math.floor(time/24);
+                    ext = "days";
+                }
+
+                console.log(timestamp.getTime());
+                messageList.push({
+                    message: data.message,
+                    from: data.username,
+                    timestamp: time + " " + ext + "(s) ago"
+                });
             });
-            this.setState({incomingRequests:temp});
-        //}else {
-            temp = [];
-            this.state.sentRequests.forEach((i)=> {
-                if(i.username != username) {temp.push(i);}
+            that.setState({
+                messageList,
+                refreshing: false
             });
-            this.setState({sentRequests: temp});
-        //}
+        }).catch(error => {
+            const { code, emessage } = error;
+            alert(emessage);
+        });
     }
+    
+    onRefresh = () => {
+        this.getMessages();
+    }
+
 
     render() {
         return (
         <View style={styles.container}>
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>inbox</Text>
-            <Text style={styles.text}>Friend Requests</Text>
-            <View style={styles.line}/>
-            <FlatList 
-            //style={styles.flatList}
-            data={this.state.incomingRequests}
-            renderItem={({ item }) => (
-                <View style={styles.requestItem}>
-                <TouchableOpacity>
-                <Text style={styles.requestText}>{item.username}</Text>
-                </TouchableOpacity>
-                <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(item.username, item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
-                </TouchableOpacity>
-                <View style={{width: 30,}}></View>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                </TouchableOpacity>
+            <View style={styles.topBar}>
+            
+            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.topText]}>Inbox</Text>
+            
+            <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
+            </View>
+            <ScrollView 
+                style={styles.body}
+                refreshControl={
+                    <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}/>
+                }
+            ><View style={{padding: 10,}}>
+                <View style={styles.sectionHolder}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <Text style={styles.text}>Messages</Text>
+                <View style={{ alignItems: 'center', padding: 10}}>
                 </View>
                 </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            />
-            <Text style={styles.text}>Sent Requests</Text>
-            <View style={styles.line}/>
-            <FlatList 
-            //style={styles.flatList}
-            data={this.state.sentRequests}
-            renderItem={({ item }) => (
-                <View style={styles.requestItem}>
-                <TouchableOpacity>
-                    <Text style={styles.requestText}>{item.username}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(item.id)}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                </TouchableOpacity>
-                </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            />
+                <View style={styles.line}/>
+
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.messageList}
+                renderItem={({ item, index }) => (
+                    <View style={styles.listItem}>
+                    <View>
+                    <Text style={styles.listTextSmall}>{item.timestamp}</Text>
+
+                    <Text style={styles.listText}>{item.from}:</Text>
+                    
+                    <Text style={styles.listTextSmall}>{item.message}</Text>
+                    </View>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                /></View>
+
+                {/* <Text style={styles.text}>Nearby Groups</Text>
+                <View style={styles.line}/>
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.friendsList}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
+                    {
+                        username: item.username,
+                        //email: item.email,
+                        uid: item.id,
+                    })}>
+                    <View style={styles.requestItem}>
+                        
+                        <View style={{flexDirection: 'row'}}>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
+                        <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
+                        </View>
+                    </View>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                /> */}
+
+        </View></ScrollView>
+        {/* <View style={{backgroundColor:'#dddddd', alignItems: 'center', padding: 10}}>
+        </View> */}
         </View>
         )
     }
 }
-export default InboxScreen;
 
 const styles = StyleSheet.create ({
     container: {
         flex: 1,
-        //marginTop: 23,
+    },
+    topBar: {
+        padding: 10,
+        margin: 0,
+        backgroundColor: '#fff',
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        elevation: 10,
+    },
+    
+    sectionHolder: {
+        elevation: 8,
+        width: '100%',
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor:'#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+    },
+    flatList: {
+        flexGrow: 0, 
+    },
+    body: {
+        backgroundColor: '#dddddd',
+        height: '100%',
     },
     text: {
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 20,
         paddingHorizontal: 10,
+    },
+    topText: {
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 24,
+        paddingHorizontal: 15,
     },
     line: {
         height: StyleSheet.hairlineWidth,
         backgroundColor: '#000',
         width: '100%',
     },
-    requestItem: {
+    listItem: {
         padding: 10,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        //justifyContent: 'space-between',
+        flex: 1,
+        backgroundColor: '#fff',
         borderBottomColor: '#000',
         borderBottomWidth: StyleSheet.hairlineWidth,
     },
-    requestText: {
+    listText: {
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    listTextSmall: {
+        color: Colors.text,
+        fontSize: 12,
     },
 });

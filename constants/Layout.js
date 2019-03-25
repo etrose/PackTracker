@@ -35,10 +35,10 @@ export const AuthPages = StyleSheet.create({
     borderRadius: 25,
   },
   inputBox: {
-    height: 42,
     width: 300,
     paddingHorizontal:20,
-    fontSize:16,
+    paddingVertical: 5,
+    fontSize:18,
     color: Colors.text,
   },
   button: {
