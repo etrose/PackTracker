@@ -11,13 +11,6 @@ export const AuthPages = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  bodyText: {
-    flex: 1,
-    justifyContent: 'center',
-    textAlign: 'center',
-    flexDirection: 'row',
-    marginHorizontal: 80,
-  },
   signUpCont: {
     justifyContent:'flex-end',
     flexGrow: 1,
@@ -35,7 +28,7 @@ export const AuthPages = StyleSheet.create({
   },
   inputContainer: {
     width: "80%",
-    marginTop: 30,
+    marginTop: 15,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: Colors.text,

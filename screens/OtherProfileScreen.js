@@ -204,10 +204,10 @@ export default class Profile extends React.Component {
             </View>
 
             <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Groups - 0</Text>
+              <Text style={styles.linkText}>Groups</Text>
             </View>
             <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Friends - 0</Text>
+              <Text style={styles.linkText}>Friends</Text>
             </View>
           </View>
         </View>

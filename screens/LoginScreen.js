@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage, Platform } from 'react-native';
 import { AuthPages } from '../constants/Layout';
+import {Icon} from 'expo';
 import Colors from '../constants/Colors';
 import Logo from '../components/AppComponents/Logo';
 import firebase from "firebase";
@@ -13,6 +14,9 @@ export default class LoginScreen extends React.Component {
       password: "",
     };
   }
+  static navigationOptions = {
+    header: null,
+  };
 
   attemptLogin = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
@@ -67,6 +71,10 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <View style={AuthPages.container}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
+      <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+      <View></View>
+      </View>
         <Logo header="Login" simple={true} />
         <View style={AuthPages.container}>
           <View style={AuthPages.inputContainer}>

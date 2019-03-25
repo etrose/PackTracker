@@ -43,6 +43,11 @@ const ProfileStack = createStackNavigator({
   Profile: ProfileScreen,
   DogProfile: DogProfileScreen,
   AddDogProfile: AddDogScreen,
+  Friends: FriendList,
+  Groups: GroupList,
+  GroupScreen: GroupScreen,
+  OtherProfile: OtherProfileScreen,
+  OtherDogProfile: OtherDogProfileScreen,
 });
 
 ProfileStack.navigationOptions = {

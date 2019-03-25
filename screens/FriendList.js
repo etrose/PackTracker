@@ -132,7 +132,7 @@ export default class FriendList extends React.Component {
             <View style={styles.topBar}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>Friends</Text>
+            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.topText]}>Friends</Text>
             </View>
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>
@@ -178,7 +178,7 @@ export default class FriendList extends React.Component {
                     <View style={styles.requestItem}>
                         
                         <View style={{flexDirection: 'row'}}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color={Colors.colorSecondary} size={30}/>
                         <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
                         </View>
                     </View>
@@ -220,11 +220,11 @@ const styles = StyleSheet.create ({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        elevation: 4,
+        elevation: 10,
     },
     sectionHolder: {
         marginVertical: 10,
-        elevation: 3,
+        elevation: 8,
         width: '100%',
         paddingTop: 10,
         paddingBottom: 10,
@@ -245,7 +245,13 @@ const styles = StyleSheet.create ({
         color: Colors.tintColor,
         fontWeight: 'bold',
         fontSize: 20,
-        padding: 10,
+        paddingHorizontal: 10,
+    },
+    topText: {
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 24,
+        paddingHorizontal: 15,
     },
     line: {
         height: StyleSheet.hairlineWidth,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { TextInput, View, Text, TouchableOpacity, AsyncStorage, Alert } from 'react-native';
-
+import { TextInput, View, Text, TouchableOpacity, AsyncStorage, Alert, Platform } from 'react-native';
+import {Icon} from 'expo';
 import Logo from '../components/AppComponents/Logo';
 import Colors from '../constants/Colors';
 import { AuthPages } from '../constants/Layout';
@@ -18,6 +18,9 @@ export default class RegisterScreen extends React.Component {
             confirm_password: "",
         };
     }
+    static navigationOptions = {
+        header: null,
+      };
 
     registerUser = () => {
 
@@ -86,6 +89,10 @@ export default class RegisterScreen extends React.Component {
     render() {
         return (
             <View style={AuthPages.container}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
+            <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+            <View></View>
+            </View>
                 <Logo header="Sign up" simple={true} />
                 <View style={AuthPages.container}>
 

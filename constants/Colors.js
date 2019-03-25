@@ -3,7 +3,8 @@ const tintColor = '#ffae00';
 export default {
   tintColor,
   colorPrimary: '#ffae00',
-  colorSecondary: 'rgba(0,153,0,1)',
+  //colorSecondary: 'rgba(0,153,0,1)',
+  colorSecondary: '#009900',
 
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

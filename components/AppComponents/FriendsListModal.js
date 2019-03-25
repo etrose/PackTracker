@@ -4,7 +4,7 @@ import Modal from 'react-native-modal';
 import { Icon } from 'expo';
 import Colors from '../../constants/Colors';
 
-export default class NewDogModal extends React.Component {
+export default class UserListModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = ({

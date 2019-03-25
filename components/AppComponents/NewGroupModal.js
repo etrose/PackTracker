@@ -28,7 +28,7 @@ export default class NewGroupModal extends React.Component {
     async onCreatePressed() {
       const groupName = this.state.groupName;
     
-      if(groupName.length > 2) {
+      if(groupName.length > 2 && groupName.length < 21) {
         var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
         if (pattern.test(groupName)) {
           Alert.alert("Group name invalid", "Cannot contain symbols");
@@ -41,7 +41,7 @@ export default class NewGroupModal extends React.Component {
           b ? this.successfulGroup(groupName) : null;
         }
       }else {
-        Alert.alert("Group name invalid", "Must be greater than 2 characters.");
+        Alert.alert("Group name invalid", "Must be greater than 2 characters and up to 20.");
       }
     }
 
@@ -53,9 +53,9 @@ export default class NewGroupModal extends React.Component {
     render() {
       return (
         <View style={ styles.container }>
-          <TouchableOpacity onPress={this._toggleModal}>
-            <Text style={styles.linkText}>{this.props.label}</Text>
-          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={this._toggleModal}> */}
+          <Icon.Ionicons onPress={this._toggleModal} name={Platform.OS === 'ios'? 'ios-add' : 'md-add'} color={Colors.tintColor} size={25}/>
+          {/* </TouchableOpacity> */}
           <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center', height: 500, }}
             isVisible={this.state.isModalVisible}
             onBackdropPress={this._toggleModal}>

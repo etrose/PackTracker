@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 
 import Colors from '../constants/Colors';
-import ListModal from '../components/AppComponents/ListModal';
+import MyButton from '../components/AppComponents/MyButton';
+
 import firebase from "firebase";
 import 'firebase/firestore';
 
@@ -30,8 +31,6 @@ export default class Profile extends React.Component {
     }],
     numDogs: 0,
     dogsLoading: true,
-    friendsVisible: false,
-    groupsVisible: false,
     });
   }
   static navigationOptions = {
@@ -122,17 +121,26 @@ export default class Profile extends React.Component {
 
   render() {
     return (
-      //<ScrollView style={styles.container}>
-        //{/* <View style={styles.header}></View> */}
-        //{/* <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} /> */}
         <View style={styles.body}>
-          <View style={styles.bodyContent}>
+
+            <View style={styles.topContainer}>
             <Text style={styles.name}>{this.state.username}</Text>
             <Text style={styles.info}>{this.state.email}</Text>
             <Text style={styles.description}>{this.state.city}</Text>
 
-            <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Dogs - {this.state.numDogs}</Text>
+            <View style={styles.row}>
+            <TouchableOpacity onPress={()=> this.props.navigation.navigate('Friends')}>
+              <Text style={styles.linkText}>My Friends</Text>
+            </TouchableOpacity>
+            <View style={{width: 5, backgroundColor: 'black'}}></View>
+            <TouchableOpacity onPress={()=> this.props.navigation.navigate('Groups')}>
+              <Text style={styles.linkText}>My Groups</Text>
+            </TouchableOpacity>
+            </View>
+            </View>
+
+            <View style={styles.smallContainer}>
+              <Text style={styles.tintText}>Dogs - {this.state.numDogs}</Text>
               {!this.state.dogsLoading ? 
               <FlatList 
               style={styles.flatList}
@@ -152,21 +160,21 @@ export default class Profile extends React.Component {
                 style={styles.dogPic}
                 source={item.doggoPic}   
                 />
-                <Text>{item.doggoName}</Text>
+                <Text style={{color: Colors.text}}>{item.doggoName}</Text>
               </TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
           />: <View style={{height: 100}}><ActivityIndicator size='large'/></View>}
-          <TouchableOpacity onPress={this.addDog}>
+          
+          {/* <TouchableOpacity onPress={this.addDog}>
             <Text>Add Dog</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+          <MyButton text="Add Dog" onPress={()=> this.props.navigation.navigate('AddDogProfile')}/>
             </View>
-            <ListModal label="Groups"/>
-            <ListModal label="Friends"/>
             <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
-              <Text>Logout</Text>
+              <Text style={{fontSize: 16, fontWeight: 'bold'}}>Logout</Text>
             </TouchableOpacity>
-          </View>
+          
         </View>
     );
   }
@@ -175,8 +183,17 @@ export default class Profile extends React.Component {
 const styles = StyleSheet.create({
     container: {
         //marginTop: 23,
+        backgroundColor: '#ddd',
         flex: 1,
     },  
+    row: {
+      flexDirection: 'row', 
+      justifyContent: 'space-evenly', 
+      alignItems: 'center', 
+      width: '100%',
+      borderBottomColor: '#000',
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
     dogItemHolder: {
         marginRight: 15,
         alignItems: 'center',
@@ -190,28 +207,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: Colors.colorSecondary,
         fontWeight: 'bold',
+        padding: 10,
     },
-  flatListContainer: {
+    tintText: {
+      color: Colors.tintColor,
+      fontWeight: 'bold',
+      fontSize: 20,
+      padding: 10,
+    },
+    topContainer: {
+      alignItems: 'center',
+      width: "100%",
+      textAlign: "center",
+      backgroundColor: '#fff',
+      marginBottom: 30,
+      elevation: 10,
+    },
+  smallContainer: {
     alignItems: 'center',
     padding: 10,
-    width: "80%",
+    width: "90%",
     textAlign: "center",
+    backgroundColor: '#fff',
+    marginBottom: 30,
+    borderRadius: 20,
+    elevation: 8,
   },
   flatList: {
     padding: 5,
-  },
-  header: {
-    backgroundColor: Colors.tintColor,
-    height: 80,
-  },
-  avatar: {
-    width: 150,
-    height: 150,
-    borderColor: "transparent",
-    marginBottom: 15,
-    alignSelf: 'center',
-    position: 'absolute',
-    marginTop: 20
   },
   name: {
     fontSize: 22,
@@ -220,19 +243,14 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
-  },
-  bodyContent: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 30,
+    backgroundColor: '#ddd',
   },
   name: {
     fontSize: 28,
     color: "#696969",
-    fontWeight: "600"
+    fontWeight: "600",
+    paddingTop: 10,
   },
   info: {
     fontSize: 16,
@@ -247,13 +265,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
-    height: 45,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    width: 150,
+    paddingHorizontal:16,
+    paddingVertical:4,
     borderRadius: 30,
-    backgroundColor: 'rgba(240,0,0,.4)',
+    backgroundColor: '#ff6d66',
+    elevation: 8,
   },
 });

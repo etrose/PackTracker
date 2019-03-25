@@ -26,10 +26,9 @@ class SearchScreen extends React.Component {
     this.state = {
         currentUser: '',
       searchInput: '',
-      allUsers: [],
       found: [],
+      groupsFound: [],
     };
-    this.ref = firebase.firestore().collection("users");
   }
   static navigationOptions = {
     header: null,
@@ -37,38 +36,17 @@ class SearchScreen extends React.Component {
 
   async componentDidMount() {
     const currentUser = await AsyncStorage.getItem("user:username");
-    const tempUsers = [];
-    // firebase.firestore().collection("users").get().then((results) => {
-    //   //this.setState({allUsers: results,})
-    //   results.forEach((user) => {
-    //     tempUsers.push({
-    //       username: user.data().username,
-    //       email: user.data().email,
-    //       id: user.data().id,
-    //       //city
-    //     });
-    //   });
-      
-    //   this.setState({
-    //     allUsers: tempUsers,
-    //     currentUser: currentUser,
-    //   });
-    // });
+
     this.setState({
           currentUser: currentUser,
       });
   }
 
-  doSearch = () => {
-    //console.log(this.state.allUsers);
-    // const users = this.state.allUsers;
-    // const tempFound = [];
-    // users.forEach((user) => {
-    //   const thisUsername = user.username.toLowerCase();
-    const searchInput = this.state.searchInput.toLowerCase();
+  doSearchUser = () => {
+    const searchInput = this.state.searchInput;
     const tempFound =[];
     const ref = firebase.database().ref('usernames');
-    ref.orderByKey().startAt(searchInput).endAt(searchInput+"\uf8ff").once("value")
+    ref.orderByKey().startAt(searchInput.toUpperCase()).endAt(searchInput.toLowerCase()+"\uf8ff").once("value")
       .then((ref) => {
         ref.forEach((user) => {
           if(user.key != this.state.currentUser.toLowerCase()) {
@@ -83,17 +61,25 @@ class SearchScreen extends React.Component {
           found: tempFound,
         });
     });
-    //   if(~thisUsername.indexOf(searchInput.toLowerCase())) {
-    //     if(user.username != this.state.currentUser) {
-    //     tempFound.push({
-    //       username: user.username,
-    //       email: user.email,
-    //       uid: user.id,
-    //       //city: user.city,
-    //     });
-    //     }
-    //   }
-    // });
+  }
+
+  doSearchGroup = () => {
+    const searchInput = this.state.searchInput;
+    const tempFound =[];
+    const ref = firebase.database().ref('groups');
+    ref.orderByKey().startAt(searchInput).endAt(searchInput+"\uf8ff").once("value")
+      .then((ref) => {
+        ref.forEach((group) => {
+          tempFound.push({
+            name: group.key,
+            count: group.val().memberCount
+          })
+        });
+        
+        this.setState({
+          groupsFound: tempFound,
+        });
+    });
   }
 
   searchChange = (text) => {
@@ -101,9 +87,10 @@ class SearchScreen extends React.Component {
       searchInput: text,
     });
     if(text.length > 1) {
-      this.doSearch();
+      this.doSearchUser();
+      this.doSearchGroup();
     }else {
-        this.setState({found: []});
+        this.setState({found: [], groupsFound: []});
     }
   }
 
@@ -128,7 +115,7 @@ class SearchScreen extends React.Component {
         <View style={{padding: 10,}}>
 
         <View style={styles.sectionHolder}>
-        <Text style={styles.text}>Search Results</Text>
+        <Text style={styles.text}>User Search Results</Text>
         <View style={styles.line}/>
         <FlatList 
           style={styles.flatList}
@@ -146,6 +133,29 @@ class SearchScreen extends React.Component {
               <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="orange" size={30}/>
               <Text style={{fontSize: 20, fontWeight: 'bold', paddingLeft: 10}}>{item.username}</Text>
               </View>
+            </View></TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          /></View>
+
+        <View style={styles.sectionHolder}>
+        <Text style={styles.text}>Group Search Results</Text>
+        <View style={styles.line}/>
+        <FlatList 
+          style={styles.flatList}
+          data={this.state.groupsFound}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={{flexDirection: 'row',}}
+              onPress={() => this.props.navigation.navigate('GroupScreen', 
+              {
+                name: item.name,
+              })}>
+            <View style={styles.searchItem}>
+              <View style={{flexDirection: 'row'}}>
+              <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contacts' : 'md-contacts'} color="orange" size={30}/>
+              <Text style={{fontSize: 20, fontWeight: 'bold', paddingLeft: 10}}>{item.name}</Text>
+              </View>
+              <Text>{item.memberCount}</Text>
             </View></TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -179,7 +189,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     minWidth: "100%",
     maxWidth: "100%",
-    elevation: 4,
+    elevation: 10,
   },
   body: {
     backgroundColor: '#dddddd',
@@ -203,7 +213,7 @@ const styles = StyleSheet.create({
   },    
   sectionHolder: {
     marginVertical: 10,
-    elevation: 3,
+    elevation: 8,
     width: '100%',
     paddingTop: 10,
     paddingBottom: 10,

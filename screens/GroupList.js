@@ -9,8 +9,6 @@ import { StyleSheet,
     ScrollView, 
     RefreshControl,
     Platform } from 'react-native';
-
-import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
 
 import { Icon } from 'expo';
@@ -80,7 +78,7 @@ export default class GroupList extends React.Component {
             <View style={styles.topBar}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.text]}>Groups</Text>
+            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.topText]}>Groups</Text>
             </View>
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>
@@ -92,9 +90,13 @@ export default class GroupList extends React.Component {
                     onRefresh={this.onRefresh}/>
                 }
             ><View style={{padding: 10,}}>
-                <NewGroupModal label="New Group" id={this.state.curr_id} username={this.state.curr_username} onCreated={this.onNewGroup}/>
                 <View style={styles.sectionHolder}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                 <Text style={styles.text}>My Groups</Text>
+                <View style={{ alignItems: 'center', padding: 10}}>
+                <NewGroupModal label="New Group" id={this.state.curr_id} username={this.state.curr_username} onCreated={this.onNewGroup}/>
+                </View>
+                </View>
                 <View style={styles.line}/>
 
                 <FlatList 
@@ -144,8 +146,8 @@ export default class GroupList extends React.Component {
                 /> */}
 
         </View></ScrollView>
-        <View style={{backgroundColor:'#dddddd', alignItems: 'center', padding: 10}}>
-        </View>
+        {/* <View style={{backgroundColor:'#dddddd', alignItems: 'center', padding: 10}}>
+        </View> */}
         </View>
         )
     }
@@ -163,11 +165,11 @@ const styles = StyleSheet.create ({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        elevation: 4,
+        elevation: 10,
     },
     
     sectionHolder: {
-        elevation: 3,
+        elevation: 8,
         width: '100%',
         paddingTop: 10,
         paddingBottom: 10,
@@ -188,7 +190,13 @@ const styles = StyleSheet.create ({
         color: Colors.tintColor,
         fontWeight: 'bold',
         fontSize: 20,
-        padding: 10,
+        paddingHorizontal: 10,
+    },
+    topText: {
+        color: Colors.tintColor,
+        fontWeight: 'bold',
+        fontSize: 24,
+        paddingHorizontal: 15,
     },
     line: {
         height: StyleSheet.hairlineWidth,
