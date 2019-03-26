@@ -15,6 +15,7 @@ export default class GroupScreen extends React.Component {
             groupName: this.props.name,
             groupPosition: this.props.position,
             memberCount: 1,
+            cityState: '',
             isMember: false,
         };
     }
@@ -26,24 +27,10 @@ export default class GroupScreen extends React.Component {
         const {navigation} = this.props;
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
-        const groupName = await navigation.getParam('name', 'Group');
-        const groupPosition = await navigation.getParam('position', '');
-        if(groupPosition == null) {
-            //check firebase if there is /users/groups/groupName/position != null
-            this.setState({isMember: false});
-        }else {
-            this.setState({isMember: false});
-        }
-        // this.ref.once('value')
-        //     .then((snapshot)=> {
-        //         console.log(snapshot.key);
-        //         console.log(snapshot.val().memberCount);
-        //         console.log(snapshot.val().city);
-        //     });
 
         this.setState({
             groupName: navigation.getParam('name', 'Group'),
-            groupPosition: navigation.getParam('position', 'member'),
+            groupPosition: navigation.getParam('position', ''),
             curr_id,
             curr_username,
             });
@@ -52,20 +39,32 @@ export default class GroupScreen extends React.Component {
     }
 
     getInfo() {
-        const ref = firebase.database().ref('groups/'+this.state.groupName+'/memberCount');
+        const ref = firebase.database().ref('groups/'+this.state.groupName);
         const that = this;
         ref.once('value')
-            .then((result) => {
+            .then((group) => {
+                var data = group.val();
+
                 that.setState({
-                    memberCount: result.val(),
+                    cityState: data.city + ", " + data.state,
+                    memberCount: data.memberCount,
                 });
-                console.log(result);
-                console.log(result.key);
+
+            }).then(()=> {
+                firebase.database().ref('groups/'+that.state.groupName+'/members')
+                    .once('value')
+                    .then((members)=> {
+                        members.forEach((member)=> {
+                            console.log(member.val().id + " " + that.state.curr_id);
+                            if(member.val().id == that.state.curr_id) {
+                                that.setState({isMember: true, position: member.val().position});
+                            }
+                        });
+                    });
             }).catch(error => {
             const { code, message } = error;
             alert(message);
             });
-            //CHECK IF USER IS A MEMBER
     }
 
     async joinOrLeave() {
@@ -90,12 +89,15 @@ export default class GroupScreen extends React.Component {
             <View style={styles.topBar}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+                <View>
                 <Text style={styles.topText}>{this.state.groupName}</Text>
+                <Text style={styles.text}>{this.state.cityState}</Text>
+                </View>
                 </View>
                 {this.state.isMember ? <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-create' : 'md-create'} color={Colors.tintColor} size={25}/> : null}
             </View>
             <View style={styles.topBar}>
-                <Text style={{fontSize: 15, color: Colors.text, paddingLeft: 30}}>{this.state.memberCount} members</Text>
+                <Text style={styles.text}>{this.state.memberCount} members</Text>
                 <MyButton onPress={()=> this.joinOrLeave()} backgroundColor={Colors.tintColor} text={this.state.isMember ? "Leave Group" : "Join Group"}/>
             </View>
         </View><View style={styles.line}/>
@@ -121,7 +123,6 @@ const styles = StyleSheet.create ({
         width: '100%',
     },
     topBar: {
-        elevation: 4,
         padding: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -130,15 +131,14 @@ const styles = StyleSheet.create ({
         elevation: 10,
     },
     text: {
-        color: Colors.tintColor,
-        fontWeight: 'bold',
-        fontSize: 20,
-        paddingHorizontal: 10,
+        color: Colors.text,
+        fontSize: 15,
+        paddingHorizontal: 20,
     },
     topText: {
         color: Colors.tintColor,
         fontWeight: 'bold',
         fontSize: 24,
-        paddingHorizontal: 15,
+        paddingHorizontal: 20,
     },
 });

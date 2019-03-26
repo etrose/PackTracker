@@ -2,15 +2,15 @@ import React from 'react';
 import { StyleSheet, 
     View, 
     Text, 
-    TouchableOpacity, 
     AsyncStorage, 
     ActivityIndicator,
+    TouchableOpacity,
     FlatList, 
     ScrollView, 
     RefreshControl,
     Platform } from 'react-native';
 import firebase from "firebase";
-
+import Friends from '../FirebaseCalls/Friends';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 
@@ -37,36 +37,9 @@ export default class InboxScreen extends React.Component {
     }
 
     getMessages() {
-        // const ref = firebase.database().ref('users/'+this.state.curr_id+'/messages');
+        
         const that = this;
-        // ref.once('value')
-        //     .then((messages) => {
-        //         var messageList = [];
-        //         messages.forEach((message)=> {
-        //             const data = message.val();
-        //             //const timestamp = message.key;
-        //             //const date = new Date(JSON.parse(timestamp));
-                    
-        //             //const utc1 = Date.UTC
-        //             // const currentTime = new Date();
-        //             // var diff = Math.abs(currentTime.getTime() - timestamp.getTime());
-        //             // var diffMinutes = Math.ceil(diff / (1000 * 60));
-                    
-        //             messageList.push({
-        //                 from: data.username,
-        //                 id: data.id,
-        //                 message: data.message,
-        //                 //timestamp: date
-        //             });
-        //         });
-        //         that.setState({
-        //             messageList,
-        //             refreshing: false
-        //         });
-        //     }).catch(error => {
-        //     const { code, emessage } = error;
-        //     alert(emessage);
-        //     });
+        
         const ref = firebase.firestore().collection("users/" + this.state.curr_id + "/messages");
         ref.get().then((messages)=> {
             var messageList = [];
@@ -89,10 +62,11 @@ export default class InboxScreen extends React.Component {
                     ext = "days";
                 }
 
-                console.log(timestamp.getTime());
                 messageList.push({
+                    id: message.id,
                     message: data.message,
                     from: data.username,
+                    fromId: data.id,
                     timestamp: time + " " + ext + "(s) ago"
                 });
             });
@@ -108,6 +82,14 @@ export default class InboxScreen extends React.Component {
     
     onRefresh = () => {
         this.getMessages();
+    }
+
+    async deleteMessage(id, index) {
+        new Friends(this.state.curr_id,this.state.curr_username).deleteMessage(id);
+
+        this.setState({
+            messageList: this.state.messageList.filter((_, i) => i !== index)
+        });
     }
 
 
@@ -129,7 +111,7 @@ export default class InboxScreen extends React.Component {
                 }
             ><View style={{padding: 10,}}>
                 <View style={styles.sectionHolder}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <View style={styles.separatedRow}>
                 <Text style={styles.text}>Messages</Text>
                 <View style={{ alignItems: 'center', padding: 10}}>
                 </View>
@@ -141,45 +123,25 @@ export default class InboxScreen extends React.Component {
                 data={this.state.messageList}
                 renderItem={({ item, index }) => (
                     <View style={styles.listItem}>
-                    <View>
-                    <Text style={styles.listTextSmall}>{item.timestamp}</Text>
-
-                    <Text style={styles.listText}>{item.from}:</Text>
                     
-                    <Text style={styles.listTextSmall}>{item.message}</Text>
+                    <View style={styles.separatedRow}>
+                    <Text style={styles.listTextSmall}>{item.timestamp}</Text>
+                    <Icon.Ionicons onPress={()=> this.deleteMessage(item.id, index)} name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color={Colors.text} size={20}/>
                     </View>
+
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', {username: item.from, uid: item.fromId})}>
+                    <Text style={styles.listText}>{item.from}:</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.listTextSmall}>{item.message}</Text>
+                    
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 /></View>
 
-                {/* <Text style={styles.text}>Nearby Groups</Text>
-                <View style={styles.line}/>
-                <FlatList 
-                style={styles.flatList}
-                data={this.state.friendsList}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
-                    {
-                        username: item.username,
-                        //email: item.email,
-                        uid: item.id,
-                    })}>
-                    <View style={styles.requestItem}>
-                        
-                        <View style={{flexDirection: 'row'}}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
-                        <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
-                        </View>
-                    </View>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                /> */}
-
+                
         </View></ScrollView>
-        {/* <View style={{backgroundColor:'#dddddd', alignItems: 'center', padding: 10}}>
-        </View> */}
         </View>
         )
     }
@@ -237,8 +199,6 @@ const styles = StyleSheet.create ({
     },
     listItem: {
         padding: 10,
-        flexDirection: 'row',
-        //justifyContent: 'space-between',
         flex: 1,
         backgroundColor: '#fff',
         borderBottomColor: '#000',
@@ -252,4 +212,10 @@ const styles = StyleSheet.create ({
         color: Colors.text,
         fontSize: 12,
     },
+    separatedRow: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+    }
 });

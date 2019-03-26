@@ -54,18 +54,9 @@ export default class Friends extends React.Component {
     }
 
     async sendMessage(otherUserId, message) {
-        //var timestamp = Math.floor(Date.now());
         var dt = new Date();
         var serialized = JSON.stringify(new Date());
 
-        // firebase.database().ref('users/'+otherUserId+'/messages/'+serialized).set({
-        //     message,
-        //     id: this.state.curr_id,
-        //     username: this.state.curr_username
-        // }).catch(error => {
-        //     const { code, message } = error;
-        //     alert(message);
-        // });
 
         firebase.firestore().collection('users/'+otherUserId+'/messages').add({
             message,
@@ -73,6 +64,14 @@ export default class Friends extends React.Component {
             username: this.state.curr_username,
             timestamp: serialized
         }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+        });
+    }
+
+    async deleteMessage(messageId) {
+        firebase.firestore().doc('users/'+this.state.curr_id+'/messages/'+messageId).delete()
+            .catch(error => {
             const { code, message } = error;
             alert(message);
         });

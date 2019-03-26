@@ -35,9 +35,9 @@ export default class MessageModal extends React.Component {
             <View style={styles.modal}>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
               <Text style={{fontSize: 20, fontWeight: 'bold'}}>To: {this.props.toUser}</Text>
-              <TouchableOpacity onPress={this._toggleModal}>
-                <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={30}/>
-              </TouchableOpacity>
+              
+                <Icon.Ionicons onPress={this._toggleModal} name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={30}/>
+              
               </View>
 
               <View style={{alignItems: 'center', flexDirection: 'row',}}>
@@ -53,9 +53,9 @@ export default class MessageModal extends React.Component {
                     onChangeText={text => this.setState({ message: text })}
                     ref={(input) => this.message = input}
                 /></View>
-                <TouchableOpacity onPress={()=> this.sendMessage()}>
-                <Icon.Ionicons style={{paddingHorizontal: 15}} name={Platform.OS === 'ios'? 'ios-send' : 'md-send'} color={Colors.tintColor} size={30}/>
-                </TouchableOpacity>
+                
+                <Icon.Ionicons onPress={()=> this.sendMessage()} style={{paddingHorizontal: 15}} name={Platform.OS === 'ios'? 'ios-send' : 'md-send'} color={Colors.tintColor} size={30}/>
+                
                 </View>
 
                 {/* <TouchableOpacity style={[AuthPages.button, {width: 250}]} onPress={()=>this.onCreatePressed()}>
