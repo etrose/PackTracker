@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, FlatList, TouchableOpacity } from 'react-native';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import MyButton from '../components/AppComponents/MyButton';
+import NewPostModal from '../components/AppComponents/NewPostModal';
 import Groups from '../FirebaseCalls/Groups';
 import firebase from "firebase";
+import 'firebase/firestore';
 
 export default class GroupScreen extends React.Component {
     constructor(props) {
@@ -17,6 +19,9 @@ export default class GroupScreen extends React.Component {
             memberCount: 1,
             cityState: '',
             isMember: false,
+            refreshing: true,
+            likes: 0,
+            posts: []
         };
     }
     static navigationOptions = {
@@ -55,7 +60,6 @@ export default class GroupScreen extends React.Component {
                     .once('value')
                     .then((members)=> {
                         members.forEach((member)=> {
-                            console.log(member.val().id + " " + that.state.curr_id);
                             if(member.val().id == that.state.curr_id) {
                                 that.setState({isMember: true, position: member.val().position});
                             }
@@ -65,6 +69,57 @@ export default class GroupScreen extends React.Component {
             const { code, message } = error;
             alert(message);
             });
+            this.getPosts();
+    }
+
+    getPosts() {
+        var that = this;
+        firebase.database().ref('groups/'+this.state.groupName+'/posts').once('value')
+        .then((posts)=> {
+            var temp = [];
+            posts.forEach((post)=> {
+                firebase.firestore().doc('posts/'+post.key).get().then((postInfo)=> {
+                    var data = postInfo.data();
+                    var timestamp = new Date(JSON.parse(data.timestamp));
+                    var time = Math.floor(Math.abs((new Date()) - timestamp) / 1000);
+                    var ext = "second";
+
+                    if(time > 60) {
+                        time = Math.floor(time/60);
+                        ext = "minute";
+                    }
+                    if(ext === "minute" && time > 60) {
+                        time = Math.floor(time/60);
+                        ext = "hour";
+                    }
+                    if(ext === "hour" && time > 24) {
+                        time = Math.floor(time/24);
+                        ext = "days";
+                    }
+                    console.log(data.title);
+                    temp.push({
+                        username: data.op_username,
+                        title: data.title,
+                        body: data.body,
+                        likes: data.likes,
+                        timestamp: time + " " + ext + "(s) ago"
+                    });
+                    that.setState({posts: temp});
+                }).catch(error => {
+                    
+                });
+            });
+            that.setState({refreshing: false});
+            
+        }).catch(error => {
+            that.setState({refreshing: false});
+            const { code, message } = error;
+            alert(code + message);
+        });
+    }
+
+    onRefresh = () => {
+        this.getPosts();
     }
 
     async joinOrLeave() {
@@ -82,6 +137,10 @@ export default class GroupScreen extends React.Component {
         }
     }
 
+    async doPost() {
+        this.newPost.setState({isModalVisible: true});
+    }
+
     render() {
         return (
         <View style={styles.container}>
@@ -91,18 +150,67 @@ export default class GroupScreen extends React.Component {
                 <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
                 <View>
                 <Text style={styles.topText}>{this.state.groupName}</Text>
-                <Text style={styles.text}>{this.state.cityState}</Text>
+                <Text style={[styles.text, {paddingHorizontal: 20}]}>{this.state.cityState}</Text>
                 </View>
                 </View>
-                {this.state.isMember ? <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-create' : 'md-create'} color={Colors.tintColor} size={25}/> : null}
+                {this.state.isMember ? <Icon.Ionicons onPress={()=> this.doPost()} name={Platform.OS === 'ios'? 'ios-create' : 'md-create'} color={Colors.tintColor} size={25}/> : null}
             </View>
             <View style={styles.topBar}>
                 <Text style={styles.text}>{this.state.memberCount} members</Text>
                 <MyButton onPress={()=> this.joinOrLeave()} backgroundColor={Colors.tintColor} text={this.state.isMember ? "Leave Group" : "Join Group"}/>
             </View>
         </View><View style={styles.line}/>
-        <ScrollView style={styles.contentHolder}>
+        <NewPostModal
+            ref={component => this.newPost = component}
+            id={this.state.curr_id}
+            group={this.state.groupName}
+            username={this.state.curr_username}
+        />
 
+        <ScrollView 
+                style={styles.body}
+                refreshControl={
+                    <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}/>
+                }
+            >
+            <View style={{padding: 10, width: '100%', height: '100%' ,alignItems: 'center'}}>
+            
+                <FlatList 
+                style={styles.flatList}
+                data={this.state.posts}
+                renderItem={({ item, index }) => (
+                    <View style={styles.sectionHolder}>
+                    <View style={styles.listItem}>
+                    
+                    <View style={styles.separatedRow}>
+                    <Text style={[styles.listTextSmall, {fontWeight: 'bold'}]}>{item.username}</Text>
+                    <Text style={styles.listTextSmall}>{item.timestamp}</Text>
+                    
+                    </View>
+
+                    <TouchableOpacity >
+                        <Text style={styles.listText}>{item.title}</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.listTextSmall}>{item.body}</Text>
+                    
+                    <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-evenly',paddingTop: 5}}>
+                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color="#aaa" size={25}/>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Icon.Ionicons style={{paddingRight: 5}} name={Platform.OS === 'ios'? 'ios-paw' : 'md-paw'} color="#aaa" size={25}/>
+                    <Text style={styles.text}>{item.likes}</Text>
+                    </View>
+                    </View>
+                    </View>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                />
+
+                
+        </View>
         </ScrollView>
         </View>
         )
@@ -113,14 +221,26 @@ const styles = StyleSheet.create ({
     container: {
         flex: 1,
     },
-    contentHolder: {
-        flex: 1,
-        backgroundColor: '#ddd',
-    },
-    line: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: '#000',
+    flatList: {
+        elevation: 8,
+        padding: 10,
         width: '100%',
+        flexGrow: 0, 
+        height: '100%',
+    },
+    body: {
+        backgroundColor: '#dddddd',
+        height: '100%',
+    },
+    sectionHolder: {
+        width: '100%',
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor:'#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
     },
     topBar: {
         padding: 10,
@@ -133,12 +253,38 @@ const styles = StyleSheet.create ({
     text: {
         color: Colors.text,
         fontSize: 15,
-        paddingHorizontal: 20,
     },
     topText: {
         color: Colors.tintColor,
         fontWeight: 'bold',
         fontSize: 24,
         paddingHorizontal: 20,
+    },
+    line: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: '#000',
+        width: '100%',
+    },
+    listItem: {
+        paddingHorizontal: 10,
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    separatedRow: { 
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+    },
+    listText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    listTextSmall: {
+        color: Colors.text,
+        fontSize: 12,
+    },
+    postContainer: {
+        height: '100%',
     },
 });

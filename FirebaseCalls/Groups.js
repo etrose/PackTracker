@@ -73,4 +73,22 @@ export default class Groups extends React.Component {
         });
     }
 
+    async createPost(group, title, body) {
+        var serialized = JSON.stringify(new Date());
+
+        firebase.firestore().collection('posts').add({
+            group,
+            title,
+            body,
+            timestamp: serialized,
+            likes: 0,
+            op_username: this.state.curr_username,
+            op_id: this.state.curr_id
+        }).then((post)=> {
+            firebase.database().ref('groups/'+group+'/posts/'+post.id).set({
+                timestamp: serialized
+            });
+        });
+    }
+
     }

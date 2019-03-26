@@ -54,7 +54,6 @@ export default class Friends extends React.Component {
     }
 
     async sendMessage(otherUserId, message) {
-        var dt = new Date();
         var serialized = JSON.stringify(new Date());
 
 

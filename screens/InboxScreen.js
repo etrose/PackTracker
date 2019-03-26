@@ -110,6 +110,7 @@ export default class InboxScreen extends React.Component {
                     onRefresh={this.onRefresh}/>
                 }
             ><View style={{padding: 10,}}>
+            
                 <View style={styles.sectionHolder}>
                 <View style={styles.separatedRow}>
                 <Text style={styles.text}>Messages</Text>
@@ -198,7 +199,7 @@ const styles = StyleSheet.create ({
         width: '100%',
     },
     listItem: {
-        padding: 10,
+        paddingHorizontal: 10,
         flex: 1,
         backgroundColor: '#fff',
         borderBottomColor: '#000',
