@@ -219,13 +219,6 @@ export default class Profile extends React.Component {
                 keyExtractor={(item, index) => index.toString()}
                 />: <View style={{height: 100}}><ActivityIndicator size='large'/></View>}
             </View>
-
-            <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Groups</Text>
-            </View>
-            <View style={styles.flatListContainer}>
-              <Text style={styles.linkText}>Friends</Text>
-            </View>
           </View>
         </View>
       //</ScrollView>

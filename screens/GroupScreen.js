@@ -72,16 +72,15 @@ export default class GroupScreen extends React.Component {
             this.getPosts();
     }
 
-    getPosts() {
+    async getPosts() {
         var that = this;
-        firebase.database().ref('groups/'+this.state.groupName+'/posts').once('value')
-        .then((posts)=> {
-            var temp = [];
-            posts.forEach((post)=> {
-                firebase.firestore().doc('posts/'+post.key).get().then((postInfo)=> {
-                    var data = postInfo.data();
-                    var timestamp = new Date(JSON.parse(data.timestamp));
-                    var time = Math.floor(Math.abs((new Date()) - timestamp) / 1000);
+        var temp = [];
+        firebase.firestore().collection('posts').where('group', '==', this.state.groupName)
+            .get().then((snapshot)=> {
+                snapshot.forEach((doc)=> {
+                    var data = doc.data();
+                    var mytimestamp = new Date(JSON.parse(data.timestamp));
+                    var time = Math.floor(Math.abs((new Date()) - mytimestamp) / 1000);
                     var ext = "second";
 
                     if(time > 60) {
@@ -102,23 +101,19 @@ export default class GroupScreen extends React.Component {
                         title: data.title,
                         body: data.body,
                         likes: data.likes,
-                        timestamp: time + " " + ext + "(s) ago"
+                        //timestamp: time + " " + ext + "(s) ago"
                     });
-                    that.setState({posts: temp});
-                }).catch(error => {
-                    
+                    that.setState({posts: temp, refreshing: false});
                 });
-            });
-            that.setState({refreshing: false});
-            
-        }).catch(error => {
-            that.setState({refreshing: false});
-            const { code, message } = error;
-            alert(code + message);
+            }).catch((error)=> {
+                alert(error);
         });
+        
+        that.setState({refreshing: false});
     }
 
     onRefresh = () => {
+        this.setState({refreshing: true});
         this.getPosts();
     }
 
@@ -165,6 +160,7 @@ export default class GroupScreen extends React.Component {
             id={this.state.curr_id}
             group={this.state.groupName}
             username={this.state.curr_username}
+            onSuccess={()=> this.onRefresh()}
         />
 
         <ScrollView 
@@ -223,18 +219,19 @@ const styles = StyleSheet.create ({
     },
     flatList: {
         elevation: 8,
-        padding: 10,
         width: '100%',
-        flexGrow: 0, 
-        height: '100%',
+        flex: 1,
     },
     body: {
         backgroundColor: '#dddddd',
         height: '100%',
     },
     sectionHolder: {
+        elevation: 4,
+        marginBottom: 10,
         width: '100%',
         paddingTop: 10,
+        
         paddingBottom: 10,
         backgroundColor:'#fff',
         borderTopLeftRadius: 15,

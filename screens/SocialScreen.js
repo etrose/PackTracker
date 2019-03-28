@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Platform } from 'react-native';
 import { Buttons } from '../constants/Layout';
 import Logo from '../components/AppComponents/Logo';
+import { Icon } from 'expo';
 
 export default class SocialScreen extends React.Component {
     constructor(props) {
@@ -22,7 +23,7 @@ export default class SocialScreen extends React.Component {
                 <Text style={Buttons.buttonText}>My Groups</Text>
             </TouchableOpacity>
             <TouchableOpacity style={Buttons.button} onPress={(() => this.props.navigation.navigate('Search'))}>
-                <Text style={Buttons.buttonText}>Search for Users</Text>
+            <Text style={Buttons.buttonText}>Search for Users</Text>
             </TouchableOpacity>
         </View>
         )

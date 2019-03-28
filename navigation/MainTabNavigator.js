@@ -86,6 +86,7 @@ const SearchStack = createStackNavigator({
   Search: SearchScreen,
   OtherProfile: OtherProfileScreen,
   OtherDogProfile: OtherDogProfileScreen,
+  GroupScreen: GroupScreen,
 });
 
 SearchStack.navigationOptions = {

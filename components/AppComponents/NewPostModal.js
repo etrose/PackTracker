@@ -24,7 +24,12 @@ export default class NewPostModal extends React.Component {
     async onCreatePressed() {
         const g = new Groups(this.props.id, this.props.username);
         g.createPost(this.props.group, this.state.title, this.state.body);
-        this._toggleModal();
+        this.success();
+    }
+
+    async success() {
+        this._toggleModal(); 
+        this.props.onSuccess();
     }
 
     render() {
