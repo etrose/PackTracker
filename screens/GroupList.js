@@ -121,33 +121,7 @@ export default class GroupList extends React.Component {
                 keyExtractor={(item, index) => index.toString()}
                 /></View>
 
-                {/* <Text style={styles.text}>Nearby Groups</Text>
-                <View style={styles.line}/>
-                <FlatList 
-                style={styles.flatList}
-                data={this.state.friendsList}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('OtherProfile', 
-                    {
-                        username: item.username,
-                        //email: item.email,
-                        uid: item.id,
-                    })}>
-                    <View style={styles.requestItem}>
-                        
-                        <View style={{flexDirection: 'row'}}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color="blue" size={30}/>
-                        <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
-                        </View>
-                    </View>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                /> */}
-
         </View></ScrollView>
-        {/* <View style={{backgroundColor:'#dddddd', alignItems: 'center', padding: 10}}>
-        </View> */}
         </View>
         )
     }
@@ -183,7 +157,8 @@ const styles = StyleSheet.create ({
         flexGrow: 0, 
     },
     body: {
-        backgroundColor: '#dddddd',
+        //backgroundColor: '#dddddd',
+        backgroundColor: '#eee',
         height: '100%',
     },
     text: {

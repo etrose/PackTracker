@@ -91,4 +91,19 @@ export default class Groups extends React.Component {
         });
     }
 
+    async comment(post_id, comment) {
+        var serialized = JSON.stringify(new Date());
+
+        firebase.firestore().collection('posts/'+post_id+'/comments').add({
+            comment,
+            likes: 0,
+            timestamp: serialized,
+            username: this.state.curr_username,
+            user_id: this.state.curr_id
+        }).catch(error => {
+            const { code, message } = error;
+            alert(message);
+        });
+    }
+
     }

@@ -4,6 +4,7 @@ import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import MyButton from '../components/AppComponents/MyButton';
 import NewPostModal from '../components/AppComponents/NewPostModal';
+import FullPostModal from '../components/AppComponents/FullPostModal';
 import Groups from '../FirebaseCalls/Groups';
 import firebase from "firebase";
 import 'firebase/firestore';
@@ -21,7 +22,8 @@ export default class GroupScreen extends React.Component {
             isMember: false,
             refreshing: true,
             likes: 0,
-            posts: []
+            posts: [],
+            new_modal: false,
         };
     }
     static navigationOptions = {
@@ -77,6 +79,7 @@ export default class GroupScreen extends React.Component {
         var temp = [];
         firebase.firestore().collection('posts').where('group', '==', this.state.groupName)
             .get().then((snapshot)=> {
+                
                 snapshot.forEach((doc)=> {
                     var data = doc.data();
                     var mytimestamp = new Date(JSON.parse(data.timestamp));
@@ -95,13 +98,14 @@ export default class GroupScreen extends React.Component {
                         time = Math.floor(time/24);
                         ext = "days";
                     }
-                    console.log(data.title);
+                    
                     temp.push({
                         username: data.op_username,
                         title: data.title,
                         body: data.body,
                         likes: data.likes,
-                        //timestamp: time + " " + ext + "(s) ago"
+                        timestamp: time + " " + ext + "(s) ago",
+                        post_id: doc.id
                     });
                     that.setState({posts: temp, refreshing: false});
                 });
@@ -133,7 +137,20 @@ export default class GroupScreen extends React.Component {
     }
 
     async doPost() {
-        this.newPost.setState({isModalVisible: true});
+       this.newPost.setState({isModalVisible: true});
+    }
+
+    async doComments(username, title, body, likes, timestamp, post_id) {
+        this.fullPost.setState({
+            isModalVisible: true,
+            op_username: username,
+            title,
+            body,
+            likes,
+            timestamp,
+            called: true,
+            post_id
+        });
     }
 
     render() {
@@ -162,6 +179,12 @@ export default class GroupScreen extends React.Component {
             username={this.state.curr_username}
             onSuccess={()=> this.onRefresh()}
         />
+        <FullPostModal
+            ref={component => this.fullPost = component}
+            title="Post"
+            curr_id={this.state.curr_id}
+            curr_user={this.state.curr_username}
+        />
 
         <ScrollView 
                 style={styles.body}
@@ -186,14 +209,15 @@ export default class GroupScreen extends React.Component {
                     
                     </View>
 
-                    <TouchableOpacity >
+                    <TouchableOpacity onPress={()=>this.doComments()}>
                         <Text style={styles.listText}>{item.title}</Text>
                     </TouchableOpacity>
 
                     <Text style={styles.listTextSmall}>{item.body}</Text>
                     
                     <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-evenly',paddingTop: 5}}>
-                    <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color="#aaa" size={25}/>
+                    <Icon.Ionicons onPress={()=> this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)} 
+                    name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color="#aaa" size={25}/>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Icon.Ionicons style={{paddingRight: 5}} name={Platform.OS === 'ios'? 'ios-paw' : 'md-paw'} color="#aaa" size={25}/>
                     <Text style={styles.text}>{item.likes}</Text>

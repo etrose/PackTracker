@@ -99,8 +99,8 @@ class SearchScreen extends React.Component {
       <View style={styles.container}>
         <View style={styles.searchContainer}>
         <SearchBar
-          containerStyle={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center'}}
-          inputContainerStyle={{ backgroundColor: Colors.background, margin: 0,}}
+          containerStyle={{ flex: 1, backgroundColor: '#fff', alignItems: 'center'}}
+          inputContainerStyle={{ backgroundColor: '#fff', margin: 0,}}
           onChangeText={text =>this.searchChange(text)}
           value={this.state.searchInput}
           placeholder="Start typing to search..."
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: '#fff',
     minWidth: "100%",
     maxWidth: "100%",
     elevation: 10,
