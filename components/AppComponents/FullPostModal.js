@@ -110,7 +110,7 @@ export default class FullPostModal extends React.Component {
                     <Icon.Ionicons onPress={this._toggleModal} name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={20}/>
                 </View>
                 <Text style={{fontSize: 22, fontWeight: 'bold'}}>{this.state.title}</Text>
-                <Text style={styles.postBody}>{this.state.body}</Text>
+                <Text style={styles.bodyText}>{this.state.body}</Text>
                 </View>
 
                 <FlatList 
@@ -118,14 +118,14 @@ export default class FullPostModal extends React.Component {
                 data={this.state.comments}
                 renderItem={({ item, index }) => (
                     <View style={styles.listItemContainer}>
-                        <Text>{item.username}</Text>
-                        <Text>{item.comment}</Text>
+                        <Text style={styles.commentUsername}>{item.username}</Text>
+                        <Text style={styles.bodyText}>{item.comment}</Text>
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
 
-                <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
+                <View style={styles.commentInputContainer}>
                 <View style={{padding: 10, alignItems: 'center', width: '85%'}}>
                   <View style={[AuthPages.inputContainer, {marginTop: 0, width: '100%'}]}>
                   <TextInput style={[AuthPages.inputBox, {minHeight: 30, maxHeight: 120, width: '100%',  padding: 5}]}
@@ -156,7 +156,12 @@ export default class FullPostModal extends React.Component {
         topBar: {
             width: '100%',
             padding: 15,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
             elevation: 10,
+            borderBottomColor: '#000',
+            borderBottomWidth: StyleSheet.hairlineWidth,
         },
         backgroundView: {
           width: '100%',
@@ -173,25 +178,40 @@ export default class FullPostModal extends React.Component {
           borderRadius: 10,
           justifyContent: 'space-between',
           alignItems: 'center',
-        },
-        postBody: {
-            color: Colors.text,
-
+          elevation: 10,
         },
         op: {
             color: Colors.tintColor,
+        },
+        commentUsername: {
+            color: Colors.lightText,
+            fontSize: 12,
+        },
+        bodyText: {
+            fontSize: 14,
+            color: Colors.text,
         },
         linkText: {
           fontSize: 16,
           color: Colors.colorSecondary,
           fontWeight: 'bold',
         },
+        commentInputContainer: {
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            width: '100%',
+            backgroundColor: '#fff',
+            borderTopColor: '#000',
+            borderTopWidth: StyleSheet.hairlineWidth,
+            borderBottomLeftRadius: 15,
+            borderBottomRightRadius: 15,
+        },
         listItemContainer: {
             width: '100%',
             padding: 10,
             backgroundColor: '#fff',
-            elevation: 8,
-            borderRadius: 25,
+            borderBottomColor: '#000',
+            borderBottomWidth: StyleSheet.hairlineWidth,
         },
         flatList: {
             width: '100%',

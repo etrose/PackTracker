@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, FlatList, TouchableOpacity, TouchableHighlight } from 'react-native';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import MyButton from '../components/AppComponents/MyButton';
@@ -104,6 +104,7 @@ export default class GroupScreen extends React.Component {
                         title: data.title,
                         body: data.body,
                         likes: data.likes,
+                        liked: false,
                         timestamp: time + " " + ext + "(s) ago",
                         post_id: doc.id
                     });
@@ -151,6 +152,15 @@ export default class GroupScreen extends React.Component {
             called: true,
             post_id
         });
+    }
+
+    async doLike(index, current) {
+        let posts = [...this.state.posts];
+        let item = {...posts[index]};
+        item.liked = !current;
+        current ? item.likes-- : item.likes++;
+        posts[index] = item;
+        this.setState({posts});
     }
 
     render() {
@@ -216,10 +226,15 @@ export default class GroupScreen extends React.Component {
                     <Text style={styles.listTextSmall}>{item.body}</Text>
                     
                     <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-evenly',paddingTop: 5}}>
-                    <Icon.Ionicons onPress={()=> this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)} 
-                    name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color="#aaa" size={25}/>
+                    <Icon.Ionicons color={this.props.pressed ? Colors.tintColor : Colors.lightText}
+                    onPress={()=> this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)} 
+                    name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color={Colors.lightText} size={25}/>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Icon.Ionicons style={{paddingRight: 5}} name={Platform.OS === 'ios'? 'ios-paw' : 'md-paw'} color="#aaa" size={25}/>
+                    
+                    <Icon.Ionicons style={{paddingRight: 5}} 
+                    onPress={()=> this.doLike(index, item.liked)}
+                    name={Platform.OS === 'ios'? 'ios-paw' : 'md-paw'} color={item.liked ? Colors.tintColor : Colors.lightText} size={25}/>
+                    
                     <Text style={styles.text}>{item.likes}</Text>
                     </View>
                     </View>
@@ -272,7 +287,7 @@ const styles = StyleSheet.create ({
         elevation: 10,
     },
     text: {
-        color: Colors.text,
+        color: Colors.lightText,
         fontSize: 15,
     },
     topText: {
