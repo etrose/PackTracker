@@ -118,7 +118,8 @@ export default class FullPostModal extends React.Component {
                 data={this.state.comments}
                 renderItem={({ item, index }) => (
                     <View style={styles.listItemContainer}>
-                        <Text style={styles.commentUsername}>{item.username}</Text>
+                        <Text style={styles.commentUsername}>{item.timestamp}</Text>
+                        <Text style={[styles.commentUsername, styles.op]}>{item.username}</Text>
                         <Text style={styles.bodyText}>{item.comment}</Text>
                     </View>
                 )}
@@ -182,6 +183,7 @@ export default class FullPostModal extends React.Component {
         },
         op: {
             color: Colors.tintColor,
+            fontWeight: 'bold'
         },
         commentUsername: {
             color: Colors.lightText,

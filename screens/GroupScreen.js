@@ -77,6 +77,7 @@ export default class GroupScreen extends React.Component {
     async getPosts() {
         var that = this;
         var temp = [];
+
         firebase.firestore().collection('posts').where('group', '==', this.state.groupName)
             .get().then((snapshot)=> {
                 
@@ -98,17 +99,19 @@ export default class GroupScreen extends React.Component {
                         time = Math.floor(time/24);
                         ext = "days";
                     }
-                    
-                    temp.push({
-                        username: data.op_username,
-                        title: data.title,
-                        body: data.body,
-                        likes: data.likes,
-                        liked: false,
-                        timestamp: time + " " + ext + "(s) ago",
-                        post_id: doc.id
-                    });
-                    that.setState({posts: temp, refreshing: false});
+                    firebase.firestore().doc('posts/'+doc.id+'/likers/'+this.state.curr_username)
+                        .get().then((doc)=>{
+                            temp.push({
+                                username: data.op_username,
+                                title: data.title,
+                                body: data.body,
+                                likes: data.likes,
+                                liked: doc.exists,
+                                timestamp: time + " " + ext + "(s) ago",
+                                post_id: doc.id
+                            });
+                            that.setState({posts: temp, refreshing: false});
+                        });
                 });
             }).catch((error)=> {
                 alert(error);
@@ -161,6 +164,8 @@ export default class GroupScreen extends React.Component {
         current ? item.likes-- : item.likes++;
         posts[index] = item;
         this.setState({posts});
+        const g = new Groups(this.state.curr_id, this.state.curr_username);
+        g.like(item.post_id, this.state.curr_username);
     }
 
     render() {
