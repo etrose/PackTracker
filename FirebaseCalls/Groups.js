@@ -100,18 +100,27 @@ export default class Groups extends React.Component {
             timestamp: serialized,
             username: this.state.curr_username,
             user_id: this.state.curr_id
+        }).then((obj)=> {
+            return obj;
         }).catch(error => {
             const { code, message } = error;
             alert(message);
         });
     }
 
-    async like(post_id, username) {
-        var postRef = firebase.firestore().doc('posts/'+post_id);
-        var likerRef = firebase.firestore().doc('posts/'+post_id+'/likers/'+username);
+    async like(post_id, username, comment_id) {
+        var postRef;
+        var likerRef;
+        if(comment_id == undefined) {
+        postRef = firebase.firestore().doc('posts/'+post_id);
+        likerRef = firebase.firestore().doc('posts/'+post_id+'/likers/'+username);
+        }else {
+        postRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id);
+        likerRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id+'/likers/'+username);
+        }
 
-        postRef.get().then((post)=> {
-            var likeCount = post.data().likes;
+        postRef.get().then((doc)=> {
+            var likeCount = doc.data().likes;
 
             //Check if user has already like the post
             likerRef.get().then((thisUserLiked)=> {
@@ -132,27 +141,39 @@ export default class Groups extends React.Component {
             const { code, message } = error;
             alert(message);
         });
-
-
-        // let ref = firebase.firestore().doc('posts/'+post_id+'/likers/'+username);
-        // ref.get()
-        //     .then((memes)=> {
-        //         if(!memes.exists) {
-        //             ref.set({
-        //                 liked: true,
-        //             }).then(()=> {
-        //                 var postRef = firebase.firestore().doc('posts/'+post_id);
-        //                 postRef.update({})
-        //             });
-        //         }else {
-        //             ref.delete().then(()=> {
-        //                 firebase.firestore().ref('posts/'+post_id).transaction((post)=> {
-        //                     post.likes--;
-        //                 });
-        //             });
-        //         }
-                
-        //     });
     }
+    // async like(post_id, username, comment_id) {
+    //     console.log(comment_id);
+    //     if(comment_id != null) {
+    //         var postRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id);
+    //         var likerRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id+'/likers/'+username);
+    //     }else {
+    //         var postRef = firebase.firestore().doc('posts/'+post_id);
+    //         var likerRef = firebase.firestore().doc('posts/'+post_id+'/likers/'+username);
+    //     }
+
+    //     postRef.get().then((post)=> {
+    //         var likeCount = post.data().likes;
+
+    //         //Check if user has already like the post
+    //         likerRef.get().then((thisUserLiked)=> {
+    //             if(!thisUserLiked.exists) {
+    //                 //Create document for this user in likers
+    //                 return likerRef.set({liked:true}).then(()=>{
+    //                     likeCount++;
+    //                     postRef.update({likes:likeCount});
+    //                 });
+    //             }else {
+    //                 return likerRef.delete().then(()=>{
+    //                     likeCount--;
+    //                     postRef.update({likes:likeCount});
+    //                 });
+    //             }
+    //         });
+    //     }).catch(error => {
+    //         const { code, message } = error;
+    //         alert(message);
+    //     });
+    // }
 
     }

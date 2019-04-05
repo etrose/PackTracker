@@ -98,7 +98,7 @@ export default class InboxScreen extends React.Component {
         <View style={styles.container}>
             <View style={styles.topBar}>
             
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.topText]}>Inbox</Text>
+            <Text style={styles.topText}>Inbox</Text>
             
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
             </View>

@@ -18,7 +18,7 @@ export default class GroupScreen extends React.Component {
             groupName: this.props.name,
             groupPosition: this.props.position,
             memberCount: 1,
-            cityState: '',
+            cityState: 'General',
             isMember: false,
             refreshing: true,
             likes: 0,
@@ -80,7 +80,9 @@ export default class GroupScreen extends React.Component {
 
         firebase.firestore().collection('posts').where('group', '==', this.state.groupName)
             .get().then((snapshot)=> {
-                
+                if(snapshot.size == 0) {
+                    that.setState({refreshing: false});
+                }else {
                 snapshot.forEach((doc)=> {
                     var data = doc.data();
                     var mytimestamp = new Date(JSON.parse(data.timestamp));
@@ -100,24 +102,24 @@ export default class GroupScreen extends React.Component {
                         ext = "days";
                     }
                     firebase.firestore().doc('posts/'+doc.id+'/likers/'+this.state.curr_username)
-                        .get().then((doc)=>{
+                        .get().then((likerDoc)=>{
                             temp.push({
                                 username: data.op_username,
                                 title: data.title,
                                 body: data.body,
                                 likes: data.likes,
-                                liked: doc.exists,
+                                liked: likerDoc.exists,
                                 timestamp: time + " " + ext + "(s) ago",
                                 post_id: doc.id
                             });
+                            temp.sort((a,b)=> (a.likes > b.likes) ? -1 : 1);
                             that.setState({posts: temp, refreshing: false});
                         });
                 });
+                }
             }).catch((error)=> {
                 alert(error);
         });
-        
-        that.setState({refreshing: false});
     }
 
     onRefresh = () => {
@@ -231,7 +233,7 @@ export default class GroupScreen extends React.Component {
                     <Text style={styles.listTextSmall}>{item.body}</Text>
                     
                     <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-evenly',paddingTop: 5}}>
-                    <Icon.Ionicons color={this.props.pressed ? Colors.tintColor : Colors.lightText}
+                    <Icon.Ionicons color={Colors.lightText}
                     onPress={()=> this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)} 
                     name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color={Colors.lightText} size={25}/>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
