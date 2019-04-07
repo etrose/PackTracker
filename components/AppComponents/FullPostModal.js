@@ -71,7 +71,7 @@ export default class FullPostModal extends React.Component {
                         });
                         if(i == 0) {
                         temp.sort((a,b)=> (a.likes > b.likes) ? -1 : 1);
-                        that.setState({loading: false, comments: temp});
+                        that.setState({loading: false});
                         }
                     });
                 });
@@ -79,7 +79,7 @@ export default class FullPostModal extends React.Component {
             }).catch((error)=> {
                 alert(error);
         });
-        this.setState({oldTimestamp: this.state.timestamp});
+        this.setState({oldTimestamp: this.state.timestamp, comments: temp});
     }
 
     async sendComment() {
@@ -150,7 +150,7 @@ export default class FullPostModal extends React.Component {
           <View style={ styles.container }>
             <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center'}}
               isVisible={this.state.isModalVisible}
-              onBackdropPress={this._toggleModal}>
+              onBackdropPress={()=> this._toggleModal()}>
               <View style={styles.backgroundView}>
               <View style={styles.modal}>
 
