@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, AsyncStorage, Platform } from 'react-native';
+import { StyleSheet, View, Text, AsyncStorage, Platform, RefreshControl, ScrollView } from 'react-native';
 import firebase from "firebase";
+import Logo from '../components/AppComponents/Logo';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 
@@ -9,6 +10,11 @@ export default class HomeScreen extends React.Component {
         super(props);
         this.state = { 
             curr_username: 'to Pack Tracker',
+            featuredTitle: 'Featured Title',
+            featuredBody: 'Featured Body',
+            featuredLikes: 0,
+            featuredCommentCount: 0,
+            refreshing: true,
         };
     }
     static navigationOptions = {
@@ -32,7 +38,17 @@ export default class HomeScreen extends React.Component {
     }
 
     async getFeaturedPost() {
+        this.setState({
+            refreshing: false,
+            featuredTitle: 'Featured Title',
+            featuredBody: 'Featured Body',
+        });
+        // firebase.firestore().doc('posts/featured').get()
+        //     .then((post) => {
 
+        //     }).catch((error)=> {
+        //         alert(error);
+        //     });
     }
 
     async getPosts() {
@@ -56,7 +72,25 @@ export default class HomeScreen extends React.Component {
             </View>
             <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
         </View>
-            <Text>Welcome {this.state.curr_username}!</Text>
+        <ScrollView style={styles.body}
+            refreshControl={
+            <RefreshControl colors={[Colors.tintColor]}
+            tintColor={Colors.tintColor}
+            refreshing={this.state.refreshing}
+            onRefresh={this.onRefresh}/>}>
+        <View style={{padding: 10, width: '100%', height: '100%' ,alignItems: 'center'}}>
+
+        <View style={styles.postHolder}>
+            <Logo noMargin={true}/>
+            <View>
+            <View style={{padding: 10}}>
+            <Text style={styles.listText}>{this.state.featuredTitle}</Text>
+            <Text style={styles.listTextSmall}>{this.state.featuredBody}</Text>
+            </View>
+            </View>
+        </View>
+        </View>
+        </ScrollView>    
         </View>
         )
     }
@@ -85,5 +119,23 @@ const styles = StyleSheet.create ({
         fontSize: 14, 
         fontWeight: 'bold', 
         color: Colors.lightText,
-    }
+    },
+    body: {
+        backgroundColor: '#dddddd',
+        height: '100%',
+    },
+    postHolder: {
+        backgroundColor: '#fff',
+        width: '100%',
+        borderRadius: 15,
+        elevation: 8,
+    },
+    listText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    listTextSmall: {
+        color: Colors.text,
+        fontSize: 12,
+    },
 });

@@ -140,6 +140,8 @@ export default class FriendList extends React.Component {
                 style={styles.body}
                 refreshControl={
                     <RefreshControl
+                    colors={[Colors.tintColor]}
+                    tintColor={Colors.tintColor}
                     refreshing={this.state.refreshing}
                     onRefresh={this.onRefresh}/>
                 }

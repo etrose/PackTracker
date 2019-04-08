@@ -52,7 +52,7 @@ export default class NewPostModal extends React.Component {
                 <View style={{alignItems: 'center', width: '100%'}}>
                 <View style={[AuthPages.inputContainer, { marginTop: 5, width: '85%'}]}>
                   <TextInput style={[AuthPages.inputBox, {minHeight: 30, maxHeight: 120, width: '100%',  padding: 5}]}
-                      maxLength={28}
+                      maxLength={44}
                       fontSize={16}
                       
                       multiline={true}

@@ -108,6 +108,7 @@ export default class GroupScreen extends React.Component {
                                 title: data.title,
                                 body: data.body,
                                 likes: data.likes,
+                                commentCount: data.commentCount,
                                 liked: likerDoc.exists,
                                 timestamp: time + " " + ext + "(s) ago",
                                 post_id: doc.id
@@ -207,6 +208,8 @@ export default class GroupScreen extends React.Component {
                 style={styles.body}
                 refreshControl={
                     <RefreshControl
+                    colors={[Colors.tintColor]}
+                    tintColor={Colors.tintColor}
                     refreshing={this.state.refreshing}
                     onRefresh={this.onRefresh}/>
                 }
@@ -226,18 +229,22 @@ export default class GroupScreen extends React.Component {
                     
                     </View>
 
-                    <TouchableOpacity onPress={()=>this.doComments()}>
+                    <TouchableOpacity onPress={()=>this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)}>
                         <Text style={styles.listText}>{item.title}</Text>
                     </TouchableOpacity>
 
                     <Text style={styles.listTextSmall}>{item.body}</Text>
                     
                     <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-evenly',paddingTop: 5}}>
-                    <Icon.Ionicons color={Colors.lightText}
+                    
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Icon.Ionicons color={Colors.lightText} style={{paddingRight: 5}}
                     onPress={()=> this.doComments(item.username, item.title, item.body, item.likes, item.timestamp, item.post_id)} 
                     name={Platform.OS === 'ios'? 'ios-chatboxes' : 'md-chatboxes'} color={Colors.lightText} size={25}/>
+                    <Text style={styles.text}>{item.commentCount}</Text>
+                    </View>
+
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    
                     <Icon.Ionicons style={{paddingRight: 5}} 
                     onPress={()=> this.doLike(index, item.liked)}
                     name={Platform.OS === 'ios'? 'ios-paw' : 'md-paw'} color={item.liked ? Colors.tintColor : Colors.lightText} size={25}/>
@@ -250,8 +257,6 @@ export default class GroupScreen extends React.Component {
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
-
-                
         </View>
         </ScrollView>
         </View>
@@ -280,10 +285,11 @@ const styles = StyleSheet.create ({
         
         paddingBottom: 10,
         backgroundColor:'#fff',
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: 15,
-        borderBottomLeftRadius: 15,
-        borderBottomRightRadius: 15,
+        borderRadius: 15,
+        // borderTopLeftRadius: 15,
+        // borderTopRightRadius: 15,
+        // borderBottomLeftRadius: 15,
+        // borderBottomRightRadius: 15,
     },
     topBar: {
         padding: 10,

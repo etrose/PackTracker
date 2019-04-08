@@ -9,26 +9,28 @@ export default class Logo extends React.Component {
  
   render() {
     return (
-      <View style= {styles.container}>
+      <View style= {this.props.noMargin ? styles.container : [styles.container, styles.margin]}>
           <Image
               style={this.props.simple ? {width:75, height:75} : {width:120, height: 120}}
               source={
                 this.props.simple ? require('../../assets/images/logo-gray-cropped.png') : require('../../assets/images/pt_logo_1.png')
                 }
           />
-        <Text style= {styles.logoText}>{this.props.header}</Text>
+        {this.props.header == null ? null : <Text style= {styles.logoText}>{this.props.header}</Text>}
       </View>
     );
   }
 }
 const styles = StyleSheet.create({
   container : {
-    marginTop:30,
-    marginBottom: 30,
     justifyContent: 'center',
     alignItems: 'center'
   },
-  logoText : {
+  margin: {
+    marginTop:30,
+    marginBottom:30 ,
+  },
+    logoText : {
     padding:10,
     fontSize: 20,
     fontWeight:"bold",

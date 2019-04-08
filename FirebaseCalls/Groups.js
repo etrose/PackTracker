@@ -82,6 +82,7 @@ export default class Groups extends React.Component {
             body,
             timestamp: serialized,
             likes: 0,
+            commentCount: 0,
             op_username: this.state.curr_username,
             op_id: this.state.curr_id
         }).then((post)=> {
@@ -93,18 +94,32 @@ export default class Groups extends React.Component {
 
     async comment(post_id, comment) {
         var serialized = JSON.stringify(new Date());
-
         firebase.firestore().collection('posts/'+post_id+'/comments').add({
             comment,
             likes: 0,
             timestamp: serialized,
             username: this.state.curr_username,
             user_id: this.state.curr_id
-        }).then((obj)=> {
-            return obj;
-        }).catch(error => {
+          })
+        //.then(()=> {
+        //     console.log("HELLO WORLD");
+        //     postRef.get().then((post)=> {
+        //         var commentCount = post.data().commentCount;
+        //         console.log(commentCount);
+        //         commentCount++;
+        //         postRef.update({commentCount});
+        //     });
+        //     return;
+        // })
+        .catch(error => {
             const { code, message } = error;
             alert(message);
+        });
+        firebase.firestore().doc('posts/'+post_id).get().then((post)=> {
+            var commentCount = post.data().commentCount;
+            console.log(commentCount);
+            commentCount++;
+            firebase.firestore().doc('posts/'+post_id).update({commentCount});
         });
     }
 
@@ -142,38 +157,5 @@ export default class Groups extends React.Component {
             alert(message);
         });
     }
-    // async like(post_id, username, comment_id) {
-    //     console.log(comment_id);
-    //     if(comment_id != null) {
-    //         var postRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id);
-    //         var likerRef = firebase.firestore().doc('posts/'+post_id+'/comments/'+comment_id+'/likers/'+username);
-    //     }else {
-    //         var postRef = firebase.firestore().doc('posts/'+post_id);
-    //         var likerRef = firebase.firestore().doc('posts/'+post_id+'/likers/'+username);
-    //     }
-
-    //     postRef.get().then((post)=> {
-    //         var likeCount = post.data().likes;
-
-    //         //Check if user has already like the post
-    //         likerRef.get().then((thisUserLiked)=> {
-    //             if(!thisUserLiked.exists) {
-    //                 //Create document for this user in likers
-    //                 return likerRef.set({liked:true}).then(()=>{
-    //                     likeCount++;
-    //                     postRef.update({likes:likeCount});
-    //                 });
-    //             }else {
-    //                 return likerRef.delete().then(()=>{
-    //                     likeCount--;
-    //                     postRef.update({likes:likeCount});
-    //                 });
-    //             }
-    //         });
-    //     }).catch(error => {
-    //         const { code, message } = error;
-    //         alert(message);
-    //     });
-    // }
 
     }

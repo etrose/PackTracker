@@ -105,7 +105,15 @@ export default class FullPostModal extends React.Component {
                     user_id: this.props.curr_id
                 }),
             });
+            
             this.textInput.clear();
+            const postRef = firebase.firestore().doc('posts/'+this.state.post_id);
+            postRef.get().then((post)=> {
+                var commentCount = post.data().commentCount;
+                console.log(commentCount);
+                commentCount++;
+                postRef.update({commentCount});
+            });
             }).catch(error => {
                 const { code, message } = error;
                 alert(message);
