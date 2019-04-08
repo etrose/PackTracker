@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, FlatList, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { StyleSheet, View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, FlatList, TouchableOpacity } from 'react-native';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import MyButton from '../components/AppComponents/MyButton';
@@ -78,7 +78,7 @@ export default class GroupScreen extends React.Component {
         var that = this;
         var temp = [];
 
-        firebase.firestore().collection('posts').where('group', '==', this.state.groupName)
+        firebase.firestore().collection('posts').where('group', '==', this.state.groupName).orderBy('timestamp', 'desc')
             .get().then((snapshot)=> {
                 if(snapshot.size == 0) {
                     that.setState({refreshing: false});
@@ -119,6 +119,7 @@ export default class GroupScreen extends React.Component {
                 });
                 }
             }).catch((error)=> {
+                console.log(error);
                 alert(error);
         });
     }

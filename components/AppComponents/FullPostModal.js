@@ -18,9 +18,9 @@ export default class FullPostModal extends React.Component {
       title: this.props.title,
       body: '',
       likes: '',
-      timestamp: '',
-      oldTimestamp: '',
-      post_id: '',
+      timestamp: -1,
+      oldTimestamp: -1,
+      post_id: this.props.post_id,
       currId: this.props.id,
       called: false,
       comments: [],
@@ -29,10 +29,10 @@ export default class FullPostModal extends React.Component {
 
   async componentDidUpdate() {
     if(this.state.called) {
-      if(this.state.timestamp != this.state.oldTimestamp) {
-          this.setState({loading: true});
+      //if(this.state.timestamp != this.state.oldTimestamp) {
+          this.setState({loading: true, called: false});
           this.loadComments();
-      }
+      //}
     }
   }
 
@@ -47,15 +47,17 @@ export default class FullPostModal extends React.Component {
     async loadComments() {
         var that = this;
         var temp = [];
+        console.log(this.state.post_id);
         firebase.firestore().collection('posts/'+this.state.post_id+'/comments')
             .get().then((snapshot)=> {
             var i = snapshot.size;
             if(i == 0) {
-                that.setState({loading: false});
+                that.setState({loading: false, comments: temp});
             }else {
             snapshot.forEach((doc)=> {
                 i--;
                 var data = doc.data();
+                console.log(data);
                 var mytimestamp = new Date(JSON.parse(data.timestamp));
                 var time = that.getTimeSince(mytimestamp);
                 firebase.firestore().doc('posts/'+this.state.post_id+'/comments/'+doc.id+'/likers/'+this.props.curr_user)
@@ -71,7 +73,7 @@ export default class FullPostModal extends React.Component {
                         });
                         if(i == 0) {
                         temp.sort((a,b)=> (a.likes > b.likes) ? -1 : 1);
-                        that.setState({loading: false});
+                        that.setState({loading: false, comments: temp});
                         }
                     });
                 });
@@ -79,7 +81,7 @@ export default class FullPostModal extends React.Component {
             }).catch((error)=> {
                 alert(error);
         });
-        this.setState({oldTimestamp: this.state.timestamp, comments: temp});
+        this.setState({oldTimestamp: this.state.timestamp});
     }
 
     async sendComment() {

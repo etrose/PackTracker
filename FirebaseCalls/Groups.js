@@ -84,7 +84,8 @@ export default class Groups extends React.Component {
             likes: 0,
             commentCount: 0,
             op_username: this.state.curr_username,
-            op_id: this.state.curr_id
+            op_id: this.state.curr_id,
+            featured: false,
         }).then((post)=> {
             firebase.database().ref('groups/'+group+'/posts/'+post.id).set({
                 timestamp: serialized
