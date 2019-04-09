@@ -9,8 +9,8 @@ export default class MyButton extends React.Component {
  
   render() {
     return (
-    <TouchableOpacity width={this.props.width} style={styles.button} onPress={this.props.onPress}>
-        <Text style={styles.buttonText}>{this.props.text}</Text>
+    <TouchableOpacity disabled={this.props.disabled} width={this.props.width} style={styles.button} onPress={this.props.onPress}>
+        <Text style={[styles.buttonText, this.props.disabled ? {backgroundColor: Colors.lightText}: {backgroundColor: Colors.tintColor}]}>{this.props.text}</Text>
     </TouchableOpacity>
     );
   }

@@ -38,7 +38,8 @@ export default class HomeScreen extends React.Component {
             curr_id,
         });
 
-        this.doLoad();
+        //TODO: MAKE UNCOMMENT THIS WHEN READY
+        //this.doLoad();
     }
 
     async doLoad() {
@@ -190,7 +191,7 @@ export default class HomeScreen extends React.Component {
             </View>
             <Logo noMargin={true}/>
             <View>
-            {this.state.featuredLoading ? <ActivityIndicator size="large"/> : 
+            {this.state.featuredLoading ? <ActivityIndicator size="large" color={Colors.tintColor}/> : 
             <View 
             //style={{padding: 10}}
             >
@@ -269,7 +270,7 @@ export default class HomeScreen extends React.Component {
             />
         </View>
         <View style={{marginVertical: 10}}>
-        <MyButton onPress={()=> this.getPosts()} backgroundColor={Colors.tintColor} text="Load More"/>
+        <MyButton disabled={this.state.refreshing} onPress={()=> this.getPosts()} backgroundColor={Colors.tintColor} text="Load More"/>
         </View>
         </View>
         </ScrollView>    

@@ -105,7 +105,8 @@ export default class InboxScreen extends React.Component {
             <ScrollView 
                 style={styles.body}
                 refreshControl={
-                    <RefreshControl
+                    <RefreshControl colors={[Colors.tintColor]}
+                    tintColor={Colors.tintColor}
                     refreshing={this.state.refreshing}
                     onRefresh={this.onRefresh}/>
                 }

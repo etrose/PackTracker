@@ -18,6 +18,7 @@ import AddDogScreen from '../screens/AddDogScreen';
 import SearchScreen from '../screens/SearchScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import OtherDogProfileScreen from '../screens/OtherDogProfileScreen';
+import Colors from '../constants/Colors';
 
 import InboxScreen from '../screens/InboxScreen';
 
@@ -37,6 +38,9 @@ HomeStack.navigationOptions = {
       }
     />
   ),
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor,
+  }
 };
 
 const ProfileStack = createStackNavigator({
@@ -62,6 +66,9 @@ ProfileStack.navigationOptions = {
       }
     />
   ),
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor,
+  }
 };
 
 const InboxStack = createStackNavigator({
@@ -80,6 +87,9 @@ InboxStack.navigationOptions = {
       }
     />
   ),
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor,
+  }
 };
 
 const SearchStack = createStackNavigator({
@@ -101,6 +111,9 @@ SearchStack.navigationOptions = {
       }
     />
   ),
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor,
+  }
 };
 
 const SocialStack = createStackNavigator({
@@ -124,11 +137,15 @@ SocialStack.navigationOptions = {
       }
     />
   ),
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor,
+  }
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack,
+  HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack
 }));
+
 
 // export default createAppContainer(createDrawerNavigator({
 //   HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack,
