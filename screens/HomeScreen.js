@@ -38,7 +38,7 @@ export default class HomeScreen extends React.Component {
             curr_id,
         });
 
-        this.doLoad();
+        //this.doLoad();
     }
 
     async doLoad() {
@@ -49,7 +49,7 @@ export default class HomeScreen extends React.Component {
     }
 
     onRefresh = () => {
-        this.setState({refreshing: true, posts: []});
+        this.setState({refreshing: true, posts: [], lastVisible: ''});
         this.doLoad();
     }
 
@@ -81,7 +81,6 @@ export default class HomeScreen extends React.Component {
     async getPosts() {
         var that = this;
         var temp = [...this.state.posts];
-        console.log("hello");
         var ref = '';
         if(this.state.lastVisible != '') {
             ref = firebase.firestore().collection('posts').where('featured', '==', false).orderBy('likes', 'desc').orderBy('timestamp', 'desc').startAfter(this.state.lastVisible).limit(3)
@@ -95,7 +94,6 @@ export default class HomeScreen extends React.Component {
                 
                 snapshot.forEach((doc)=> {
                     var data = doc.data();
-                    console.log(data);
                     var mytimestamp = new Date(JSON.parse(data.timestamp));
                     var time = Math.floor(Math.abs((new Date()) - mytimestamp) / 1000);
                     var ext = "second";
@@ -131,7 +129,6 @@ export default class HomeScreen extends React.Component {
                 });
                 }
             }).catch((error)=> {
-                console.log(error);
                 alert(error);
         });
     }
@@ -143,6 +140,17 @@ export default class HomeScreen extends React.Component {
         });
         const g = new Groups(this.state.curr_id, this.state.curr_username);
         g.like("featured", this.state.curr_username);
+    }
+
+    async doLike(index, current) {
+        let posts = [...this.state.posts];
+        let item = {...posts[index]};
+        item.liked = !current;
+        current ? item.likes-- : item.likes++;
+        posts[index] = item;
+        this.setState({posts});
+        const g = new Groups(this.state.curr_id, this.state.curr_username);
+        g.like(item.post_id, this.state.curr_username);
     }
 
     async doComments(username, title, body, likes, timestamp, post_id) {
@@ -190,7 +198,7 @@ export default class HomeScreen extends React.Component {
             </View>
             <Logo noMargin={true}/>
             <View>
-            {this.state.featuredLoading ? <ActivityIndicator size="large"/> : 
+            {this.state.featuredLoading ? <ActivityIndicator size="large" color={Colors.tintColor}/> : 
             <View 
             //style={{padding: 10}}
             >
@@ -269,7 +277,7 @@ export default class HomeScreen extends React.Component {
             />
         </View>
         <View style={{marginVertical: 10}}>
-        <MyButton onPress={()=> this.getPosts()} backgroundColor={Colors.tintColor} text="Load More"/>
+        <MyButton disabled={this.state.refreshing} onPress={()=> this.getPosts()} backgroundColor={Colors.tintColor} text="Load More"/>
         </View>
         </View>
         </ScrollView>    

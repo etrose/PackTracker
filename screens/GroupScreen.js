@@ -23,6 +23,7 @@ export default class GroupScreen extends React.Component {
             refreshing: true,
             likes: 0,
             posts: [],
+            lastVisible: '',
             new_modal: false,
         };
     }
@@ -76,10 +77,15 @@ export default class GroupScreen extends React.Component {
 
     async getPosts() {
         var that = this;
-        var temp = [];
+        var temp = [...this.state.posts];
+        var ref;
 
-        firebase.firestore().collection('posts').where('group', '==', this.state.groupName).orderBy('timestamp', 'desc')
-            .get().then((snapshot)=> {
+        if(this.state.lastVisible == '') {
+            ref = firebase.firestore().collection('posts').where('group', '==', this.state.groupName).orderBy('timestamp', 'desc').limit(4)
+        }else {
+            ref = firebase.firestore().collection('posts').where('group', '==', this.state.groupName).orderBy('timestamp', 'desc').startAfter(this.state.lastVisible).limit(4)
+        }
+        ref.get().then((snapshot)=> {
                 if(snapshot.size == 0) {
                     that.setState({refreshing: false});
                 }else {
@@ -114,7 +120,7 @@ export default class GroupScreen extends React.Component {
                                 post_id: doc.id
                             });
                             temp.sort((a,b)=> (a.likes > b.likes) ? -1 : 1);
-                            that.setState({posts: temp, refreshing: false});
+                            that.setState({posts: temp, refreshing: false, lastVisible: doc});
                         });
                 });
                 }
@@ -125,7 +131,7 @@ export default class GroupScreen extends React.Component {
     }
 
     onRefresh = () => {
-        this.setState({refreshing: true});
+        this.setState({refreshing: true, posts: [], lastVisible: ''});
         this.getPosts();
     }
 
@@ -258,6 +264,7 @@ export default class GroupScreen extends React.Component {
                 )}
                 keyExtractor={(item, index) => index.toString()}
                 />
+                <MyButton disabled={this.state.refreshing} onPress={()=> this.getPosts()} backgroundColor={Colors.tintColor} text="Load More"/>
         </View>
         </ScrollView>
         </View>
