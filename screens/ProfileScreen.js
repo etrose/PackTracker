@@ -16,6 +16,7 @@ import MyButton from '../components/AppComponents/MyButton';
 import firebase from "firebase";
 import 'firebase/firestore';
 import CityPickModal from '../components/AppComponents/CityPickModal';
+import NewDogModal from '../components/AppComponents/NewDogModal';
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -63,44 +64,73 @@ export default class Profile extends React.Component {
       }
   }
 
-  getDogs = async () => {
-    const user_id = await AsyncStorage.getItem("user:id");
-    const docRef = await firebase
-        .firestore().collection("users/" + user_id + "/dogs");
-        //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
-    
-    const tempDogs = [];
+  async getDogs() {
     var that = this;
-    await docRef.get().then(function(results){
-      if(results.size == 0) {
-        that.setState({dogsLoading: false});
-        return;
-      }
-      results.forEach((doc) => {
-        
-        var docRef = doc.data().dog;
-
-        docRef.get().then(function(documentSnapshot) {
-          //set data to the data of the dog's document reference
-          const data = documentSnapshot.data();
-          tempDogs.push({
-            doggoName: data.name,
-            doggoBreed: data.breed,
-            doggoBirth: data.birth,
-            doggoPic: require('../assets/images/smiling-dog.jpg')
-          });
-          that.setState({
-            dogs: tempDogs,
-            numDogs: tempDogs.length,
-            dogsLoading: false,
-          });
-        }).catch(error => {
-          const { code, message } = error;
-          alert(message);
+    const tempDogs = [];
+    firebase.firestore().collection('dogs/').where('owner_id', '==', this.state.curr_id)
+      .get().then((dogs)=> {
+        if(dogs.size == 0) {
+          that.setState({dogsLoading: false});
+          return;
+        }
+        dogs.forEach((dog)=> {
+          const data = dog.data();
+        tempDogs.push({
+          doggoName: data.name,
+          doggoBreed: data.breed,
+          doggoBirth: data.birth,
+          doggoPic: require('../assets/images/smiling-dog.jpg')
         });
+        that.setState({
+          dogs: tempDogs,
+          numDogs: tempDogs.length,
+          dogsLoading: false,
+        });
+        })
+      }).catch(error => {
+        const { code, message } = error;
+        alert(message);
       });
-    });
   }
+
+  // getDogs = async () => {
+  //   const user_id = await AsyncStorage.getItem("user:id");
+  //   const docRef = await firebase
+  //       .firestore().collection("users/" + user_id + "/dogs");
+  //       //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
+    
+  //   const tempDogs = [];
+  //   var that = this;
+  //   await docRef.get().then(function(results){
+  //     if(results.size == 0) {
+  //       that.setState({dogsLoading: false});
+  //       return;
+  //     }
+  //     results.forEach((doc) => {
+        
+  //       var docRef = doc.data().dog;
+
+  //       docRef.get().then(function(documentSnapshot) {
+  //         //set data to the data of the dog's document reference
+  //         const data = documentSnapshot.data();
+  //         tempDogs.push({
+  //           doggoName: data.name,
+  //           doggoBreed: data.breed,
+  //           doggoBirth: data.birth,
+  //           doggoPic: require('../assets/images/smiling-dog.jpg')
+  //         });
+  //         that.setState({
+  //           dogs: tempDogs,
+  //           numDogs: tempDogs.length,
+  //           dogsLoading: false,
+  //         });
+  //       }).catch(error => {
+  //         const { code, message } = error;
+  //         alert(message);
+  //       });
+  //     });
+  //   });
+  // }
 
   async getCity() {
     firebase.firestore().doc('users/'+this.state.curr_id).get()
@@ -129,10 +159,6 @@ export default class Profile extends React.Component {
     } catch (e) {
         alert(e)
     }
-  }
-
-  addDog = () => {
-      this.props.navigation.navigate('AddDogProfile');
   }
 
   async doCityPick() {
@@ -168,6 +194,13 @@ export default class Profile extends React.Component {
               ref={component => this.cityPicker = component}
               label="Set your city"
               onSuccess={()=>this.setCity()}
+            />
+            <NewDogModal
+              ref={component => this.newDog = component}
+              label="Dog Profile"
+              id={this.state.curr_id}
+              user={this.state.username}
+              onSuccess={()=>this.getDogs()}
             />
             <View style={styles.row}>
             <TouchableOpacity onPress={()=> this.props.navigation.navigate('Friends')}>
@@ -210,7 +243,10 @@ export default class Profile extends React.Component {
           {/* <TouchableOpacity onPress={this.addDog}>
             <Text>Add Dog</Text>
           </TouchableOpacity> */}
-          <MyButton text="Add Dog" onPress={()=> this.props.navigation.navigate('AddDogProfile')}/>
+          <MyButton text="Add Dog" 
+          //onPress={()=> this.props.navigation.navigate('AddDogProfile')}
+          onPress={()=>this.newDog.setState({isModalVisible: true})}
+          />
             </View>
             <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
               <Text style={{fontSize: 16, fontWeight: 'bold'}}>Logout</Text>
