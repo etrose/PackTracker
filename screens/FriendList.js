@@ -117,6 +117,19 @@ export default class FriendList extends React.Component {
         this.setState({refreshing: false});
     }
 
+    async onRemoveFromFriends(id, index) {
+        new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(id);
+        
+        this.setState(function(prevState){
+            return { 
+                friendsList : prevState.friendsList.filter(function(val, i) {
+            return i !== index;
+            })};
+            });
+        
+        this.setState({refreshing: false});
+    }
+
     async handleUserPress (username, id) {
         this.props.navigation.navigate('OtherProfile', 
                     {
@@ -175,13 +188,17 @@ export default class FriendList extends React.Component {
                 <FlatList 
                 style={styles.flatList}
                 data={this.state.friendsList}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <TouchableOpacity onPress={() => this.handleUserPress(item.username, item.id)}>
                     <View style={styles.requestItem}>
-                        
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
                         <View style={{flexDirection: 'row'}}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color={Colors.colorSecondary} size={30}/>
                         <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
+                        </View>
+                        <TouchableOpacity onPress={()=>this.onRemoveFromFriends(item.id, index)}>
+                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
+                        </TouchableOpacity>
                         </View>
                     </View>
                     </TouchableOpacity>

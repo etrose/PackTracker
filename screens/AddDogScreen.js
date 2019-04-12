@@ -1,9 +1,9 @@
 import React from 'react';
-import { TextInput, View, Text, TouchableOpacity, AsyncStorage } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, AsyncStorage, StyleSheet, Image } from 'react-native';
 
-import Logo from '../components/AppComponents/Logo';
 import Colors from '../constants/Colors';
 import { AuthPages } from '../constants/Layout';
+import { Permissions, ImagePicker } from 'expo';
 
 import firebase from "firebase";
 import 'firebase/firestore';
@@ -15,7 +15,35 @@ export default class AddDogScreen extends React.Component {
             name: "",
             breed: "",
             birth: "",
+            pic: '',
         };
+    }
+
+    async askPermissions() {
+        const { Permissions } = Expo;
+        const { status, expires, permissions } = await Permissions.getAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
+        if (status !== 'granted') {
+            result = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
+        }
+    }
+
+    async pickImage(isCamera) {
+        if(isCamera) {
+            let result = await ImagePicker.launchCameraAsync({
+                allowsEditing: true,
+                aspect: [3,3],
+            });
+        }else {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [3,3],
+            });
+        }
+
+        console.log(result);
+        if(!result.cancelled) {
+            this.setState({pic: result.uri});
+        }
     }
 
     registerDog = async () => {
@@ -43,9 +71,11 @@ export default class AddDogScreen extends React.Component {
 
     render() {
         return (
-            <View style={AuthPages.container}>
-                <Logo header="Add Dog" simple={true} />
-                <View style={AuthPages.container}>
+            <View style={styles.container}>
+                <TouchableOpacity onPress={()=>this.pickImage(true)}>
+                <Image style={styles.avatar} source={this.state.pic == '' ? require('../assets/images/smiling-dog.jpg') : {uri: this.state.pic}}/>
+                </TouchableOpacity>
+                <View style={styles.authContainer}>
 
                     <View style={AuthPages.inputContainer}>
                         <TextInput style={AuthPages.inputBox}
@@ -83,3 +113,20 @@ export default class AddDogScreen extends React.Component {
         )
     }
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+      }, 
+      authContainer: {
+        alignItems: 'center',
+      }, 
+    avatar: {
+        width: 150,
+        height: 150,
+        borderColor: "transparent",
+        borderRadius: 75,
+        marginBottom: 15,
+        marginTop: 30
+      },
+});

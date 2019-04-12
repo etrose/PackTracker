@@ -17,7 +17,7 @@ export default class Profile extends React.Component {
     super(props);
     this.state = ({
       loading: true,
-      pic: require('../assets/images/sad-dog.jpg'),
+      pic: require('../assets/images/smiling-dog.jpg'),
       name:'...',
       breed:'...',
       birth:'...',
@@ -79,17 +79,6 @@ const styles = StyleSheet.create({
         color: Colors.colorSecondary,
         fontWeight: 'bold',
     },
-  flatListContainer: {
-    padding: 10,
-    height: 110,
-    width: "80%",
-    textAlign: "center",
-  },
-  flatList: {
-    padding: 5,
-    backgroundColor: "rgba(0,0,0,.1)",
-    height: 100,
-  },
   header: {
     backgroundColor: Colors.tintColor,
     height: 80,

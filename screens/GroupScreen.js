@@ -87,6 +87,10 @@ export default class GroupScreen extends React.Component {
         }
         ref.get().then((snapshot)=> {
                 if(snapshot.size == 0) {
+                    console.log(this.state.posts.length);
+                    if(this.state.posts.length != 0) {
+                        alert("No more posts here, try again later.");
+                        }
                     that.setState({refreshing: false});
                 }else {
                 snapshot.forEach((doc)=> {

@@ -15,6 +15,7 @@ import MyButton from '../components/AppComponents/MyButton';
 
 import firebase from "firebase";
 import 'firebase/firestore';
+import CityPickModal from '../components/AppComponents/CityPickModal';
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -22,8 +23,9 @@ export default class Profile extends React.Component {
     this.state = ({
       loading: true,
       username: "...",
+      curr_id: '',
       email: "...",
-      city: "City: Not Set", //Add Dialog if Not set so that user can click the text and set it
+      city: "Set City", //Add Dialog if Not set so that user can click the text and set it
       dogs: [{
         doggoName: "No Dogs",
         doggoPic: require('../assets/images/sad-dog.jpg'),
@@ -41,13 +43,15 @@ export default class Profile extends React.Component {
   async componentDidMount() {
     const username = await AsyncStorage.getItem("user:username");
     const email = await AsyncStorage.getItem("user:email");
+    const curr_id = await AsyncStorage.getItem("user:id");
     this.setState({
       username: username,
       email: email,
-      //city
+      curr_id,
     });
     
     this.getDogs();
+    this.getCity();
   }
 
   async componentDidUpdate() {
@@ -98,6 +102,18 @@ export default class Profile extends React.Component {
     });
   }
 
+  async getCity() {
+    firebase.firestore().doc('users/'+this.state.curr_id).get()
+      .then((doc)=> {
+        if(doc.data().city != null) {
+          this.setState({city: doc.data().city + ", " + doc.data().state});
+        }
+      }).catch(error => {
+          const { code, message } = error;
+          alert(message);
+        });
+  }
+
   logout = () => {
     AsyncStorage.removeItem("user:id");
     AsyncStorage.removeItem("user:username");
@@ -119,15 +135,40 @@ export default class Profile extends React.Component {
       this.props.navigation.navigate('AddDogProfile');
   }
 
+  async doCityPick() {
+    this.cityPicker.setState({isModalVisible: true});
+  }
+
+  async setCity() {
+    const myCity = this.cityPicker.state.picked_city;
+    const myState = this.cityPicker.state.picked_state;
+    this.setState({city: myCity + ", " + myState});
+    firebase.firestore().doc('users/'+this.state.curr_id).update({
+      city: myCity,
+      state: myState,
+    }).catch(error => {
+      const { code, message } = error;
+      alert(message);
+    });
+  }
+
   render() {
     return (
         <View style={styles.body}>
 
             <View style={styles.topContainer}>
             <Text style={styles.name}>{this.state.username}</Text>
+            {/* TODO: Add icon and touchable opacity where user can confirm email */}
             <Text style={styles.info}>{this.state.email}</Text>
+            <TouchableOpacity onPress={() => this.doCityPick()}>
             <Text style={styles.description}>{this.state.city}</Text>
+            </TouchableOpacity>
 
+            <CityPickModal
+              ref={component => this.cityPicker = component}
+              label="Set your city"
+              onSuccess={()=>this.setCity()}
+            />
             <View style={styles.row}>
             <TouchableOpacity onPress={()=> this.props.navigation.navigate('Friends')}>
               <Text style={styles.linkText}>My Friends</Text>

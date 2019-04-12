@@ -89,6 +89,9 @@ export default class HomeScreen extends React.Component {
         }
         ref.get().then((snapshot)=> {
                 if(snapshot.size == 0) {
+                    if(this.state.posts != []) {
+                    alert("No more posts here, try again later.");
+                    }
                     that.setState({refreshing: false});
                 }else {
                 

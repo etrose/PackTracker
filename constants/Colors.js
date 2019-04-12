@@ -11,7 +11,7 @@ export default {
   text: '#222',
   lightText: '#777',
   buttonText: '#fff',
-  background: '#000',
+  background: '#fff',
   tabBar: '#fefefe',
   errorBackground: 'red',
   errorText: '#fff',

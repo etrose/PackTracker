@@ -25,7 +25,6 @@ export default class Profile extends React.Component {
     this.state = ({
       loading: true,
       username: "...",
-      email: "...",
       user_id: "",
       curr_id: '',
       curr_username: '',
@@ -54,11 +53,11 @@ export default class Profile extends React.Component {
       username: navigation.getParam('username','....'),
       email: navigation.getParam('email','....'),
       user_id: navigation.getParam("uid","oof"),
-      //city
       curr_id,
       curr_username
     });
-    //alert(this.state.user_id);
+
+    this.getCity();
     this.getDogs();
     const that = this;
     
@@ -122,6 +121,18 @@ export default class Profile extends React.Component {
     });
   }
 
+  async getCity() {
+    firebase.firestore().doc('users/'+this.state.user_id).get()
+      .then((doc)=> {
+        if(doc.data().city != null) {
+          this.setState({city: doc.data().city + ", " + doc.data().state});
+        }
+      }).catch(error => {
+          const { code, message } = error;
+          alert(message);
+        });
+  }
+
   async onSocialPress () {
     var friendHandler = new Friends(this.state.curr_id, this.state.curr_username);
     //alert("social button pressed");
@@ -174,13 +185,16 @@ export default class Profile extends React.Component {
       //   <View style={styles.header}></View>
       //   <Image style={styles.avatar} source={require('../assets/images/pt_logo_1.png')} />
         <View style={styles.body}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
+            <View style={styles.topContainer}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
             <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
             <View></View>
             </View>
-          <View style={styles.bodyContent}>
             <Text style={styles.name}>{this.state.username}</Text>
+            <Text style={styles.description}>{this.state.city}</Text>
+            <View style={{marginVertical: 10}}>
             <MyButton text={this.state.friendStatus} onPress={async ()=>this.onSocialPress()}/>
+            </View>
             <MessageModal 
               ref={component => this.message = component} 
               toUser={this.state.username}
@@ -188,11 +202,8 @@ export default class Profile extends React.Component {
               id={this.state.curr_id}
               username={this.state.curr_username}
             />
-
-            <Text style={styles.info}>{this.state.email}</Text>
-            <Text style={styles.description}>{this.state.city}</Text>
-
-            <View style={styles.flatListContainer}>
+          </View>
+          <View style={styles.smallContainer}>
               <Text style={styles.linkText}>Dogs - {this.state.numDogs}</Text>
               {!this.state.dogsLoading ? 
               <FlatList 
@@ -219,7 +230,6 @@ export default class Profile extends React.Component {
                 keyExtractor={(item, index) => index.toString()}
                 />: <View style={{height: 100}}><ActivityIndicator size='large'/></View>}
             </View>
-          </View>
         </View>
       //</ScrollView>
     );
@@ -235,6 +245,16 @@ const styles = StyleSheet.create({
         marginRight: 15,
         alignItems: 'center',
     },
+    topContainer: {
+      alignItems: 'center',
+      width: "100%",
+      textAlign: "center",
+      backgroundColor: '#fff',
+      marginBottom: 30,
+      elevation: 10,
+      borderBottomColor: '#000',
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
     dogPic: {
         width: 75,
         height: 75,
@@ -245,12 +265,16 @@ const styles = StyleSheet.create({
         color: Colors.colorSecondary,
         fontWeight: 'bold',
     },
-  flatListContainer: {
-    alignItems: 'center',
-    padding: 10,
-    width: "80%",
-    textAlign: "center",
-  },
+    smallContainer: {
+      alignItems: 'center',
+      padding: 10,
+      width: "90%",
+      textAlign: "center",
+      backgroundColor: '#fff',
+      marginBottom: 30,
+      borderRadius: 20,
+      elevation: 8,
+    },
   flatList: {
     padding: 5,
   },
@@ -267,21 +291,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginTop: 20
   },
-  name: {
-    fontSize: 22,
-    color: "#FFFFFF",
-    fontWeight: '600',
-  },
   body: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
-  },
-  bodyContent: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 30,
+    backgroundColor: '#ddd',
   },
   name: {
     fontSize: 28,
@@ -296,7 +309,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     color: "#696969",
-    marginTop: 10,
     textAlign: 'center'
   },
   buttonContainer: {
