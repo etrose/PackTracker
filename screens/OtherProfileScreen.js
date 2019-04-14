@@ -77,48 +77,79 @@ export default class Profile extends React.Component {
     ref.off('value');
   }
 
-  getDogs = async () => {
+  // getDogs = async () => {
 
-    const user_id = this.state.user_id;
-    const docRef = await firebase
-        .firestore().collection("users/" + user_id + "/dogs");
-        //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
+  //   const user_id = this.state.user_id;
+  //   const docRef = await firebase
+  //       .firestore().collection("users/" + user_id + "/dogs");
+  //       //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
     
-    const tempDogs = [];
+  //   const tempDogs = [];
+  //   var that = this;
+  //   await docRef.get().then(function(results){
+  //     if(results.size == 0) {
+  //       that.setState({dogsLoading: false});
+  //       return;
+  //     }
+
+  //     results.forEach((doc) => {
+  //       var docRef = doc.data().dog;
+
+  //       docRef.get().then(function(documentSnapshot) {
+  //         //set data to the data of the dog's document reference
+  //         const data = documentSnapshot.data();
+  //         tempDogs.push({
+  //           doggoName: data.name,
+  //           doggoBreed: data.breed,
+  //           doggoBirth: data.birth,
+  //           doggoPic: require('../assets/images/smiling-dog.jpg'),
+
+  //           //This is for the touchable opacity to know whether it should
+  //           //navigate to a dog profile or create new dog onPress.
+  //           addButton: false,
+  //         });
+  //         that.setState({
+  //           dogs: tempDogs,
+  //           numDogs: tempDogs.length,
+  //           dogsLoading: false
+  //         });
+  //       }).catch(error => {
+  //         const { code, message } = error;
+  //         alert(message);
+  //       });
+  //     });
+  //   });
+  // }
+
+  async getDogs() {
     var that = this;
-    await docRef.get().then(function(results){
-      if(results.size == 0) {
-        that.setState({dogsLoading: false});
-        return;
-      }
-
-      results.forEach((doc) => {
-        var docRef = doc.data().dog;
-
-        docRef.get().then(function(documentSnapshot) {
-          //set data to the data of the dog's document reference
-          const data = documentSnapshot.data();
+    const tempDogs = [];
+    firebase.firestore().collection('dogs/').where('owner_id', '==', this.state.user_id)
+      .get().then((dogs)=> {
+        if(dogs.size == 0) {
+          that.setState({dogsLoading: false});
+          return;
+        }
+        dogs.forEach((dog)=> {
+        const data = dog.data();
           tempDogs.push({
             doggoName: data.name,
             doggoBreed: data.breed,
             doggoBirth: data.birth,
-            doggoPic: require('../assets/images/smiling-dog.jpg'),
-
-            //This is for the touchable opacity to know whether it should
-            //navigate to a dog profile or create new dog onPress.
-            addButton: false,
+            doggoPic: {uri: data.pic}
           });
           that.setState({
             dogs: tempDogs,
             numDogs: tempDogs.length,
-            dogsLoading: false
+            dogsLoading: false,
           });
-        }).catch(error => {
-          const { code, message } = error;
-          alert(message);
+        //});
+        
         });
+      }).catch(error => {
+        const { code, message } = error;
+        alert(message);
       });
-    });
   }
 
   async getCity() {

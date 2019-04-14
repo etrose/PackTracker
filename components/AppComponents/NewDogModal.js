@@ -31,41 +31,10 @@ export default class NewDogModal extends React.Component {
       return;
     }
     const dogsRef = firebase.firestore().collection('dogs');
-
-    // dogsRef.add({
-    //     name,
-    //     breed,
-    //     birth: selectedDate,
-    //     owner_id: this.props.id,
-    //     owner_username: this.props.user,
-    // }).then((dogRef)=> {
-    //   this.uploadImage(this.state.pic, dogRef.id)
-    //     .then((stored)=> {
-          
-    //       dogsRef.add({
-    //         name,
-    //         breed,
-    //         birth: selectedDate,
-    //         owner_id: this.props.id,
-    //         owner_username: this.props.user,
-    //         pic: stored.downloadURL + ''
-    //       })
-    //         .then(()=> {
-    //            alert(name+"'s profile created!");
-    //            this._toggleModal(); 
-    //            this.props.onSuccess();
-    //         });
-    //     }).catch((error) => {
-    //       alert(error);
-    //     });
-    // }).catch(error => {
-    //     const { code, message } = error;
-    //     alert(message);
-    //   });
-    const stamp = JSON.stringify(new Date())+this.props.user;
-    this.uploadImage(this.state.pic, stamp)
+    //const stamp = JSON.stringify(new Date());
+    this.uploadImage(this.state.pic, name)
       .then(()=> {
-        firebase.storage().ref().child('dogs/'+stamp).getDownloadURL()
+        firebase.storage().ref().child('dogs/'+this.props.user+'/'+name).getDownloadURL()
           .then((url) => {
             dogsRef.add({
                 name,
@@ -123,7 +92,7 @@ export default class NewDogModal extends React.Component {
       xhr.send(null);
     });
 
-    var ref = firebase.storage().ref().child('dogs/'+name);
+    var ref = firebase.storage().ref().child('dogs/'+this.props.user+'/'+name);
     return ref.put(blob);
   }
 
