@@ -37,7 +37,7 @@ export default class Profile extends React.Component {
     name: navigation.getParam('dogName', 'oof'),
     breed: navigation.getParam('dogBreed', 'oof'),
     birth: navigation.getParam('dogBirth', 'oof'),
-    //city: data.city,
+    city: navigation.getParam('dogCity', 'Not Set')
     });
   }
 

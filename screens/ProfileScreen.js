@@ -74,19 +74,25 @@ export default class Profile extends React.Component {
           return;
         }
         dogs.forEach((dog)=> {
-          const data = dog.data();
-        tempDogs.push({
-          doggoName: data.name,
-          doggoBreed: data.breed,
-          doggoBirth: data.birth,
-          doggoPic: require('../assets/images/smiling-dog.jpg')
+        const data = dog.data();
+
+        // firebase.storage().child('dogs/'+dog.id).getDownloadURL()
+        //   .then((url) => {
+        //     console.log(url);
+          tempDogs.push({
+            doggoName: data.name,
+            doggoBreed: data.breed,
+            doggoBirth: data.birth,
+            doggoPic: {uri: data.pic}
+          });
+          that.setState({
+            dogs: tempDogs,
+            numDogs: tempDogs.length,
+            dogsLoading: false,
+          });
+        //});
+        
         });
-        that.setState({
-          dogs: tempDogs,
-          numDogs: tempDogs.length,
-          dogsLoading: false,
-        });
-        })
       }).catch(error => {
         const { code, message } = error;
         alert(message);
@@ -228,6 +234,7 @@ export default class Profile extends React.Component {
                       dogBreed: item.doggoBreed,
                       dogBirth: item.doggoBirth,
                       dogPic: item.doggoPic,
+                      dogCity: this.state.city,
                   }): null}
               style={styles.dogItemHolder}>
                 <Image 
@@ -239,12 +246,8 @@ export default class Profile extends React.Component {
           )}
           keyExtractor={(item, index) => index.toString()}
           />: <View style={{height: 100}}><ActivityIndicator size='large'/></View>}
-          
-          {/* <TouchableOpacity onPress={this.addDog}>
-            <Text>Add Dog</Text>
-          </TouchableOpacity> */}
+
           <MyButton text="Add Dog" 
-          //onPress={()=> this.props.navigation.navigate('AddDogProfile')}
           onPress={()=>this.newDog.setState({isModalVisible: true})}
           />
             </View>

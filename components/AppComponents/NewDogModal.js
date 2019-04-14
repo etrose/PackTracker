@@ -31,24 +31,58 @@ export default class NewDogModal extends React.Component {
       return;
     }
     const dogsRef = firebase.firestore().collection('dogs');
-    dogsRef.add({
-        name,
-        breed,
-        birth: selectedDate,
-        owner_id: this.state.currId,
-        owner_username: this.state.currUser
-    }).then((dogRef)=> {
-      firebase.storage().ref().child('dogs/'+dogRef.id).put('uri: this.state.pic').then((picRef)=> {
-        dogRef.update({
-          pic: picRef
-        });
-      });
-      this._toggleModal(); 
-      this.props.onSuccess();
-    }).catch(error => {
-        const { code, message } = error;
-        alert(message);
-      });
+
+    // dogsRef.add({
+    //     name,
+    //     breed,
+    //     birth: selectedDate,
+    //     owner_id: this.props.id,
+    //     owner_username: this.props.user,
+    // }).then((dogRef)=> {
+    //   this.uploadImage(this.state.pic, dogRef.id)
+    //     .then((stored)=> {
+          
+    //       dogsRef.add({
+    //         name,
+    //         breed,
+    //         birth: selectedDate,
+    //         owner_id: this.props.id,
+    //         owner_username: this.props.user,
+    //         pic: stored.downloadURL + ''
+    //       })
+    //         .then(()=> {
+    //            alert(name+"'s profile created!");
+    //            this._toggleModal(); 
+    //            this.props.onSuccess();
+    //         });
+    //     }).catch((error) => {
+    //       alert(error);
+    //     });
+    // }).catch(error => {
+    //     const { code, message } = error;
+    //     alert(message);
+    //   });
+    const stamp = JSON.stringify(new Date())+this.props.user;
+    this.uploadImage(this.state.pic, stamp)
+      .then(()=> {
+        firebase.storage().ref().child('dogs/'+stamp).getDownloadURL()
+          .then((url) => {
+            dogsRef.add({
+                name,
+                breed,
+                birth: selectedDate,
+                owner_id: this.props.id,
+                owner_username: this.props.user,
+                pic: url
+              }).then(()=> {
+                    alert(name+"'s profile created!");
+                    this._toggleModal(); 
+                    this.props.onSuccess();
+                });
+            }).catch((error) => {
+              alert(error);
+            });
+          });
 }
 
   async pickImage(isCamera) {
@@ -58,9 +92,8 @@ export default class NewDogModal extends React.Component {
               aspect: [3,3],
               quality: .1,
           });
-          console.log(result);
           if(!result.cancelled) {
-              this.setState({pic: result.uri});
+            this.setState({pic: result.uri});
           }
       }else {
           let result = await ImagePicker.launchImageLibraryAsync({
@@ -68,11 +101,30 @@ export default class NewDogModal extends React.Component {
               aspect: [3,3],
               quality: .1,
           });
-          console.log(result);
+          
           if(!result.cancelled) {
-              this.setState({pic: result.uri});
+          
+            this.setState({pic: result.uri});
           }
       }
+  }
+
+  async uploadImage(uri, name) {
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function() {
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+
+    var ref = firebase.storage().ref().child('dogs/'+name);
+    return ref.put(blob);
   }
 
   async datePick() {

@@ -1,9 +1,9 @@
 {
-  "packagerPort": null,
-  "packagerPid": null,
+  "packagerPort": 19001,
+  "packagerPid": 7428,
+  "expoServerNgrokUrl": "https://fh-5fk.evanrose.packtracker.exp.direct",
+  "packagerNgrokUrl": "https://packager.fh-5fk.evanrose.packtracker.exp.direct",
+  "ngrokPid": 19348,
   "devToolsPort": 19002,
-  "expoServerPort": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null
+  "expoServerPort": 19000
 }
