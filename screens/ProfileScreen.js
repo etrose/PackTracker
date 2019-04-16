@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   StyleSheet,
+  Platform,
   Text,
   View,
   Image,
@@ -9,7 +10,7 @@ import {
   AsyncStorage,
   ActivityIndicator
 } from 'react-native';
-
+import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import MyButton from '../components/AppComponents/MyButton';
 
@@ -17,6 +18,7 @@ import firebase from "firebase";
 import 'firebase/firestore';
 import CityPickModal from '../components/AppComponents/CityPickModal';
 import NewDogModal from '../components/AppComponents/NewDogModal';
+
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -70,20 +72,22 @@ export default class Profile extends React.Component {
     firebase.firestore().collection('dogs/').where('owner_id', '==', this.state.curr_id)
       .get().then((dogs)=> {
         if(dogs.size == 0) {
-          that.setState({dogsLoading: false});
+          that.setState({dogs: [{
+            doggoName: "No Dogs",
+            doggoPic: require('../assets/images/sad-dog.jpg'),
+            addButton: true,
+        }], numDogs: 0, dogsLoading: false});
           return;
         }
         dogs.forEach((dog)=> {
         const data = dog.data();
 
-        // firebase.storage().child('dogs/'+dog.id).getDownloadURL()
-        //   .then((url) => {
-        //     console.log(url);
           tempDogs.push({
             doggoName: data.name,
             doggoBreed: data.breed,
             doggoBirth: data.birth,
-            doggoPic: {uri: data.pic}
+            doggoPic: {uri: data.pic},
+            doggoId: dog.id
           });
           that.setState({
             dogs: tempDogs,
@@ -99,44 +103,6 @@ export default class Profile extends React.Component {
       });
   }
 
-  // getDogs = async () => {
-  //   const user_id = await AsyncStorage.getItem("user:id");
-  //   const docRef = await firebase
-  //       .firestore().collection("users/" + user_id + "/dogs");
-  //       //.firestore().collection("users/bztcTsA1UHgDfQoC0VTte0jq5xf1/dogs");
-    
-  //   const tempDogs = [];
-  //   var that = this;
-  //   await docRef.get().then(function(results){
-  //     if(results.size == 0) {
-  //       that.setState({dogsLoading: false});
-  //       return;
-  //     }
-  //     results.forEach((doc) => {
-        
-  //       var docRef = doc.data().dog;
-
-  //       docRef.get().then(function(documentSnapshot) {
-  //         //set data to the data of the dog's document reference
-  //         const data = documentSnapshot.data();
-  //         tempDogs.push({
-  //           doggoName: data.name,
-  //           doggoBreed: data.breed,
-  //           doggoBirth: data.birth,
-  //           doggoPic: require('../assets/images/smiling-dog.jpg')
-  //         });
-  //         that.setState({
-  //           dogs: tempDogs,
-  //           numDogs: tempDogs.length,
-  //           dogsLoading: false,
-  //         });
-  //       }).catch(error => {
-  //         const { code, message } = error;
-  //         alert(message);
-  //       });
-  //     });
-  //   });
-  // }
 
   async getCity() {
     firebase.firestore().doc('users/'+this.state.curr_id).get()
@@ -220,7 +186,13 @@ export default class Profile extends React.Component {
             </View>
 
             <View style={styles.smallContainer}>
+            <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'space-between', width: '100%'}}>
+              <View/>
               <Text style={styles.tintText}>Dogs - {this.state.numDogs}</Text>
+              <TouchableOpacity onPress={()=>this.getDogs()}>
+              <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-refresh' : 'md-refresh'} color='#ddd' size={30}/>
+              </TouchableOpacity>
+              </View>
               {!this.state.dogsLoading ? 
               <FlatList 
               style={styles.flatList}
@@ -235,6 +207,8 @@ export default class Profile extends React.Component {
                       dogBirth: item.doggoBirth,
                       dogPic: item.doggoPic,
                       dogCity: this.state.city,
+                      dogId: item.doggoId,
+                      onDeleteDog: () => {this.getDogs()}
                   }): null}
               style={styles.dogItemHolder}>
                 <Image 
@@ -275,7 +249,7 @@ const styles = StyleSheet.create({
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
     dogItemHolder: {
-        marginRight: 15,
+        marginHorizontal: 10,
         alignItems: 'center',
     },
     dogPic: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform, Image, DatePickerAndroid, DatePickerIOS, Picker } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, TextInput, StyleSheet, Platform, Image, DatePickerAndroid, DatePickerIOS, Picker } from 'react-native';
 import Modal from 'react-native-modal';
 import { Permissions, ImagePicker, Icon } from 'expo';
 import Colors from '../../constants/Colors';
@@ -12,12 +12,20 @@ export default class NewDogModal extends React.Component {
     _toggleModal = () =>
       this.setState({ isModalVisible: !this.state.isModalVisible });
 
+    _togglePicOptions = () => {
+    this.askPermissions();
+    this.setState({ picOptionsVisible: !this.state.picOptionsVisible });
+    }
+
     async askPermissions() {
       const { Permissions } = Expo;
-      const { status, expires, permissions } = await Permissions.getAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
-      if (status !== 'granted') {
-          result = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
-      }
+
+        const { status, expires, permissions } = await Permissions.getAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
+
+        if(status != 'granted') {
+          const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
+          
+        }
   }
 
   registerDog = async () => {
@@ -30,6 +38,7 @@ export default class NewDogModal extends React.Component {
       alert("please pick picture for your dog's profile");
       return;
     }
+    this.setState({isCreatingDogProfile: true});
     const dogsRef = firebase.firestore().collection('dogs');
     //const stamp = JSON.stringify(new Date());
     this.uploadImage(this.state.pic, name)
@@ -45,25 +54,27 @@ export default class NewDogModal extends React.Component {
                 pic: url
               }).then(()=> {
                     alert(name+"'s profile created!");
+                    this.setState({isCreatingDogProfile: false});
                     this._toggleModal(); 
                     this.props.onSuccess();
                 });
             }).catch((error) => {
               alert(error);
+              this.setState({isCreatingDogProfile: false});
             });
           });
 }
 
   async pickImage(isCamera) {
       if(isCamera) {
-          let result = await ImagePicker.launchCameraAsync({
-              allowsEditing: true,
-              aspect: [3,3],
-              quality: .1,
-          });
-          if(!result.cancelled) {
-            this.setState({pic: result.uri});
-          }
+        let result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [3,3],
+            quality: .1,
+        });
+        if(!result.cancelled) {
+          this.setState({pic: result.uri});
+        }
       }else {
           let result = await ImagePicker.launchImageLibraryAsync({
               allowsEditing: true,
@@ -129,10 +140,11 @@ export default class NewDogModal extends React.Component {
 
               <View style={{alignItems: 'center'}}>
               
-              <TouchableOpacity>
-                <Image style={styles.avatar} source={this.state.pic == '' ? require('../../assets/images/smiling-dog.jpg') : {uri: this.state.pic}}/>
+              <TouchableOpacity onPress={this._togglePicOptions}>
+                <Image style={styles.avatar} source={this.state.pic == '' ? require('../../assets/images/smiling-dog-edit.png') : {uri: this.state.pic}}/>
                 </TouchableOpacity>
-                <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-evenly'}}>
+                {this.state.picOptionsVisible ?
+                <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-evenly', paddingBottom: 10}}>
                     <TouchableOpacity onPress={()=>this.pickImage(false)}>
                         <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-images' : 'md-images'} color={Colors.tintColor} size={30}/>
                         <Text>From Gallery..</Text>
@@ -142,6 +154,7 @@ export default class NewDogModal extends React.Component {
                         <Text>Take Photo..</Text>
                     </TouchableOpacity>
                 </View>
+                : null}
 
               <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
                 <TextInput style={[AuthPages.inputBox, {width: 250}]}
@@ -176,7 +189,8 @@ export default class NewDogModal extends React.Component {
                 </View>
 
                 <TouchableOpacity style={[AuthPages.button, {width: 250}]} onPress={()=>this.registerDog()}>
-                  <Text style={AuthPages.buttonText}>Add Dog Profile</Text>
+                  {this.state.isCreatingDogProfile ? <ActivityIndicator color="#fff"/>:
+                    <Text style={AuthPages.buttonText}>Add Dog Profile</Text>}
                 </TouchableOpacity>
             </View>
             </View>
@@ -194,6 +208,8 @@ export default class NewDogModal extends React.Component {
         pic: '',
         currId: this.props.id,
         currUser: this.props.user,
+        picOptionsVisible: false,
+        isCreatingDogProfile: false,
         breedChoices: [
           '-Breed-',
           'other',

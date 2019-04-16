@@ -4,11 +4,11 @@ import {
   Text,
   View,
   Image,
+  ScrollView,
   TouchableOpacity,
-  FlatList,
-  AsyncStorage,
-  ScrollView
+  Platform
 } from 'react-native';
+import { Icon } from 'expo';
 
 import Colors from '../constants/Colors';
 
@@ -43,19 +43,33 @@ export default class Profile extends React.Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.header}></View>
-        <Image style={styles.avatar} source={this.state.pic} />
-        <View style={styles.body}>
+      <View style={styles.container}>
+      <View style={styles.topBar}>
+      <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+      <TouchableOpacity style={{paddingLeft: 15, }} onPress={()=> this._toggleSettings()}>
+      
+      {/* <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-more' : 'md-more'} size={30}/> */}
+      
+      </TouchableOpacity>
+      </View>
+        <View style={styles.header}>
+        </View>
+        <TouchableOpacity style={styles.avatarHolder} 
+        //onPress={this._togglePicOptions}
+        >
+            <Image style={styles.avatar} source={this.state.pic}/>
+        </TouchableOpacity>
+        <ScrollView style={styles.body}>
           <View style={styles.bodyContent}>
+          
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.info}>{this.state.breed}</Text>
             <Text style={styles.description}>BirthDate: {this.state.birth}</Text>
             <Text style={styles.description}>City: {this.state.city}</Text>
-            {/*Add Owner Link*/}
+            
           </View>
+          </ScrollView>
         </View>
-      </ScrollView>
     );
   }
 }
@@ -68,42 +82,63 @@ const styles = StyleSheet.create({
         height: 100,
         backgroundColor: Colors.colorSecondary,
     },
-    dogPic: {
-
-    },
+    topBar: {
+      padding: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      //backgroundColor: Colors.tintColor,
+      backgroundColor: '#fff',
+      elevation: 10
+  },
+  smallContainer: {
+    alignItems: 'center',
+    padding: 10,
+    width: "100%",
+    textAlign: "center",
+    backgroundColor: '#fff',
+    marginBottom: 30,
+    borderRadius: 20,
+    elevation: 8,
+  },
     container: {
+      flex: 1,
         //marginTop: 23,
-        flex: 1,
     }, 
     linkText: {
         fontSize: 16,
         color: Colors.colorSecondary,
         fontWeight: 'bold',
     },
-  flatListContainer: {
-    padding: 10,
-    height: 110,
-    width: "80%",
-    textAlign: "center",
-  },
-  flatList: {
-    padding: 5,
-    backgroundColor: "rgba(0,0,0,.1)",
-    height: 100,
-  },
   header: {
-    backgroundColor: Colors.tintColor,
+    //backgroundColor: Colors.tintColor,
+    backgroundColor: '#fff',
     height: 80,
+    elevation: 10
+  },
+  avatarHolder: {
+    marginTop: 20,
+    elevation: 10,
+    alignSelf: 'center',
+    position: 'absolute',
+    borderColor: "transparent",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    //backgroundColor: Colors.tintColor
+    backgroundColor: '#fff',
   },
   avatar: {
     width: 150,
     height: 150,
-    borderColor: "transparent",
+    //borderColor: Colors.tintColor,
+    borderColor: '#fff',
+    borderWidth: 4,
     borderRadius: 75,
-    marginBottom: 15,
+    //marginBottom: 15,
     alignSelf: 'center',
     position: 'absolute',
-    marginTop: 30
+    //marginTop: 30,
   },
   name: {
     fontSize: 22,
@@ -111,9 +146,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   body: {
-    marginTop: 70,
+    backgroundColor: '#ddd'
   },
   bodyContent: {
+    marginTop: 20,
     flex: 1,
     alignItems: 'center',
     padding: 30,
