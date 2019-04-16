@@ -1,13 +1,15 @@
 import React from 'react';
-import { StyleSheet, 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    AsyncStorage, 
-    FlatList, 
-    ScrollView, 
+import {
+    StyleSheet,
+    View,
+    Text,
+    TouchableOpacity,
+    AsyncStorage,
+    FlatList,
+    ScrollView,
     RefreshControl,
-    Platform } from 'react-native';
+    Platform
+} from 'react-native';
 
 import Friends from '../FirebaseCalls/Friends';
 import firebase from "firebase";
@@ -19,7 +21,7 @@ export default class FriendList extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { 
+        this.state = {
             curr_id: '',
             curr_username: '',
             incomingRequests: [],
@@ -35,46 +37,46 @@ export default class FriendList extends React.Component {
     async componentDidMount() {
         const curr_id = await AsyncStorage.getItem("user:id");
         const curr_username = await AsyncStorage.getItem("user:username");
-        this.setState({curr_id, curr_username});
+        this.setState({ curr_id, curr_username });
         this.getFriendRequests();
     }
 
-    getFriendRequests(){
-        const ref = firebase.database().ref('users/'+this.state.curr_id+'/friends');
+    getFriendRequests() {
+        const ref = firebase.database().ref('users/' + this.state.curr_id + '/friends');
         const that = this;
         ref.once('value')
-            .then(function(requests){
+            .then(function (requests) {
                 var tempIncoming = [];
                 var tempSent = [];
                 var tempFriends = [];
-                requests.forEach(function(child) {
+                requests.forEach(function (child) {
                     var id = child.key;
                     var username = child.val().username;
-                    
-                    //if sent is null, user is already friend
-                    if(child.val().sent != null) {
 
-                    //Check if request was sent or received then add to correct list
-                    if(!child.val().sent) {
-                        tempIncoming.push({
-                            username,
-                            id
-                        });
-                    }else {
-                        tempSent.push({
+                    //if sent is null, user is already friend
+                    if (child.val().sent != null) {
+
+                        //Check if request was sent or received then add to correct list
+                        if (!child.val().sent) {
+                            tempIncoming.push({
+                                username,
+                                id
+                            });
+                        } else {
+                            tempSent.push({
+                                username,
+                                id
+                            });
+                        }
+                    } else {
+                        tempFriends.push({
                             username,
                             id
                         });
                     }
-                }else {
-                    tempFriends.push({
-                        username,
-                        id
-                    });
-                }
                 });
                 that.setState({
-                    incomingRequests: tempIncoming, 
+                    incomingRequests: tempIncoming,
                     sentRequests: tempSent,
                     friendsList: tempFriends,
                     refreshing: false
@@ -86,152 +88,156 @@ export default class FriendList extends React.Component {
         this.getFriendRequests();
     }
 
-    async onAccept (username, id, index) {
-        this.setState({refreshing: true});
+    async onAccept(username, id, index) {
+        this.setState({ refreshing: true });
+        //When you click the accept button, do the function in firebase
+        new Friends(this.state.curr_id, this.state.curr_username).acceptRequest(username, id);
 
-        new Friends(this.state.curr_id,this.state.curr_username).acceptRequest(username, id);
-        
+        //Then add the user to the friends flatlist
         this.setState({
             refreshing: false,
-            friendsList: this.state.friendsList.concat({username, id}),
+            friendsList: this.state.friendsList.concat({ username, id }),
             incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
         });
     }
 
     async onRemove(sent, id, index) {
+        //Delete friends values in db
+        new Friends(this.state.curr_id, this.state.curr_username).deleteFriend(id);
 
-        new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(id);
-
-        if(sent) {
-            this.setState(function(prevState){
-                return { 
-                    sentRequests : prevState.sentRequests.filter(function(val, i) {
-                return i !== index;
-                })};
-              });
-        }else {
+        //if sent delete from sent flatlist else from incoming flatlist
+        if (sent) {
+            this.setState(function (prevState) {
+                return {
+                    sentRequests: prevState.sentRequests.filter(function (val, i) {
+                        return i !== index;
+                    })
+                };
+            });
+        } else {
             this.setState({
                 incomingRequests: this.state.incomingRequests.filter((_, i) => i !== index)
             });
         }
-        this.setState({refreshing: false});
+        this.setState({ refreshing: false });
     }
 
     async onRemoveFromFriends(id, index) {
-        new Friends(this.state.curr_id,this.state.curr_username).deleteFriend(id);
-        
-        this.setState(function(prevState){
-            return { 
-                friendsList : prevState.friendsList.filter(function(val, i) {
-            return i !== index;
-            })};
-            });
-        
-        this.setState({refreshing: false});
+        //remove friends from db
+        new Friends(this.state.curr_id, this.state.curr_username).deleteFriend(id);
+
+        //remove user from friends flatlist
+        this.setState(function (prevState) {
+            return {
+                friendsList: prevState.friendsList.filter(function (val, i) {
+                    return i !== index;
+                })
+            };
+        });
+
+        this.setState({ refreshing: false });
     }
 
-    async handleUserPress (username, id) {
-        this.props.navigation.navigate('OtherProfile', 
-                    {
-                        username,
-                        //email: item.email,
-                        uid: id,
-                    });
+    async handleUserPress(username, id) {
+        this.props.navigation.navigate('OtherProfile',
+            {
+                username,
+                uid: id,
+            });
     }
 
     render() {
         return (
-        <View style={styles.container}>
-            <View style={styles.topBar}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
-            <Text style={[{fontSize: 25, fontWeight: 'bold', color: Colors.tintColor}, styles.topText]}>Friends</Text>
-            </View>
-            <Icon.Ionicons onPress={()=> this.props.navigation.navigate('Search')} name={Platform.OS === 'ios'? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25}/>
-            </View>
-            <ScrollView 
-                style={styles.body}
-                refreshControl={
-                    <RefreshControl
-                    colors={[Colors.tintColor]}
-                    tintColor={Colors.tintColor}
-                    refreshing={this.state.refreshing}
-                    onRefresh={this.onRefresh}/>
-                }
-            ><View style={{padding: 10,}}>
-                <View style={styles.sectionHolder}>
-                <Text style={styles.text}>Friend Requests</Text>
-                <View style={styles.line}/>
-                <FlatList 
-                style={styles.flatList}
-                data={this.state.incomingRequests}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
-                    <Text style={styles.requestText}>{item.username}</Text>
-                    <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-checkmark' : 'md-checkmark'} color="green" size={30}/>
-                    </TouchableOpacity>
-                    <View style={{width: 30,}}></View>
-                    <TouchableOpacity onPress={()=>this.onRemove(false, item.id, index)}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                    </TouchableOpacity>
+            <View style={styles.container}>
+                <View style={styles.topBar}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+                        <Text style={[{ fontSize: 25, fontWeight: 'bold', color: Colors.tintColor }, styles.topText]}>Friends</Text>
                     </View>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                /></View>
+                    <Icon.Ionicons onPress={() => this.props.navigation.navigate('Search')} name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25} />
+                </View>
+                <ScrollView
+                    style={styles.body}
+                    refreshControl={
+                        <RefreshControl
+                            colors={[Colors.tintColor]}
+                            tintColor={Colors.tintColor}
+                            refreshing={this.state.refreshing}
+                            onRefresh={this.onRefresh} />
+                    }
+                ><View style={{ padding: 10, }}>
+                        <View style={styles.sectionHolder}>
+                            <Text style={styles.text}>Friend Requests</Text>
+                            <View style={styles.line} />
+                            <FlatList
+                                style={styles.flatList}
+                                data={this.state.incomingRequests}
+                                renderItem={({ item, index }) => (
+                                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
+                                        <Text style={styles.requestText}>{item.username}</Text>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <TouchableOpacity onPress={() => this.onAccept(item.username, item.id, index)}>
+                                                <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-checkmark' : 'md-checkmark'} color="green" size={30} />
+                                            </TouchableOpacity>
+                                            <View style={{ width: 30, }}></View>
+                                            <TouchableOpacity onPress={() => this.onRemove(false, item.id, index)}>
+                                                <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="red" size={30} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                            /></View>
 
-                <View style={styles.sectionHolder}>
-                <Text style={styles.text}>Friends</Text>
-                <View style={styles.line}/>
-                <FlatList 
-                style={styles.flatList}
-                data={this.state.friendsList}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity onPress={() => this.handleUserPress(item.username, item.id)}>
-                    <View style={styles.requestItem}>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                        <View style={{flexDirection: 'row'}}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-contact' : 'md-contact'} color={Colors.colorSecondary} size={30}/>
-                        <Text style={[styles.requestText, {paddingLeft: 10,}]}>{item.username}</Text>
-                        </View>
-                        <TouchableOpacity onPress={()=>this.onRemoveFromFriends(item.id, index)}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                        </TouchableOpacity>
-                        </View>
-                    </View>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                /></View>
+                        <View style={styles.sectionHolder}>
+                            <Text style={styles.text}>Friends</Text>
+                            <View style={styles.line} />
+                            <FlatList
+                                style={styles.flatList}
+                                data={this.state.friendsList}
+                                renderItem={({ item, index }) => (
+                                    <TouchableOpacity onPress={() => this.handleUserPress(item.username, item.id)}>
+                                        <View style={styles.requestItem}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-contact' : 'md-contact'} color={Colors.colorSecondary} size={30} />
+                                                    <Text style={[styles.requestText, { paddingLeft: 10, }]}>{item.username}</Text>
+                                                </View>
+                                                <TouchableOpacity onPress={() => this.onRemoveFromFriends(item.id, index)}>
+                                                    <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="red" size={30} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                            /></View>
 
-                <View style={styles.sectionHolder}>
-                <Text style={styles.text}>Sent Requests</Text>
-                <View style={styles.line}/>
-                <FlatList 
-                style={styles.flatList}
-                data={this.state.sentRequests}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
-                    <Text style={styles.requestText}>{item.username}</Text>  
-                    <TouchableOpacity onPress={()=>this.onRemove(true, item.id, index)}>
-                        <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="red" size={30}/>
-                    </TouchableOpacity>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-                /></View>
-        </View></ScrollView>
-        </View>
+                        <View style={styles.sectionHolder}>
+                            <Text style={styles.text}>Sent Requests</Text>
+                            <View style={styles.line} />
+                            <FlatList
+                                style={styles.flatList}
+                                data={this.state.sentRequests}
+                                renderItem={({ item, index }) => (
+                                    <TouchableOpacity style={styles.requestItem} onPress={() => this.handleUserPress(item.username, item.id)}>
+                                        <Text style={styles.requestText}>{item.username}</Text>
+                                        <TouchableOpacity onPress={() => this.onRemove(true, item.id, index)}>
+                                            <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="red" size={30} />
+                                        </TouchableOpacity>
+                                    </TouchableOpacity>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                            /></View>
+                    </View></ScrollView>
+            </View>
         )
     }
 }
 
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        //marginTop: 23,
     },
     topBar: {
         padding: 10,
@@ -247,14 +253,14 @@ const styles = StyleSheet.create ({
         width: '100%',
         paddingTop: 10,
         paddingBottom: 10,
-        backgroundColor:'#fff',
+        backgroundColor: '#fff',
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
     },
     flatList: {
-        flexGrow: 0, 
+        flexGrow: 0,
     },
     body: {
         backgroundColor: '#dddddd',

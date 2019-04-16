@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { createAppContainer, createSwitchNavigator, createStackNavigator, SwitchNavigator, createDrawerNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
@@ -8,10 +8,6 @@ import LoginScreen from '../screens/LoginScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 
-// Implementation of HomeScreen, OtherScreen, SignInScreen, AuthLoadingScreen
-// goes here.
-
-//const AppStack = createStackNavigator({ Home: TestScreen,});
 const AuthStack = createStackNavigator({ Welcome: WelcomeScreen, Register: RegisterScreen, Login: LoginScreen, ForgotPassword: ForgotPasswordScreen });
 
 export default createAppContainer(createSwitchNavigator(

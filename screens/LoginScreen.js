@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage, Platform } from 'react-native';
 import { AuthPages } from '../constants/Layout';
-import {Icon} from 'expo';
+import { Icon } from 'expo';
 import Colors from '../constants/Colors';
 import Logo from '../components/AppComponents/Logo';
 import firebase from "firebase";
@@ -26,6 +26,7 @@ export default class LoginScreen extends React.Component {
         AsyncStorage.setItem("user:email", this.state.email);
         //Enable network once logged in successfully
         firebase.firestore().enableNetwork();
+        //if this user document exists in firebase, save the username in local storage
         firebase.firestore().collection("users").doc(user.user.uid).get()
           .then(function (doc) {
             if (doc.exists) {
@@ -71,10 +72,10 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <View style={AuthPages.container}>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10}}>
-      <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
-      <View></View>
-      </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10 }}>
+          <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+          <View></View>
+        </View>
         <Logo header="Login" simple={true} />
         <View style={AuthPages.container}>
           <View style={AuthPages.inputContainer}>
@@ -106,9 +107,9 @@ export default class LoginScreen extends React.Component {
           <Text style={AuthPages.signUpText}>Don't have an account yet? </Text>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Register')}><Text style={AuthPages.signUpButton}>Sign Up</Text></TouchableOpacity>
         </View>
-        <TouchableOpacity style={[AuthPages.button, { marginBottom: 50 }]} onPress={this.devLogin}>
+        {/* <TouchableOpacity style={[AuthPages.button, { marginBottom: 50 }]} onPress={this.devLogin}>
           <Text style={AuthPages.buttonText}>Dev Login</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     )
   }

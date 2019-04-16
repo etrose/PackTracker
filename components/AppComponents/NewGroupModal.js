@@ -4,7 +4,6 @@ import Modal from 'react-native-modal';
 import { Icon } from 'expo';
 import Colors from '../../constants/Colors';
 import { AuthPages } from '../../constants/Layout';
-import firebase from "firebase";
 import Groups from '../../FirebaseCalls/Groups';
 
 export default class NewGroupModal extends React.Component {
@@ -22,121 +21,119 @@ export default class NewGroupModal extends React.Component {
     });
   }
 
-    _toggleModal = () =>
-      this.setState({ isModalVisible: !this.state.isModalVisible });
-    
-    async onCreatePressed() {
-      const groupName = this.state.groupName;
-    
-      if(groupName.length > 2) {
-        var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
-        if (pattern.test(groupName)) {
-          Alert.alert("Group name invalid", "Cannot contain symbols");
-          return;
-        }else {
-          const city = this.state.city;
-          const state = this.state.state;
-          var g = new Groups(this.props.id, this.props.username);
-          var b = await g.createGroup(groupName, city, state);
-          b ? this.successfulGroup(groupName) : null;
-        }
-      }else {
-        Alert.alert("Group name invalid", "Must be greater than 2 characters.");
+  _toggleModal = () =>
+    this.setState({ isModalVisible: !this.state.isModalVisible });
+
+  async onCreatePressed() {
+    const groupName = this.state.groupName;
+
+    if (groupName.length > 2) {
+      var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/); //unacceptable chars
+      if (pattern.test(groupName)) {
+        Alert.alert("Group name invalid", "Cannot contain symbols");
+        return;
+      } else {
+        const city = this.state.city;
+        const state = this.state.state;
+        var g = new Groups(this.props.id, this.props.username);
+        var b = await g.createGroup(groupName, city, state);
+        b ? this.successfulGroup(groupName) : null;
       }
+    } else {
+      Alert.alert("Group name invalid", "Must be greater than 2 characters.");
     }
+  }
 
-    async successfulGroup(groupName) {
-      this._toggleModal(); 
-      this.props.onCreated(groupName);
-    }
+  async successfulGroup(groupName) {
+    this._toggleModal();
+    this.props.onCreated(groupName);
+  }
 
-    render() {
-      return (
-        <View style={ styles.container }>
-          {/* <TouchableOpacity onPress={this._toggleModal}> */}
-          <Icon.Ionicons onPress={this._toggleModal} name={Platform.OS === 'ios'? 'ios-add' : 'md-add'} color={Colors.tintColor} size={25}/>
-          {/* </TouchableOpacity> */}
-          <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center', height: 500, }}
-            isVisible={this.state.isModalVisible}
-            onBackdropPress={this._toggleModal}>
-            <View style={styles.backgroundView}>
+  render() {
+    return (
+      <View style={styles.container}>
+        <Icon.Ionicons onPress={this._toggleModal} name={Platform.OS === 'ios' ? 'ios-add' : 'md-add'} color={Colors.tintColor} size={25} />
+        <Modal style={{ margin: 0, alignItems: 'center', justifyContent: 'center', height: 500, }}
+          isVisible={this.state.isModalVisible}
+          onBackdropPress={this._toggleModal}>
+          <View style={styles.backgroundView}>
             <View style={styles.modal}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-              <Text style={{fontSize: 20, fontWeight: 'bold'}}>{this.props.label}</Text>
-              <TouchableOpacity onPress={this._toggleModal}>
-                <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-close' : 'md-close'} color="black" size={30}/>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{this.props.label}</Text>
+                <TouchableOpacity onPress={this._toggleModal}>
+                  <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="black" size={30} />
+                </TouchableOpacity>
               </View>
 
-              <View style={{alignItems: 'center'}}>
-              <Text>Group Name</Text>
-              <View style={[AuthPages.inputContainer, {marginTop: 5}]}>
-                <TextInput style={[AuthPages.inputBox, {width: 250}]}
+              <View style={{ alignItems: 'center' }}>
+                <Text>Group Name</Text>
+                <View style={[AuthPages.inputContainer, { marginTop: 5 }]}>
+                  <TextInput style={[AuthPages.inputBox, { width: 250 }]}
                     maxLength={24}
                     underlineColorAndroid="transparent"
                     placeholder="Group Name"
                     placeholderTextColor={Colors.text}
                     onChangeText={text => this.setState({ groupName: text })}
                     ref={(input) => this.groupName = input}
-                /></View>
+                  /></View>
                 <Picker
                   selectedValue={this.state.state}
-                  style={{width: 150}}
+                  style={{ width: 150 }}
                   mode="dropdown"
                   onValueChange={(itemValue, itemIndex) =>
-                  this.setState({state: itemValue})}>
+                    this.setState({ state: itemValue })}>
                   {this.state.stateChoices.map((item, index) => {
-                    return (<Picker.Item label={item} value={index} key={index}/>) 
+                    return (<Picker.Item label={item} value={index} key={index} />)
                   })}
                 </Picker>
                 <Picker
                   selectedValue={this.state.city}
-                  style={{width: 200}}
+                  style={{ width: 200 }}
                   mode="dropdown"
                   onValueChange={(itemValue, itemIndex) =>
-                  this.setState({city: itemValue})}>
+                    this.setState({ city: itemValue })}>
                   {this.state.cityChoices.map((item, index) => {
-                    return (<Picker.Item label={item} value={item} key={item}/>) 
+                    return (<Picker.Item label={item} value={item} key={item} />)
                   })}
                 </Picker>
-                </View>
+              </View>
 
-                <TouchableOpacity style={[AuthPages.button, {width: 250}]} onPress={()=>this.onCreatePressed()}>
-                  <Text style={AuthPages.buttonText}>Create</Text>
-                </TouchableOpacity>
+              <TouchableOpacity style={[AuthPages.button, { width: 250 }]} onPress={() => this.onCreatePressed()}>
+                <Text style={AuthPages.buttonText}>Create</Text>
+              </TouchableOpacity>
             </View>
-            </View>
-          </Modal>
-        </View>
-      );
-    }
+          </View>
+        </Modal>
+      </View>
+    );
   }
-  const styles = StyleSheet.create({
-      container: {
-        flex: 1,
-        margin: 0,
-        alignItems: 'center',
-      },
-      backgroundView: {
-        width: '100%',
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 23,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-      },
-      modal: {
-        backgroundColor: '#fff', 
-        padding: 20, 
-        
-        width: "80%", 
-        borderRadius: 10,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      },
-      linkText: {
-        fontSize: 16,
-        color: Colors.colorSecondary,
-        fontWeight: 'bold',
-      },
-  });
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    margin: 0,
+    alignItems: 'center',
+  },
+  backgroundView: {
+    width: '100%',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 23,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  modal: {
+    backgroundColor: '#fff',
+    padding: 20,
+
+    width: "80%",
+    borderRadius: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 16,
+    color: Colors.colorSecondary,
+    fontWeight: 'bold',
+  },
+});

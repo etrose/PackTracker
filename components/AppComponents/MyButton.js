@@ -6,27 +6,27 @@ export default class MyButton extends React.Component {
   constructor(props) {
     super(props);
   }
- 
+
   render() {
     return (
-    <TouchableOpacity disabled={this.props.disabled} width={this.props.width} style={styles.button} onPress={this.props.onPress}>
-        <Text style={[styles.buttonText, this.props.disabled ? {backgroundColor: Colors.lightText}: {backgroundColor: Colors.tintColor}]}>{this.props.text}</Text>
-    </TouchableOpacity>
+      <TouchableOpacity disabled={this.props.disabled} width={this.props.width} style={styles.button} onPress={this.props.onPress}>
+        <Text style={[styles.buttonText, this.props.disabled ? { backgroundColor: Colors.lightText } : { backgroundColor: Colors.tintColor }]}>{this.props.text}</Text>
+      </TouchableOpacity>
     );
   }
 }
 const styles = StyleSheet.create({
-    button: {
+  button: {
 
-      },
-      buttonText: {
-        backgroundColor: Colors.tintColor,
-        borderRadius:25,
-        paddingHorizontal:16,
-        paddingVertical:4,
-        fontSize:16,
-        fontWeight:'500',
-        textAlign:'center',
-        color:Colors.buttonText,
-      },
+  },
+  buttonText: {
+    backgroundColor: Colors.tintColor,
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: Colors.buttonText,
+  },
 });

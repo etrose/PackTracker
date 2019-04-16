@@ -13,7 +13,6 @@ import GroupScreen from '../screens/GroupScreen';
 
 import ProfileScreen from '../screens/ProfileScreen';
 import DogProfileScreen from '../screens/DogProfileScreen';
-import AddDogScreen from '../screens/AddDogScreen';
 
 import SearchScreen from '../screens/SearchScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
@@ -46,7 +45,6 @@ HomeStack.navigationOptions = {
 const ProfileStack = createStackNavigator({
   Profile: ProfileScreen,
   DogProfile: DogProfileScreen,
-  AddDogProfile: AddDogScreen,
   Friends: FriendList,
   Groups: GroupList,
   GroupScreen: GroupScreen,
@@ -143,7 +141,7 @@ SocialStack.navigationOptions = {
 };
 
 export default createAppContainer(createBottomTabNavigator({
-  HomeStack,SocialStack,SearchStack,InboxStack,ProfileStack
+  HomeStack, SocialStack, SearchStack, InboxStack, ProfileStack
 }));
 
 

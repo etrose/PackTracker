@@ -52,6 +52,7 @@ export default class Profile extends React.Component {
   async componentDidMount() {
     const {navigation} = this.props;
 
+    //Get credentials from Navigation Props which will be used later in this class
     this.setState({
     pic: navigation.getParam('dogPic', require('../assets/images/smiling-dog-edit.png')),
     name: navigation.getParam('dogName', 'oof'),

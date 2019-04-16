@@ -2,21 +2,22 @@ import React from 'react';
 import firebase from "firebase";
 import 'firebase/firestore';
 
+//This class contains the Firebase Database calls that are used frequently in multiple places
 export default class Friends extends React.Component {
     constructor(curr_id, curr_username) {
         super();
-        this.state = { 
+        this.state = {
             curr_id,
             curr_username,
         };
     }
 
-    async addFriend(otherUsername, otherUserId){
-        firebase.database().ref('users/'+otherUserId+'/friends/'+this.state.curr_id).set({
+    async addFriend(otherUsername, otherUserId) {
+        firebase.database().ref('users/' + otherUserId + '/friends/' + this.state.curr_id).set({
             username: this.state.curr_username,
             sent: false,
-        }).then(()=> {
-            firebase.database().ref('users/'+this.state.curr_id+'/friends/'+otherUserId).set({
+        }).then(() => {
+            firebase.database().ref('users/' + this.state.curr_id + '/friends/' + otherUserId).set({
                 username: otherUsername,
                 sent: true,
             });
@@ -26,14 +27,14 @@ export default class Friends extends React.Component {
         });
     }
 
-    async acceptRequest(otherUsername, otherUserId){
+    async acceptRequest(otherUsername, otherUserId) {
         currUserId = this.state.curr_id;
         currUsername = this.state.curr_username;
-        firebase.database().ref('users/'+otherUserId+'/friends/'+currUserId).set({
+        firebase.database().ref('users/' + otherUserId + '/friends/' + currUserId).set({
             username: currUsername,
             sent: null,
-        }).then(()=> {
-            firebase.database().ref('users/'+currUserId+'/friends/'+otherUserId).set({
+        }).then(() => {
+            firebase.database().ref('users/' + currUserId + '/friends/' + otherUserId).set({
                 username: otherUsername,
                 sent: null,
             });
@@ -41,12 +42,11 @@ export default class Friends extends React.Component {
             const { code, message } = error;
             alert(message);
         });
-        //this.cancelRequest(currUserId, currUsername, otherUserId, otherUsername);
     }
-    
+
     async deleteFriend(otherUserId) {
-        firebase.database().ref('users/'+otherUserId+'/friends/'+this.state.curr_id).remove().then(()=> {
-            firebase.database().ref('users/'+this.state.curr_id+'/friends/'+otherUserId).remove();
+        firebase.database().ref('users/' + otherUserId + '/friends/' + this.state.curr_id).remove().then(() => {
+            firebase.database().ref('users/' + this.state.curr_id + '/friends/' + otherUserId).remove();
         }).catch(error => {
             const { code, message } = error;
             alert(message);
@@ -57,7 +57,7 @@ export default class Friends extends React.Component {
         var serialized = JSON.stringify(new Date());
 
 
-        firebase.firestore().collection('users/'+otherUserId+'/messages').add({
+        firebase.firestore().collection('users/' + otherUserId + '/messages').add({
             message,
             id: this.state.curr_id,
             username: this.state.curr_username,
@@ -69,11 +69,11 @@ export default class Friends extends React.Component {
     }
 
     async deleteMessage(messageId) {
-        firebase.firestore().doc('users/'+this.state.curr_id+'/messages/'+messageId).delete()
+        firebase.firestore().doc('users/' + this.state.curr_id + '/messages/' + messageId).delete()
             .catch(error => {
-            const { code, message } = error;
-            alert(message);
-        });
+                const { code, message } = error;
+                alert(message);
+            });
     }
 
-    }
+}

@@ -6,34 +6,34 @@ export default class Logo extends React.Component {
   constructor(props) {
     super(props);
   }
- 
+
   render() {
     return (
-      <View style= {this.props.noMargin ? styles.container : [styles.container, styles.margin]}>
-          <Image
-              style={this.props.simple ? {width:75, height:75} : {width:120, height: 120}}
-              source={
-                this.props.simple ? require('../../assets/images/logo-gray-cropped.png') : require('../../assets/images/pt_logo_1.png')
-                }
-          />
-        {this.props.header == null ? null : <Text style= {styles.logoText}>{this.props.header}</Text>}
+      <View style={this.props.noMargin ? styles.container : [styles.container, styles.margin]}>
+        <Image
+          style={this.props.simple ? { width: 75, height: 75 } : { width: 120, height: 120 }}
+          source={
+            this.props.simple ? require('../../assets/images/logo-gray-cropped.png') : require('../../assets/images/pt_logo_1.png')
+          }
+        />
+        {this.props.header == null ? null : <Text style={styles.logoText}>{this.props.header}</Text>}
       </View>
     );
   }
 }
 const styles = StyleSheet.create({
-  container : {
+  container: {
     justifyContent: 'center',
     alignItems: 'center'
   },
   margin: {
-    marginTop:30,
-    marginBottom:30 ,
+    marginTop: 30,
+    marginBottom: 30,
   },
-    logoText : {
-    padding:10,
+  logoText: {
+    padding: 10,
     fontSize: 20,
-    fontWeight:"bold",
+    fontWeight: "bold",
     color: Colors.tintColor,
   }
 });

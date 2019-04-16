@@ -6,6 +6,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import Logo from '../components/AppComponents/Logo';
+import Colors from '../constants/Colors';
 
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
@@ -13,7 +15,7 @@ export default class AuthLoadingScreen extends React.Component {
     this._bootstrapAsync();
   }
 
-  // Fetch the token from storage then navigate to our appropriate place
+  // Fetch the token from storage then navigate to the appropriate screen
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem('userToken');
 
@@ -22,17 +24,17 @@ export default class AuthLoadingScreen extends React.Component {
     this.props.navigation.navigate(userToken ? 'Main' : 'Auth');
   };
 
-  // Render any loading content that you like here
   render() {
     return (
-      <View>
+      <View style={{alignSelf: 'center'}}>
       <StatusBar
             hidden={false}
             translucent
             backgroundColor='rgb(255,153,0)'
             barStyle="light-content"
           />
-        <ActivityIndicator />
+        <Logo header="Checking Authentication.."/>
+        <ActivityIndicator color={Colors.tintColor} size='large'/>
       </View>
     );
   }

@@ -1,11 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
-import { AppLoading, Asset, Font, Icon } from 'expo';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { AppLoading } from 'expo';
 import Workaround from './Workaround';
 
 import { Constants } from 'expo';
 
 import ApiKeys from './constants/ApiKeys';
+
+import Logo from './components/AppComponents/Logo';
+import Colors from './constants/Colors';
 
 import * as firebase from 'firebase';
 import 'firebase/firestore';
@@ -22,7 +25,7 @@ export default class App extends React.Component {
       isAuthenticated: false,
     };
     //initialize Firebase, if not already initialized
-    if (!firebase.apps.length) {firebase.initializeApp(ApiKeys.FirebaseConfig); }
+    if (!firebase.apps.length) { firebase.initializeApp(ApiKeys.FirebaseConfig); }
     firebase.auth().onAuthStateChanged(this.onAuthStateChanged);
   }
 
@@ -37,33 +40,25 @@ export default class App extends React.Component {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen && !this.state.isAuthenticationReady) {
       return (
         <View style={styles.container}>
-        <AppLoading
-          startAsync={this._loadResourcesAsync}
-          onError={this._handleLoadingError}
-          onFinish={this._handleFinishLoading}
-        />
-        <ActivityIndicator size='large'/>
+          <AppLoading
+            startAsync={this._loadResourcesAsync}
+            onError={this._handleLoadingError}
+            onFinish={this._handleFinishLoading}
+          />
+          <View style={{ alignSelf: 'center' }}>
+            <Logo header="Checking Authentication.." />
+            <ActivityIndicator color={Colors.tintColor} size='large' />
+          </View>
         </View>
       );
     } else {
       return (
         <View style={styles.container}>
-          {/* <View style={styles.statusBar}/> */}
-          {/* {Platform.OS === 'ios' && <StatusBar barStyle="default" />} */}
-          {this.state.isAuthenticated ? <MainTabNavigator/> : <AppNavigator/>}
+          {this.state.isAuthenticated ? <MainTabNavigator /> : <AppNavigator />}
         </View>
       );
     }
   }
-
-  // _loadResourcesAsync = async () => {
-  //   return Promise.all([
-  //     Asset.loadAsync([
-  //       require('./assets/images/robot-dev.png'),
-  //       require('./assets/images/robot-prod.png'),
-  //     ]),
-  //   ]);
-  // };
 
   _handleLoadingError = error => {
     // In this case, you might want to report the error to your error

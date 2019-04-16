@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Buttons } from '../constants/Layout';
 import Logo from '../components/AppComponents/Logo';
 
+//This pages navigates to different Auth pages...
 class WelcomeScreen extends React.Component {
     constructor(props) {
         super(props);
