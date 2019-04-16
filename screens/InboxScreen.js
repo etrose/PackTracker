@@ -120,6 +120,7 @@ export default class InboxScreen extends React.Component {
                     }
                 ><View style={{ padding: 10, }}>
 
+                        {this.state.messageList.length == 0 ? null :
                         <View style={styles.sectionHolder}>
                             <View style={styles.separatedRow}>
                                 <Text style={styles.text}>Messages</Text>
@@ -148,7 +149,7 @@ export default class InboxScreen extends React.Component {
                                     </View>
                                 )}
                                 keyExtractor={(item, index) => index.toString()}
-                            /></View>
+                            /></View>}
 
 
                     </View></ScrollView>

@@ -8,7 +8,7 @@ import {
     FlatList,
     ScrollView,
     RefreshControl,
-    Platform
+    Platform,
 } from 'react-native';
 
 import Friends from '../FirebaseCalls/Friends';
@@ -166,6 +166,7 @@ export default class FriendList extends React.Component {
                             onRefresh={this.onRefresh} />
                     }
                 ><View style={{ padding: 10, }}>
+                        {this.state.incomingRequests.length == 0 ? null :
                         <View style={styles.sectionHolder}>
                             <Text style={styles.text}>Friend Requests</Text>
                             <View style={styles.line} />
@@ -187,8 +188,9 @@ export default class FriendList extends React.Component {
                                     </TouchableOpacity>
                                 )}
                                 keyExtractor={(item, index) => index.toString()}
-                            /></View>
+                            /></View>}
 
+                        {this.state.friendsList.length == 0 ? null :
                         <View style={styles.sectionHolder}>
                             <Text style={styles.text}>Friends</Text>
                             <View style={styles.line} />
@@ -211,8 +213,9 @@ export default class FriendList extends React.Component {
                                     </TouchableOpacity>
                                 )}
                                 keyExtractor={(item, index) => index.toString()}
-                            /></View>
+                            /></View>}
 
+                        {this.state.sentRequests.length == 0 ? null :
                         <View style={styles.sectionHolder}>
                             <Text style={styles.text}>Sent Requests</Text>
                             <View style={styles.line} />
@@ -228,7 +231,7 @@ export default class FriendList extends React.Component {
                                     </TouchableOpacity>
                                 )}
                                 keyExtractor={(item, index) => index.toString()}
-                            /></View>
+                            /></View>}
                     </View></ScrollView>
             </View>
         )
