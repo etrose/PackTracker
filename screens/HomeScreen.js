@@ -38,7 +38,7 @@ export default class HomeScreen extends React.Component {
             curr_id,
         });
 
-        //this.doLoad();
+        this.doLoad();
     }
 
     async doLoad() {

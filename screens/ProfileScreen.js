@@ -186,8 +186,8 @@ export default class Profile extends React.Component {
             </View>
 
             <View style={styles.smallContainer}>
-            <View style={{flexDirection: 'row', alignContent: 'center', justifyContent: 'space-between', width: '100%'}}>
-              <View/>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+              <View style={{width: 30}}/>
               <Text style={styles.tintText}>Dogs - {this.state.numDogs}</Text>
               <TouchableOpacity onPress={()=>this.getDogs()}>
               <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-refresh' : 'md-refresh'} color='#ddd' size={30}/>

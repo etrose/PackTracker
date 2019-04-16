@@ -40,7 +40,7 @@ export default class InboxScreen extends React.Component {
         
         const that = this;
         
-        const ref = firebase.firestore().collection("users/" + this.state.curr_id + "/messages");
+        const ref = firebase.firestore().collection("users/" + this.state.curr_id + "/messages").orderBy('timestamp', 'desc');
         ref.get().then((messages)=> {
             var messageList = [];
             messages.forEach((message)=> {
