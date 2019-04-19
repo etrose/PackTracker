@@ -159,7 +159,7 @@ export default class Profile extends React.Component {
   render() {
     return (
       <View style={styles.body}>
-
+      {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
         <View style={styles.topContainer}>
           <Text style={styles.name}>{this.state.username}</Text>
           {/* TODO: Add icon and touchable opacity where user can confirm email */}

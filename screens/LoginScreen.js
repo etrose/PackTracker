@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, AsyncStorage, Platform, KeyboardAvoidingView } from 'react-native';
 import { AuthPages } from '../constants/Layout';
 import { Icon } from 'expo';
 import Colors from '../constants/Colors';
@@ -71,7 +71,8 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      <View style={AuthPages.container}>
+      <KeyboardAvoidingView style={AuthPages.container}>
+      {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10 }}>
           <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
           <View></View>
@@ -110,7 +111,7 @@ export default class LoginScreen extends React.Component {
         {/* <TouchableOpacity style={[AuthPages.button, { marginBottom: 50 }]} onPress={this.devLogin}>
           <Text style={AuthPages.buttonText}>Dev Login</Text>
         </TouchableOpacity> */}
-      </View>
+      </KeyboardAvoidingView>
     )
   }
 }

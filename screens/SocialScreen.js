@@ -16,6 +16,7 @@ export default class SocialScreen extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+            {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
                 <Logo simple header="Social Menu" />
                 <TouchableOpacity style={Buttons.button} onPress={() => this.props.navigation.navigate('Friends')}>
                     <Text style={Buttons.buttonText}>My Friends</Text>

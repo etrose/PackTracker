@@ -172,9 +172,12 @@ export default class Profile extends React.Component {
   render() {
     return (
       <View style={styles.body}>
+      {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
         <View style={styles.topContainer}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10 }}>
-            <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()} style={{ padding: 5 }}>
+              <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+            </TouchableOpacity>
             <View></View>
           </View>
           <Text style={styles.name}>{this.state.username}</Text>

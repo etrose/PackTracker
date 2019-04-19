@@ -32,7 +32,7 @@ HomeStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-home${focused ? '' : '-outline'}`
+          ? `ios-home`
           : 'md-home'
       }
     />
@@ -59,7 +59,7 @@ ProfileStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-contact${focused ? '' : '-outline'}`
+          ? `ios-contact`
           : 'md-contact'
       }
     />
@@ -80,7 +80,7 @@ InboxStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-mail${focused ? '' : '-outline'}`
+          ? `ios-mail`
           : 'md-mail'
       }
     />
@@ -104,7 +104,7 @@ SearchStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-search${focused ? '' : '-outline'}`
+          ? `ios-search`
           : 'md-search'
       }
     />
@@ -130,7 +130,7 @@ SocialStack.navigationOptions = {
       focused={focused}
       name={
         Platform.OS === 'ios'
-          ? `ios-contacts${focused ? '' : '-outline'}`
+          ? `ios-contacts`
           : 'md-contacts'
       }
     />

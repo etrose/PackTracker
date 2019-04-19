@@ -104,6 +104,8 @@ export default class InboxScreen extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+                {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
+                
                 <View style={styles.topBar}>
 
                     <Text style={styles.topText}>Inbox</Text>

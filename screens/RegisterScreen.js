@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, View, Text, TouchableOpacity, AsyncStorage, Alert, Platform } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, AsyncStorage, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { Icon } from 'expo';
 import Logo from '../components/AppComponents/Logo';
 import Colors from '../constants/Colors';
@@ -89,7 +89,8 @@ export default class RegisterScreen extends React.Component {
 
     render() {
         return (
-            <View style={AuthPages.container}>
+            <KeyboardAvoidingView style={AuthPages.container}>
+            {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10 }}>
                     <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
                     <View></View>
@@ -151,7 +152,7 @@ export default class RegisterScreen extends React.Component {
                     <Text style={AuthPages.signUpText}>Already have an account? </Text>
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}><Text style={AuthPages.signUpButton}>Sign In</Text></TouchableOpacity>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         )
     }
 }

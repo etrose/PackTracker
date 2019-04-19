@@ -44,6 +44,7 @@ export const AuthPages = StyleSheet.create({
   button: {
     width:300,
     marginTop: 30,
+    borderRadius: 25,
   },
   buttonText: {
     //backgroundColor: 'rgba(255,255,255,.3)',
@@ -62,6 +63,7 @@ export const Buttons = StyleSheet.create({
   button: {
     width:300,
     marginTop: 30,
+    borderRadius: 25,
   },
   buttonText: {
     backgroundColor:Colors.tintColor,

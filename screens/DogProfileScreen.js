@@ -146,8 +146,11 @@ async deleteDogProfile() {
   render() {
     return (
       <View style={styles.container}>
+      {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
       <View style={styles.topBar}>
-      <Icon.Ionicons onPress={()=> this.props.navigation.goBack()} name={Platform.OS === 'ios'? 'ios-arrow-back' : 'md-arrow-back'} size={25}/>
+          <TouchableOpacity onPress={() => this.props.navigation.goBack()} style={{ padding: 5 }}>
+            <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+          </TouchableOpacity>
       <TouchableOpacity style={{paddingLeft: 15, }} onPress={()=> this._toggleSettings()}>
       
       <Icon.Ionicons name={Platform.OS === 'ios'? 'ios-more' : 'md-more'} size={30}/>
@@ -238,7 +241,7 @@ const styles = StyleSheet.create({
   header: {
     //backgroundColor: Colors.tintColor,
     backgroundColor: '#fff',
-    height: 80,
+    height: Platform.OS === 'ios' ? 120 : 80,
     elevation: 10
   },
   avatarHolder: {
@@ -247,19 +250,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     position: 'absolute',
     borderColor: "transparent",
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
     //backgroundColor: Colors.tintColor
     backgroundColor: '#fff',
   },
   avatar: {
-    width: 150,
-    height: 150,
+    width: 170,
+    height: 170,
     //borderColor: Colors.tintColor,
     borderColor: '#fff',
     borderWidth: 4,
-    borderRadius: 75,
+    borderRadius: 85,
     //marginBottom: 15,
     alignSelf: 'center',
     position: 'absolute',
@@ -274,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd'
   },
   bodyContent: {
-    marginTop: 20,
+    marginTop: Platform.OS === 'ios' ? 5 : 20,
     flex: 1,
     alignItems: 'center',
     padding: 30,

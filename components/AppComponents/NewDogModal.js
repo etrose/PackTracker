@@ -30,7 +30,11 @@ export default class NewDogModal extends React.Component {
   }
 
   registerDog = async () => {
-    const { name, breed, selectedDate, pic } = this.state;
+    var { name, breed, selectedDate, pic } = this.state;
+    if(Platform.OS === 'ios') {
+      selectedDate = ' ';
+    }
+
     //Check that all fields are filled in
     if (name.length <= 0 || selectedDate.length <= 0 || selectedDate == '-Select date-') {
       alert("Please fill out all fields.");
@@ -191,14 +195,11 @@ export default class NewDogModal extends React.Component {
                     return (<Picker.Item label={item} value={item} key={item} />)
                   })}
                 </Picker>
-                {Platform === 'ios' ?
-                  <DatePickerIOS
-                    date={this.state.selectedDate}
-                    onDateChange={(date) => this.setState({ selectedDate: date })}
-                  />
+                {Platform.OS === 'ios' ?
+                  null
                   :
                   <TouchableOpacity onPress={() => this.datePick()}>
-                    <Text style={{ padding: 10 }}>Date: {this.state.selectedDate.toString()}</Text>
+                    <Text style={{ padding: 10 }}>BirthDate: {this.state.selectedDate.toString()}</Text>
                   </TouchableOpacity>
                 }
               </View>
@@ -218,7 +219,7 @@ export default class NewDogModal extends React.Component {
       isModalVisible: false,
       name: '',
       breed: 'Other',
-      selectedDate: '-Select date-',
+      selectedDate: '-Choose-',
       pic: '',
       currId: this.props.id,
       currUser: this.props.user,

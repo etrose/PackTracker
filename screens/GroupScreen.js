@@ -197,6 +197,7 @@ export default class GroupScreen extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+            {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
                 <View>
                     <View style={styles.topBar}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

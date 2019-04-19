@@ -15,6 +15,7 @@ class WelcomeScreen extends React.Component {
     render() {
         return (
         <View style={styles.container}>
+        {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
             <Logo header="Welcome to Pack Tracker!"/>
             <TouchableOpacity style={Buttons.button} onPress={() => this.props.navigation.navigate('Login')}>
                 <Text style={Buttons.buttonText}>Login</Text>

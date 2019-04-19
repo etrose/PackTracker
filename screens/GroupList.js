@@ -79,9 +79,12 @@ export default class GroupList extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+            {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
                 <View style={styles.topBar}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Icon.Ionicons onPress={() => this.props.navigation.goBack()} name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+                        <TouchableOpacity onPress={() => this.props.navigation.goBack()} style={{padding: 5}}>
+                        <Icon.Ionicons name={Platform.OS === 'ios' ? 'ios-arrow-back' : 'md-arrow-back'} size={25} />
+                        </TouchableOpacity>
                         <Text style={[{ fontSize: 25, fontWeight: 'bold', color: Colors.tintColor }, styles.topText]}>Groups</Text>
                     </View>
                     <Icon.Ionicons onPress={() => this.props.navigation.navigate('Search')} name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} color={Colors.tintColor} size={25} />

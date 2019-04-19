@@ -179,9 +179,15 @@ export default class HomeScreen extends React.Component {
         });
     }
 
+    async onFeaturedClosed() {
+        this.setState({ featuredVisible: false });
+        this.onRefresh();
+    }
+
     render() {
         return (
             <View style={styles.container}>
+            {Platform.OS === 'ios' ?<View style={{width: '100%', height: 20}}/>:null}
                 <View style={styles.topBar}>
                     <View>
                         <Text style={styles.topText}>Home</Text>
@@ -207,7 +213,7 @@ export default class HomeScreen extends React.Component {
                             <View style={styles.postHolder}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                     <Text style={styles.listText}>Featured Post</Text>
-                                    <Icon.Ionicons onPress={() => this.setState({ featuredVisible: false })} name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="black" size={20} />
+                                    <Icon.Ionicons onPress={() => this.onFeaturedClosed()} name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} color="black" size={25} />
                                 </View>
                                 <Logo noMargin={true} />
                                 <View>
